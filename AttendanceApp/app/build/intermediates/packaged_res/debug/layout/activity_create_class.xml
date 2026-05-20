@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_blue"
+        app:titleTextColor="@color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Basic Info -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Thông tin cơ bản" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_class_name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="Tên lớp (VD: Java Android L03 2026)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_class_name"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_class_id"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="Mã lớp (VD: JavaL032026)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_class_id"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_room"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="Phòng học (VD: A101)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_room"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_description"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="Mô tả (tùy chọn)"
+                android:layout_marginBottom="16dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_description"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="2" android:maxLines="3" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Semester Dates -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Thời gian học kỳ" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="12dp">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Ngày bắt đầu" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    <TextView android:id="@+id/tv_start_date"
+                        android:layout_width="match_parent" android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_outlined_field"
+                        android:paddingHorizontal="12dp"
+                        android:text="Chọn ngày" android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Ngày kết thúc" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    <TextView android:id="@+id/tv_end_date"
+                        android:layout_width="match_parent" android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_outlined_field"
+                        android:paddingHorizontal="12dp"
+                        android:text="Chọn ngày" android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Schedule Days -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Ngày học trong tuần" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_schedule"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:singleSelection="false">
+                <com.google.android.material.chip.Chip android:id="@+id/chip_mon"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T2" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_tue"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T3" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_wed"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T4" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_thu"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T5" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_fri"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T6" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_sat"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="T7" app:chipBackgroundColor="@color/divider" />
+                <com.google.android.material.chip.Chip android:id="@+id/chip_sun"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="CN" app:chipBackgroundColor="@color/divider" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Class Time -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Giờ học" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="16dp">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Giờ bắt đầu" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    <TextView android:id="@+id/tv_start_time"
+                        android:layout_width="match_parent" android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_outlined_field"
+                        android:paddingHorizontal="12dp"
+                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Giờ kết thúc" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    <TextView android:id="@+id/tv_end_time"
+                        android:layout_width="match_parent" android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_outlined_field"
+                        android:paddingHorizontal="12dp"
+                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Preview -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#E3F2FD"
+                app:cardCornerRadius="8dp" app:cardElevation="0dp">
+                <TextView android:id="@+id/tv_shift_preview"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text=""
+                    android:textSize="13sp" android:textColor="@color/primary_dark" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Create Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_create"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:text="TẠO LỚP HỌC"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primary_blue"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <FrameLayout android:id="@+id/loading_overlay"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="@color/overlay_dark" android:visibility="gone">
+        <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+</LinearLayout>

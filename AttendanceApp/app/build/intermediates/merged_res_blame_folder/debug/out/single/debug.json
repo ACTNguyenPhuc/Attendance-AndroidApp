@@ -1,0 +1,202 @@
+[
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\mipmap_ic_launcher.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\mipmap\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_calendar.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_calendar.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_student.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_student.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_info_banner.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_info_banner.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_circle_primary.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_circle_primary.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_create_class.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_create_class.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_student_class_list.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_student_class_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_students_tab.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_students_tab.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_circle_white_border.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_circle_white_border.xml"
+    },
+    {
+        "merged": "com.example.attendanceapplication.app-merged_res-53:/layout_fragment_students_tab.xml.flat",
+        "source": "com.example.attendanceapplication.app-main-55:/layout/fragment_students_tab.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_class_detail_student.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_class_detail_student.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_dialog_class_qr.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\dialog_class_qr.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_attendance_result.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_attendance_result.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_badge_green.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_badge_green.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\menu_menu_student_bottom_nav.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\menu\\menu_student_bottom_nav.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_shift_detail.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_shift_detail.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_student_main.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_student_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_student_dashboard.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_student_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_btn_green.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_btn_green.xml"
+    },
+    {
+        "merged": "com.example.attendanceapplication.app-merged_res-53:/layout_dialog_add_student.xml.flat",
+        "source": "com.example.attendanceapplication.app-main-55:/layout/dialog_add_student.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_login.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_login.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_date_block.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_date_block.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_teacher_dashboard.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_teacher_dashboard.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_attendance_history.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_attendance_history.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\menu_menu_teacher_bottom_nav.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\menu\\menu_teacher_bottom_nav.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_profile.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_profile.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_class_detail_teacher.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_class_detail_teacher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_stats_tab.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_stats_tab.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_badge_white_outline.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_badge_white_outline.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_attendance.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_attendance.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\mipmap_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\mipmap\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_session_management.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_session_management.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_student_calendar.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_student_calendar.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_outlined_field.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_outlined_field.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_card_translucent.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_card_translucent.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_join_class.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_join_class.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_register.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_register.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_bottom_sheet_join_class.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\bottom_sheet_join_class.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_shift_agenda.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_agenda.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_shifts_tab.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_shifts_tab.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_gradient_primary.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_gradient_primary.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_splash.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_splash.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_class_card.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_class_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_shift_teacher.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_teacher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\drawable_bg_search_field.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\drawable\\bg_search_field.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_teacher_class_list.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_teacher_class_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_item_shift_student.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_student.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_fragment_attendance_history.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_attendance_history.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_scan_attendance.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_scan_attendance.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-merged_res-53:\\layout_activity_teacher_main.xml.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_teacher_main.xml"
+    }
+]

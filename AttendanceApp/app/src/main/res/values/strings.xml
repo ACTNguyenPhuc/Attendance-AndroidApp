@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">QR Attendance</string>
+    <string name="app_tagline">Điểm danh thông minh - Chống gian lận hiệu quả</string>
+
+    <!-- Auth -->
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="email_hint">Email của bạn</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="register_redirect">Đăng ký tài khoản mới</string>
+    <string name="login_redirect">Đã có tài khoản? Đăng nhập ngay</string>
+    <string name="welcome_back">Chào mừng trở lại</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục</string>
+
+    <!-- Teacher -->
+    <string name="teacher_dashboard">Trang chủ</string>
+    <string name="my_classes">Lớp học của tôi</string>
+    <string name="create_class">Tạo lớp học mới</string>
+    <string name="class_name_hint">VD: Java Android L03 2026</string>
+    <string name="class_id_hint">VD: JavaL032026</string>
+    <string name="today_sessions">Buổi học hôm nay</string>
+    <string name="open_attendance">Mở điểm danh</string>
+    <string name="close_session">Đóng phiên điểm danh</string>
+    <string name="refresh_qr">🔄 Làm mới QR</string>
+    <string name="realtime_list">Danh sách điểm danh</string>
+
+    <!-- Student -->
+    <string name="student_dashboard">Trang chủ</string>
+    <string name="join_class">Tham gia lớp học</string>
+    <string name="scan_attendance">Điểm danh</string>
+    <string name="timetable">Thời khóa biểu</string>
+    <string name="attendance_history">Lịch sử điểm danh</string>
+    <string name="attend_now">📷 Điểm danh ngay</string>
+
+    <!-- Status -->
+    <string name="status_present">Đã điểm danh</string>
+    <string name="status_absent">Vắng mặt</string>
+    <string name="status_late">Muộn</string>
+    <string name="status_not_checked">Chưa điểm danh</string>
+    <string name="status_upcoming">Sắp diễn ra</string>
+    <string name="status_ongoing">Đang diễn ra</string>
+    <string name="status_completed">Đã kết thúc</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_email">Địa chỉ email không hợp lệ</string>
+    <string name="error_wrong_credentials">Email hoặc mật khẩu không đúng</string>
+    <string name="error_empty_name">Vui lòng nhập họ và tên</string>
+    <string name="error_empty_code">Vui lòng nhập mã số</string>
+    <string name="error_password_short">Mật khẩu tối thiểu 6 ký tự</string>
+    <string name="error_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="error_outside_gps">Bạn không ở gần lớp học</string>
+    <string name="error_qr_expired">Mã QR đã hết hiệu lực, liên hệ giảng viên</string>
+    <string name="error_already_attended">Bạn đã điểm danh buổi học này rồi</string>
+    <string name="success_attended">ĐIỂM DANH THÀNH CÔNG</string>
+
+    <!-- Profile -->
+    <string name="profile">Hồ sơ</string>
+    <string name="role_teacher">GIẢNG VIÊN</string>
+    <string name="role_student">SINH VIÊN</string>
+    <string name="change_password">Đổi mật khẩu</string>
+    <string name="about_app">Về ứng dụng</string>
+    <string name="app_version">Version 1.0.0</string>
+
+    <!-- GPS -->
+    <string name="gps_fetching">📍 Đang lấy vị trí…</string>
+    <string name="gps_ready">✅ Vị trí đã sẵn sàng</string>
+    <string name="qr_instruction">Hướng camera vào mã QR của giảng viên</string>
+    <string name="join_qr_instruction">Đưa mã QR vào khung hình để tham gia lớp</string>
+</resources>

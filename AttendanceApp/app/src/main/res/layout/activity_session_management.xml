@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_blue"
+        app:titleTextColor="@color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Session Status -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:id="@+id/tv_shift_info"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Buổi học" android:textSize="18sp" android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                    <TextView android:id="@+id/tv_session_status"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="ĐANG MỞ ĐIỂM DANH"
+                        android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/accent_green"
+                        android:background="@drawable/bg_badge_green"
+                        android:paddingHorizontal="10dp" android:paddingVertical="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- QR Code Display -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/iv_qr_code"
+                        android:layout_width="240dp"
+                        android:layout_height="240dp"
+                        android:contentDescription="QR Code"
+                        android:padding="8dp"
+                        android:background="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Yêu cầu sinh viên quét mã này"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_refresh_qr"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="🔄 Làm mới QR"
+                        android:textColor="@color/primary_blue"
+                        app:strokeColor="@color/primary_blue" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Realtime Attendance List -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_attendance_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Đã điểm danh: 0/0 sinh viên"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_attendance"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Close Session Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_close_session"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_margin="16dp"
+        android:text="ĐÓNG PHIÊN ĐIỂM DANH"
+        android:textStyle="bold"
+        app:backgroundTint="@color/error_red"
+        app:cornerRadius="8dp" />
+
+</LinearLayout>

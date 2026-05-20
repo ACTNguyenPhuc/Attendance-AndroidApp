@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent_green">#2E7D32</color>
+    <color name="background">#F5F5F5</color>
+    <color name="black">#000000</color>
+    <color name="card_surface">#FFFFFF</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="error_red">#C62828</color>
+    <color name="overlay_dark">#80000000</color>
+    <color name="primary_blue">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="primary_light">#1E88E5</color>
+    <color name="status_bar_color">#1565C0</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="transparent">#00000000</color>
+    <color name="warning_yellow">#F57F17</color>
+    <color name="white">#FFFFFF</color>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="avatar_large">80dp</dimen>
+    <dimen name="avatar_size">48dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_radius">12dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="header_height">200dp</dimen>
+    <dimen name="item_spacing">8dp</dimen>
+    <dimen name="qr_size">240dp</dimen>
+    <dimen name="text_size_body">16sp</dimen>
+    <dimen name="text_size_caption">12sp</dimen>
+    <dimen name="text_size_display">24sp</dimen>
+    <dimen name="text_size_label">11sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_subtitle">18sp</dimen>
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <string name="about_app">Về ứng dụng</string>
+    <string name="app_name">QR Attendance</string>
+    <string name="app_tagline">Điểm danh thông minh - Chống gian lận hiệu quả</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="attend_now">📷 Điểm danh ngay</string>
+    <string name="attendance_history">Lịch sử điểm danh</string>
+    <string name="change_password">Đổi mật khẩu</string>
+    <string name="class_id_hint">VD: JavaL032026</string>
+    <string name="class_name_hint">VD: Java Android L03 2026</string>
+    <string name="close_session">Đóng phiên điểm danh</string>
+    <string name="create_class">Tạo lớp học mới</string>
+    <string name="email_hint">Email của bạn</string>
+    <string name="error_already_attended">Bạn đã điểm danh buổi học này rồi</string>
+    <string name="error_empty_code">Vui lòng nhập mã số</string>
+    <string name="error_empty_name">Vui lòng nhập họ và tên</string>
+    <string name="error_invalid_email">Địa chỉ email không hợp lệ</string>
+    <string name="error_outside_gps">Bạn không ở gần lớp học</string>
+    <string name="error_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="error_password_short">Mật khẩu tối thiểu 6 ký tự</string>
+    <string name="error_qr_expired">Mã QR đã hết hiệu lực, liên hệ giảng viên</string>
+    <string name="error_wrong_credentials">Email hoặc mật khẩu không đúng</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="gcm_defaultSenderId" translatable="false">79921855292</string>
+    <string name="google_api_key" translatable="false">AIzaSyAGj61SoNz-oItL8V33g66-WTc9fd3UuDE</string>
+    <string name="google_app_id" translatable="false">1:79921855292:android:acae5235214970a01d3c39</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAGj61SoNz-oItL8V33g66-WTc9fd3UuDE</string>
+    <string name="google_storage_bucket" translatable="false">attendance-297e6.firebasestorage.app</string>
+    <string name="gps_fetching">📍 Đang lấy vị trí…</string>
+    <string name="gps_ready">✅ Vị trí đã sẵn sàng</string>
+    <string name="join_class">Tham gia lớp học</string>
+    <string name="join_qr_instruction">Đưa mã QR vào khung hình để tham gia lớp</string>
+    <string name="login">Đăng nhập</string>
+    <string name="login_redirect">Đã có tài khoản? Đăng nhập ngay</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="my_classes">Lớp học của tôi</string>
+    <string name="open_attendance">Mở điểm danh</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="profile">Hồ sơ</string>
+    <string name="project_id" translatable="false">attendance-297e6</string>
+    <string name="qr_instruction">Hướng camera vào mã QR của giảng viên</string>
+    <string name="realtime_list">Danh sách điểm danh</string>
+    <string name="refresh_qr">🔄 Làm mới QR</string>
+    <string name="register">Đăng ký</string>
+    <string name="register_redirect">Đăng ký tài khoản mới</string>
+    <string name="role_student">SINH VIÊN</string>
+    <string name="role_teacher">GIẢNG VIÊN</string>
+    <string name="scan_attendance">Điểm danh</string>
+    <string name="status_absent">Vắng mặt</string>
+    <string name="status_completed">Đã kết thúc</string>
+    <string name="status_late">Muộn</string>
+    <string name="status_not_checked">Chưa điểm danh</string>
+    <string name="status_ongoing">Đang diễn ra</string>
+    <string name="status_present">Đã điểm danh</string>
+    <string name="status_upcoming">Sắp diễn ra</string>
+    <string name="student_dashboard">Trang chủ</string>
+    <string name="success_attended">ĐIỂM DANH THÀNH CÔNG</string>
+    <string name="teacher_dashboard">Trang chủ</string>
+    <string name="timetable">Thời khóa biểu</string>
+    <string name="today_sessions">Buổi học hôm nay</string>
+    <string name="welcome_back">Chào mừng trở lại</string>
+    <style name="StatusBadge">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+    <style name="Theme.AttendanceApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/primary_light</item>
+        <item name="colorSecondaryVariant">@color/primary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.AttendanceApp.NoActionBar" parent="Theme.AttendanceApp">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.AttendanceApp.Splash" parent="Theme.AttendanceApp">
+        <item name="android:windowBackground">@color/primary_blue</item>
+        <item name="android:statusBarColor">@color/primary_blue</item>
+    </style>
+    <style name="Widget.AttendanceApp.Button.Danger" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/error_red</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+    <style name="Widget.AttendanceApp.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/primary_blue</item>
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+    <style name="Widget.AttendanceApp.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary_blue</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+    <style name="Widget.AttendanceApp.Button.Success" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/accent_green</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+    <style name="Widget.AttendanceApp.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardBackgroundColor">@color/card_surface</item>
+    </style>
+    <style name="Widget.AttendanceApp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary_blue</item>
+        <item name="hintTextColor">@color/primary_blue</item>
+    </style>
+</resources>

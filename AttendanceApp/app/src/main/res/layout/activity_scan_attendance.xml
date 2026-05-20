@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/black">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary_blue"
+        app:titleTextColor="@color/white" />
+
+    <!-- GPS Status Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_dark"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/tv_gps_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📍 Đang lấy vị trí..."
+            android:textColor="@color/warning_yellow"
+            android:textSize="13sp"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Scanner Container -->
+    <FrameLayout
+        android:id="@+id/scanner_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.journeyapps.barcodescanner.DecoratedBarcodeView
+            android:id="@+id/barcode_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="Hướng camera vào mã QR của giảng viên"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="#80000000"
+            android:padding="10dp" />
+    </FrameLayout>
+
+    <!-- Processing Overlay -->
+    <LinearLayout
+        android:id="@+id/processing_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/overlay_dark"
+        android:visibility="gone"
+        android:padding="32dp">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/white" />
+
+        <TextView android:id="@+id/tv_step1"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="⟳ Đọc mã QR..." android:textColor="@color/white" android:textSize="16sp" />
+
+        <TextView android:id="@+id/tv_step2"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="⟳ Đang lấy vị trí GPS..." android:textColor="@color/text_secondary" android:textSize="16sp" />
+
+        <TextView android:id="@+id/tv_step3"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="⟳ Đang xác minh..." android:textColor="@color/text_secondary" android:textSize="16sp" />
+    </LinearLayout>
+
+</LinearLayout>

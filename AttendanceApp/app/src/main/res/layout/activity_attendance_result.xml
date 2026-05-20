@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_result"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/tv_result_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="ĐIỂM DANH THÀNH CÔNG"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/accent_green"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tv_result_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="18:04:32"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <TextView
+        android:id="@+id/tv_result_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Bạn cách lớp 18m"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary" />
+
+    <TextView
+        android:id="@+id/tv_result_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="@color/error_red"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Tự động đóng sau 3 giây..."
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary" />
+
+</LinearLayout>
