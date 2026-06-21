@@ -18,6 +18,7 @@
         android:background="@color/white"
         app:itemIconTint="@color/primary_blue"
         app:itemTextColor="@color/primary_blue"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_teacher_bottom_nav" />
 
 </LinearLayout>

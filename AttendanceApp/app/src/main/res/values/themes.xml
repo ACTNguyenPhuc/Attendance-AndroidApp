@@ -61,6 +61,12 @@
         <item name="hintTextColor">@color/primary_blue</item>
     </style>
 
+    <!-- Compact tab label (icon + title trên cùng 1 dòng) -->
+    <style name="TabTextCompact" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">12sp</item>
+        <item name="textAllCaps">true</item>
+    </style>
+
     <!-- Status badge styles -->
     <style name="StatusBadge">
         <item name="android:textSize">11sp</item>

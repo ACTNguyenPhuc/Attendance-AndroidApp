@@ -158,8 +158,20 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                                 showError("Bạn đã điểm danh buổi học này rồi");
                                 return;
                             }
-                            // Step 2: Get GPS
-                            getLocationAndVerify(session, studentId);
+                            // Anti-cheat: mỗi thiết bị chỉ điểm danh được 1 lần trong mỗi buổi học,
+                            // chống việc dùng chung 1 máy để điểm danh hộ nhiều người.
+                            String deviceId = Settings.Secure.getString(getContentResolver(),
+                                    Settings.Secure.ANDROID_ID);
+                            repo.checkDeviceUsedInShift(session.getShiftId(), deviceId, studentId,
+                                    deviceUsed -> {
+                                        if (deviceUsed) {
+                                            showError("Thiết bị này đã được dùng để điểm danh "
+                                                    + "cho buổi học này");
+                                            return;
+                                        }
+                                        // Step 2: Get GPS
+                                        getLocationAndVerify(session, studentId);
+                                    });
                         });
                     },
                     e -> showError("Không tìm thấy phiên điểm danh")
@@ -206,6 +218,15 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         String deviceId = Settings.Secure.getString(getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
+        // Plan A: on-time if checked in within `lateAfterMinutes` of when the
+        // teacher opened the session; otherwise marked late.
+        boolean isLate = false;
+        if (session.getStartTime() != null) {
+            long elapsedMin = (System.currentTimeMillis()
+                    - session.getStartTime().toDate().getTime()) / 60000L;
+            isLate = elapsedMin > session.getLateAfterMinutes();
+        }
+
         Attendance attendance = new Attendance();
         attendance.setStudentId(studentId);
         attendance.setSessionId(session.getSessionId());
@@ -214,16 +235,18 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         attendance.setLatitude(lat);
         attendance.setLongitude(lng);
         attendance.setDistance(distance);
-        attendance.setStatus(Attendance.STATUS_PRESENT);
+        attendance.setStatus(isLate ? Attendance.STATUS_LATE : Attendance.STATUS_PRESENT);
         attendance.setDeviceId(deviceId);
         attendance.setFaceVerified(false);
 
+        final boolean finalIsLate = isLate;
         repo.saveAttendance(attendance,
                 aVoid -> {
                     // Navigate to success screen
                     Intent intent = new Intent(this, AttendanceResultActivity.class);
                     intent.putExtra(AttendanceResultActivity.EXTRA_SUCCESS, true);
                     intent.putExtra(AttendanceResultActivity.EXTRA_DISTANCE, (float) distance);
+                    intent.putExtra(AttendanceResultActivity.EXTRA_LATE, finalIsLate);
                     startActivity(intent);
                     finish();
                 },

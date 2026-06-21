@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Button;
+import android.content.res.ColorStateList;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -22,12 +24,20 @@ public class ShiftAgendaAdapter extends RecyclerView.Adapter<ShiftAgendaAdapter.
         void onClick(Shift shift);
     }
 
+    public interface OnShiftActionListener {
+        void onAction(Shift shift);
+    }
+
     private final List<Shift> shiftList;
     private final OnShiftClickListener listener;
+    private final OnShiftActionListener actionListener;
 
-    public ShiftAgendaAdapter(List<Shift> shiftList, OnShiftClickListener listener) {
+    public ShiftAgendaAdapter(List<Shift> shiftList,
+                              OnShiftClickListener listener,
+                              OnShiftActionListener actionListener) {
         this.shiftList = shiftList;
         this.listener = listener;
+        this.actionListener = actionListener;
     }
 
     @NonNull
@@ -44,25 +54,42 @@ public class ShiftAgendaAdapter extends RecyclerView.Adapter<ShiftAgendaAdapter.
         Context ctx = holder.itemView.getContext();
 
         holder.tvClassName.setText(shift.getClassName() != null ? shift.getClassName() : shift.getTitle());
-        holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
+        holder.tvTimeStart.setText(shift.getStartAt() != null ? shift.getStartAt() : "");
+        holder.tvTimeEnd.setText(shift.getEndAt() != null ? shift.getEndAt() : "");
         holder.tvRoom.setText(shift.getRoom() != null ? "Phòng: " + shift.getRoom() : "");
-        holder.tvStatus.setText(getStatusText(shift.getStatus()));
-        holder.tvStatus.setTextColor(getStatusColor(ctx, shift.getStatus()));
-
-        // Attendance status indicator
-        String attStatus = shift.getAttendanceStatus();
-        if ("present".equals(attStatus)) {
-            holder.tvAttStatus.setText("✅ Đã điểm danh");
-            holder.tvAttStatus.setTextColor(ContextCompat.getColor(ctx, R.color.accent_green));
-        } else if ("absent".equals(attStatus)) {
-            holder.tvAttStatus.setText("❌ Vắng mặt");
-            holder.tvAttStatus.setTextColor(ContextCompat.getColor(ctx, R.color.error_red));
+        holder.tvTeacher.setText(shift.getTeacherName() != null ? "Giảng viên: " + shift.getTeacherName() : "");
+        // "Sắp diễn ra" only shows when the shift is within 1 day from today.
+        boolean hideUpcoming = Shift.STATUS_UPCOMING.equals(shift.getStatus())
+                && !com.example.attendanceapplication.utils.AttendanceUtils
+                        .shouldShowUpcomingBadge(shift.getDate());
+        if (hideUpcoming) {
+            holder.tvStatus.setVisibility(View.GONE);
         } else {
-            holder.tvAttStatus.setText("⏳ Chưa điểm danh");
-            holder.tvAttStatus.setTextColor(ContextCompat.getColor(ctx, R.color.warning_yellow));
+            holder.tvStatus.setVisibility(View.VISIBLE);
+            holder.tvStatus.setText(getStatusText(shift.getStatus()));
+            holder.tvStatus.setTextColor(getStatusColor(ctx, shift.getStatus()));
         }
 
-        holder.card.setOnClickListener(v -> listener.onClick(shift));
+        int statusColor = getStatusColor(ctx, shift.getStatus());
+        holder.viewLine.setBackgroundColor(statusColor);
+        holder.viewDot.setBackgroundTintList(ColorStateList.valueOf(statusColor));
+
+        if (shift.isAttendanceOpened()) {
+            holder.btnAttendNow.setVisibility(View.VISIBLE);
+            holder.btnAttendNow.setOnClickListener(v -> {
+                if (actionListener != null) actionListener.onAction(shift);
+            });
+        } else {
+            holder.btnAttendNow.setVisibility(View.GONE);
+        }
+
+        holder.card.setOnClickListener(v -> {
+            if (shift.isAttendanceOpened() && actionListener != null) {
+                actionListener.onAction(shift);
+                return;
+            }
+            if (listener != null) listener.onClick(shift);
+        });
     }
 
     private String getStatusText(String status) {
@@ -89,16 +116,22 @@ public class ShiftAgendaAdapter extends RecyclerView.Adapter<ShiftAgendaAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView card;
-        TextView tvClassName, tvTime, tvRoom, tvStatus, tvAttStatus;
+        TextView tvClassName, tvTimeStart, tvTimeEnd, tvRoom, tvTeacher, tvStatus;
+        View viewDot, viewLine;
+        Button btnAttendNow;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             card        = itemView.findViewById(R.id.card_shift);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
-            tvTime      = itemView.findViewById(R.id.tv_time);
+            tvTimeStart = itemView.findViewById(R.id.tv_time_start);
+            tvTimeEnd   = itemView.findViewById(R.id.tv_time_end);
             tvRoom      = itemView.findViewById(R.id.tv_room);
+            tvTeacher   = itemView.findViewById(R.id.tv_teacher);
             tvStatus    = itemView.findViewById(R.id.tv_status);
-            tvAttStatus = itemView.findViewById(R.id.tv_att_status);
+            viewDot     = itemView.findViewById(R.id.view_dot);
+            viewLine    = itemView.findViewById(R.id.view_line);
+            btnAttendNow = itemView.findViewById(R.id.btn_attend_now);
         }
     }
 }

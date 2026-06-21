@@ -40,14 +40,19 @@
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Buổi học" android:textSize="18sp" android:textStyle="bold"
                         android:textColor="@color/text_primary" />
-                    <TextView android:id="@+id/tv_session_status"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+
+                    <TextView
+                        android:id="@+id/tv_session_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="ĐANG MỞ ĐIỂM DANH"
-                        android:textSize="13sp" android:textStyle="bold"
-                        android:textColor="@color/accent_green"
                         android:background="@drawable/bg_badge_green"
-                        android:paddingHorizontal="10dp" android:paddingVertical="4dp" />
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
+                        android:text="ĐANG MỞ ĐIỂM DANH"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

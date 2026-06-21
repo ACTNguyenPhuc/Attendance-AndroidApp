@@ -25,18 +25,26 @@ public final class FragmentStudentCalendarBinding implements ViewBinding {
   public final MaterialCalendarView calendarView;
 
   @NonNull
+  public final LinearLayout emptyState;
+
+  @NonNull
   public final RecyclerView rvAgenda;
 
   @NonNull
   public final TextView tvSelectedDate;
 
+  @NonNull
+  public final TextView tvTitle;
+
   private FragmentStudentCalendarBinding(@NonNull LinearLayout rootView,
-      @NonNull MaterialCalendarView calendarView, @NonNull RecyclerView rvAgenda,
-      @NonNull TextView tvSelectedDate) {
+      @NonNull MaterialCalendarView calendarView, @NonNull LinearLayout emptyState,
+      @NonNull RecyclerView rvAgenda, @NonNull TextView tvSelectedDate, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.calendarView = calendarView;
+    this.emptyState = emptyState;
     this.rvAgenda = rvAgenda;
     this.tvSelectedDate = tvSelectedDate;
+    this.tvTitle = tvTitle;
   }
 
   @Override
@@ -72,6 +80,12 @@ public final class FragmentStudentCalendarBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.empty_state;
+      LinearLayout emptyState = ViewBindings.findChildViewById(rootView, id);
+      if (emptyState == null) {
+        break missingId;
+      }
+
       id = R.id.rv_agenda;
       RecyclerView rvAgenda = ViewBindings.findChildViewById(rootView, id);
       if (rvAgenda == null) {
@@ -84,8 +98,14 @@ public final class FragmentStudentCalendarBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentStudentCalendarBinding((LinearLayout) rootView, calendarView, rvAgenda,
-          tvSelectedDate);
+      id = R.id.tv_title;
+      TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvTitle == null) {
+        break missingId;
+      }
+
+      return new FragmentStudentCalendarBinding((LinearLayout) rootView, calendarView, emptyState,
+          rvAgenda, tvSelectedDate, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

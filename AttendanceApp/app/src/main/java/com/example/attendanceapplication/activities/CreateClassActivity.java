@@ -2,6 +2,8 @@ package com.example.attendanceapplication.activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.ClassModel;
@@ -25,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CreateClassActivity extends AppCompatActivity {
+
+    public static final String EXTRA_CREATED_CLASS_ID = "createdClassId";
 
     private TextInputEditText etClassName, etClassId, etDescription, etRoom;
     private TextView tvStartDate, tvEndDate, tvStartTime, tvEndTime, tvShiftPreview;
@@ -47,7 +52,10 @@ public class CreateClassActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Tạo lớp học mới");
         }
-
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         initViews();
         setupListeners();
     }
@@ -177,6 +185,14 @@ public class CreateClassActivity extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!isEndDateAfterStartDate()) {
+            Toast.makeText(this, "Ngày kết thúc phải sau ngày bắt đầu", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!isEndTimeAfterStartTime()) {
+            Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+            return;
+        }
         List<Integer> schedule = getSelectedSchedule();
         if (schedule.isEmpty()) {
             Toast.makeText(this, "Vui lòng chọn ngày học trong tuần", Toast.LENGTH_SHORT).show();
@@ -207,7 +223,7 @@ public class CreateClassActivity extends AppCompatActivity {
                             id -> {
                                 loadingOverlay.setVisibility(View.GONE);
                                 Toast.makeText(this, "Tạo lớp học thành công!", Toast.LENGTH_SHORT).show();
-                                finish();
+                                finishWithCreatedClass(id);
                             },
                             e -> {
                                 loadingOverlay.setVisibility(View.GONE);
@@ -234,7 +250,7 @@ public class CreateClassActivity extends AppCompatActivity {
                             id -> {
                                 loadingOverlay.setVisibility(View.GONE);
                                 Toast.makeText(this, "Tạo lớp học thành công!", Toast.LENGTH_SHORT).show();
-                                finish();
+                                finishWithCreatedClass(id);
                             },
                             err -> {
                                 loadingOverlay.setVisibility(View.GONE);
@@ -244,5 +260,37 @@ public class CreateClassActivity extends AppCompatActivity {
                     );
                 }
         );
+    }
+
+    /** Ngày kết thúc phải sau ngày bắt đầu (strictly after). */
+    private boolean isEndDateAfterStartDate() {
+        try {
+            Date start = sdf.parse(startDate);
+            Date end   = sdf.parse(endDate);
+            return start != null && end != null && end.after(start);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Giờ kết thúc phải sau giờ bắt đầu (strictly after). */
+    private boolean isEndTimeAfterStartTime() {
+        return toMinutes(endAt) > toMinutes(startAt);
+    }
+
+    private int toMinutes(String time) {
+        try {
+            String[] p = time.split(":");
+            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private void finishWithCreatedClass(String classId) {
+        Intent result = new Intent();
+        result.putExtra(EXTRA_CREATED_CLASS_ID, classId);
+        setResult(RESULT_OK, result);
+        finish();
     }
 }

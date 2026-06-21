@@ -5,19 +5,46 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
+import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import java.lang.NullPointerException;
 import java.lang.Override;
+import java.lang.String;
 
 public final class FragmentCalendarBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
 
-  private FragmentCalendarBinding(@NonNull LinearLayout rootView) {
+  @NonNull
+  public final MaterialCalendarView calendarView;
+
+  @NonNull
+  public final LinearLayout emptyState;
+
+  @NonNull
+  public final RecyclerView rvAgenda;
+
+  @NonNull
+  public final TextView tvSelectedDate;
+
+  @NonNull
+  public final TextView tvTitle;
+
+  private FragmentCalendarBinding(@NonNull LinearLayout rootView,
+      @NonNull MaterialCalendarView calendarView, @NonNull LinearLayout emptyState,
+      @NonNull RecyclerView rvAgenda, @NonNull TextView tvSelectedDate, @NonNull TextView tvTitle) {
     this.rootView = rootView;
+    this.calendarView = calendarView;
+    this.emptyState = emptyState;
+    this.rvAgenda = rvAgenda;
+    this.tvSelectedDate = tvSelectedDate;
+    this.tvTitle = tvTitle;
   }
 
   @Override
@@ -43,10 +70,44 @@ public final class FragmentCalendarBinding implements ViewBinding {
 
   @NonNull
   public static FragmentCalendarBinding bind(@NonNull View rootView) {
-    if (rootView == null) {
-      throw new NullPointerException("rootView");
-    }
+    // The body of this method is generated in a way you would not otherwise write.
+    // This is done to optimize the compiled bytecode for size and performance.
+    int id;
+    missingId: {
+      id = R.id.calendar_view;
+      MaterialCalendarView calendarView = ViewBindings.findChildViewById(rootView, id);
+      if (calendarView == null) {
+        break missingId;
+      }
 
-    return new FragmentCalendarBinding((LinearLayout) rootView);
+      id = R.id.empty_state;
+      LinearLayout emptyState = ViewBindings.findChildViewById(rootView, id);
+      if (emptyState == null) {
+        break missingId;
+      }
+
+      id = R.id.rv_agenda;
+      RecyclerView rvAgenda = ViewBindings.findChildViewById(rootView, id);
+      if (rvAgenda == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_selected_date;
+      TextView tvSelectedDate = ViewBindings.findChildViewById(rootView, id);
+      if (tvSelectedDate == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_title;
+      TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvTitle == null) {
+        break missingId;
+      }
+
+      return new FragmentCalendarBinding((LinearLayout) rootView, calendarView, emptyState,
+          rvAgenda, tvSelectedDate, tvTitle);
+    }
+    String missingId = rootView.getResources().getResourceName(id);
+    throw new NullPointerException("Missing required view with ID: ".concat(missingId));
   }
 }

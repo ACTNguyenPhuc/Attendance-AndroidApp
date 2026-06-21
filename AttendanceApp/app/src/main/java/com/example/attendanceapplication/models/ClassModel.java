@@ -68,7 +68,8 @@ public class ClassModel {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < schedule.size(); i++) {
             if (i > 0) sb.append(" + ");
-            sb.append("T").append(schedule.get(i));
+            int dayOfWeek = schedule.get(i);
+            sb.append(dayOfWeek == 8 ? "CN" : "T" + dayOfWeek);
         }
         return sb.toString();
     }

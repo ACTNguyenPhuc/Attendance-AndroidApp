@@ -4,10 +4,12 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
@@ -17,7 +19,16 @@ import java.lang.String;
 
 public final class ItemStudentBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final CardView rootView;
+
+  @NonNull
+  public final ImageButton btnRemove;
+
+  @NonNull
+  public final ProgressBar progressAttendance;
+
+  @NonNull
+  public final TextView tvAttendanceSummary;
 
   @NonNull
   public final TextView tvAvatar;
@@ -28,9 +39,13 @@ public final class ItemStudentBinding implements ViewBinding {
   @NonNull
   public final TextView tvName;
 
-  private ItemStudentBinding(@NonNull LinearLayout rootView, @NonNull TextView tvAvatar,
-      @NonNull TextView tvCode, @NonNull TextView tvName) {
+  private ItemStudentBinding(@NonNull CardView rootView, @NonNull ImageButton btnRemove,
+      @NonNull ProgressBar progressAttendance, @NonNull TextView tvAttendanceSummary,
+      @NonNull TextView tvAvatar, @NonNull TextView tvCode, @NonNull TextView tvName) {
     this.rootView = rootView;
+    this.btnRemove = btnRemove;
+    this.progressAttendance = progressAttendance;
+    this.tvAttendanceSummary = tvAttendanceSummary;
     this.tvAvatar = tvAvatar;
     this.tvCode = tvCode;
     this.tvName = tvName;
@@ -38,7 +53,7 @@ public final class ItemStudentBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public CardView getRoot() {
     return rootView;
   }
 
@@ -63,6 +78,24 @@ public final class ItemStudentBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_remove;
+      ImageButton btnRemove = ViewBindings.findChildViewById(rootView, id);
+      if (btnRemove == null) {
+        break missingId;
+      }
+
+      id = R.id.progress_attendance;
+      ProgressBar progressAttendance = ViewBindings.findChildViewById(rootView, id);
+      if (progressAttendance == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_attendance_summary;
+      TextView tvAttendanceSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvAttendanceSummary == null) {
+        break missingId;
+      }
+
       id = R.id.tv_avatar;
       TextView tvAvatar = ViewBindings.findChildViewById(rootView, id);
       if (tvAvatar == null) {
@@ -81,7 +114,8 @@ public final class ItemStudentBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemStudentBinding((LinearLayout) rootView, tvAvatar, tvCode, tvName);
+      return new ItemStudentBinding((CardView) rootView, btnRemove, progressAttendance,
+          tvAttendanceSummary, tvAvatar, tvCode, tvName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -21,10 +22,16 @@ public final class FragmentStatsTabBinding implements ViewBinding {
   private final ScrollView rootView;
 
   @NonNull
+  public final BarChart barChart;
+
+  @NonNull
   public final PieChart pieChart;
 
   @NonNull
   public final TextView tvAvgRate;
+
+  @NonNull
+  public final TextView tvPastShifts;
 
   @NonNull
   public final TextView tvTotalShifts;
@@ -32,12 +39,14 @@ public final class FragmentStatsTabBinding implements ViewBinding {
   @NonNull
   public final TextView tvTotalStudents;
 
-  private FragmentStatsTabBinding(@NonNull ScrollView rootView, @NonNull PieChart pieChart,
-      @NonNull TextView tvAvgRate, @NonNull TextView tvTotalShifts,
-      @NonNull TextView tvTotalStudents) {
+  private FragmentStatsTabBinding(@NonNull ScrollView rootView, @NonNull BarChart barChart,
+      @NonNull PieChart pieChart, @NonNull TextView tvAvgRate, @NonNull TextView tvPastShifts,
+      @NonNull TextView tvTotalShifts, @NonNull TextView tvTotalStudents) {
     this.rootView = rootView;
+    this.barChart = barChart;
     this.pieChart = pieChart;
     this.tvAvgRate = tvAvgRate;
+    this.tvPastShifts = tvPastShifts;
     this.tvTotalShifts = tvTotalShifts;
     this.tvTotalStudents = tvTotalStudents;
   }
@@ -69,6 +78,12 @@ public final class FragmentStatsTabBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.bar_chart;
+      BarChart barChart = ViewBindings.findChildViewById(rootView, id);
+      if (barChart == null) {
+        break missingId;
+      }
+
       id = R.id.pie_chart;
       PieChart pieChart = ViewBindings.findChildViewById(rootView, id);
       if (pieChart == null) {
@@ -78,6 +93,12 @@ public final class FragmentStatsTabBinding implements ViewBinding {
       id = R.id.tv_avg_rate;
       TextView tvAvgRate = ViewBindings.findChildViewById(rootView, id);
       if (tvAvgRate == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_past_shifts;
+      TextView tvPastShifts = ViewBindings.findChildViewById(rootView, id);
+      if (tvPastShifts == null) {
         break missingId;
       }
 
@@ -93,8 +114,8 @@ public final class FragmentStatsTabBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentStatsTabBinding((ScrollView) rootView, pieChart, tvAvgRate, tvTotalShifts,
-          tvTotalStudents);
+      return new FragmentStatsTabBinding((ScrollView) rootView, barChart, pieChart, tvAvgRate,
+          tvPastShifts, tvTotalShifts, tvTotalStudents);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -102,6 +102,43 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+    public void updateClassInfo(String classId, String className, String room,
+                                OnSuccessListener<Void> onSuccess,
+                                OnFailureListener onFailure) {
+        if (classId == null || classId.isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Invalid classId"));
+            return;
+        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("className", className);
+        updates.put("room", room);
+
+        db.collection(COL_CLASSES).document(classId).update(updates)
+                .addOnSuccessListener(aVoid -> updateShiftsForClass(classId, updates, onSuccess, onFailure))
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+        public void deleteClass(String classId,
+                    OnSuccessListener<Void> onSuccess,
+                    OnFailureListener onFailure) {
+        if (classId == null || classId.isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Invalid classId"));
+            return;
+        }
+
+        deleteByQuery(db.collection(COL_ATTENDANCES).whereEqualTo("classId", classId), () ->
+            deleteByQuery(db.collection(COL_SESSIONS).whereEqualTo("classId", classId), () ->
+                deleteByQuery(db.collection(COL_SHIFTS).whereEqualTo("classId", classId), () ->
+                    deleteByQuery(db.collection(COL_ENROLLMENTS).whereEqualTo("classId", classId), () ->
+                        db.collection(COL_CLASSES).document(classId).delete()
+                            .addOnSuccessListener(onSuccess::onSuccess)
+                            .addOnFailureListener(onFailure::onFailure)
+                    , onFailure)
+                , onFailure)
+            , onFailure)
+        , onFailure);
+        }
+
     /**
      * Auto-generate shift documents for every scheduled day in the semester.
      */
@@ -246,6 +283,15 @@ public class FirebaseRepository {
                 .addOnSuccessListener(doc -> onSuccess.onSuccess(doc.exists()));
     }
 
+        public void removeEnrollment(String studentId, String classId,
+                     OnSuccessListener<Void> onSuccess,
+                     OnFailureListener onFailure) {
+        String docId = studentId + "_" + classId;
+        db.collection(COL_ENROLLMENTS).document(docId).delete()
+            .addOnSuccessListener(onSuccess::onSuccess)
+            .addOnFailureListener(onFailure::onFailure);
+        }
+
     public void getClassStudents(String classId,
                                  OnSuccessListener<List<User>> onSuccess,
                                  OnFailureListener onFailure) {
@@ -271,6 +317,53 @@ public class FirebaseRepository {
                                     if (u != null) users.add(u);
                                 }
                                 onSuccess.onSuccess(users);
+                            })
+                            .addOnFailureListener(onFailure::onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /**
+     * Returns student accounts that do not have an active enrollment in the class.
+     */
+    public void getUnenrolledStudents(String classId,
+                                      OnSuccessListener<List<User>> onSuccess,
+                                      OnFailureListener onFailure) {
+        db.collection(COL_ENROLLMENTS)
+                .whereEqualTo("classId", classId)
+                .whereEqualTo("status", "active")
+                .get()
+                .addOnSuccessListener(enrollmentDocs -> {
+                    Set<String> enrolledStudentIds = new HashSet<>();
+                    for (DocumentSnapshot doc : enrollmentDocs.getDocuments()) {
+                        Enrollment enrollment = doc.toObject(Enrollment.class);
+                        if (enrollment != null && enrollment.getStudentId() != null) {
+                            enrolledStudentIds.add(enrollment.getStudentId());
+                        }
+                    }
+
+                    db.collection(COL_USERS)
+                            .whereEqualTo("role", User.ROLE_STUDENT)
+                            .get()
+                            .addOnSuccessListener(userDocs -> {
+                                List<User> students = new ArrayList<>();
+                                for (DocumentSnapshot doc : userDocs.getDocuments()) {
+                                    User student = doc.toObject(User.class);
+                                    if (student != null && (student.getUid() == null ||
+                                            student.getUid().isEmpty())) {
+                                        student.setUid(doc.getId());
+                                    }
+                                    if (student != null && student.getUid() != null &&
+                                            !enrolledStudentIds.contains(student.getUid())) {
+                                        students.add(student);
+                                    }
+                                }
+                                Collections.sort(students, (first, second) -> {
+                                    String firstName = first.getName() == null ? "" : first.getName();
+                                    String secondName = second.getName() == null ? "" : second.getName();
+                                    return firstName.compareToIgnoreCase(secondName);
+                                });
+                                onSuccess.onSuccess(students);
                             })
                             .addOnFailureListener(onFailure::onFailure);
                 })
@@ -320,6 +413,72 @@ public class FirebaseRepository {
         }
     }
 
+    public void findStudentsByQuery(String query, int limit,
+                                    OnSuccessListener<List<User>> onSuccess,
+                                    OnFailureListener onFailure) {
+        String q = query == null ? "" : query.trim();
+        if (q.isEmpty()) {
+            onSuccess.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        int safeLimit = Math.max(5, Math.min(limit, 50));
+        List<Query> queries = new ArrayList<>();
+
+        if (q.contains("@")) {
+            queries.add(db.collection(COL_USERS)
+                    .orderBy("email")
+                    .startAt(q)
+                    .endAt(q + "\uf8ff")
+                    .limit(safeLimit));
+        } else {
+            queries.add(db.collection(COL_USERS)
+                    .orderBy("studentCode")
+                    .startAt(q)
+                    .endAt(q + "\uf8ff")
+                    .limit(safeLimit));
+            queries.add(db.collection(COL_USERS)
+                    .orderBy("name")
+                    .startAt(q)
+                    .endAt(q + "\uf8ff")
+                    .limit(safeLimit));
+            queries.add(db.collection(COL_USERS)
+                    .orderBy("email")
+                    .startAt(q)
+                    .endAt(q + "\uf8ff")
+                    .limit(safeLimit));
+        }
+
+        Map<String, User> merged = new LinkedHashMap<>();
+        final int[] pending = {queries.size()};
+        final boolean[] failed = {false};
+
+        for (Query qry : queries) {
+            qry.get()
+                    .addOnSuccessListener(snap -> {
+                        if (failed[0]) return;
+                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                            User u = doc.toObject(User.class);
+                            if (u != null) {
+                                if (u.getUid() == null || u.getUid().isEmpty()) {
+                                    u.setUid(doc.getId());
+                                }
+                                merged.put(u.getUid(), u);
+                            }
+                        }
+                        pending[0]--;
+                        if (pending[0] == 0) {
+                            onSuccess.onSuccess(new ArrayList<>(merged.values()));
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (failed[0]) return;
+                        failed[0] = true;
+                        onFailure.onFailure(e);
+                    });
+        }
+    }
+
     // ==================== SHIFTS ====================
 
     public LiveData<List<Shift>> getClassShifts(String classId) {
@@ -328,7 +487,10 @@ public class FirebaseRepository {
                 .whereEqualTo("classId", classId)
                 .orderBy("date")
                 .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) return;
+                    if (error != null) {
+                        Log.e(TAG, "getClassShifts listener error for class " + classId, error);
+                        return;
+                    }
                     List<Shift> list = new ArrayList<>();
                     if (snapshots != null) {
                         for (DocumentSnapshot doc : snapshots.getDocuments()) {
@@ -358,13 +520,43 @@ public class FirebaseRepository {
                 });
     }
 
+    public void getShiftsForClasses(List<String> classIds,
+                                    OnSuccessListener<List<Shift>> onSuccess) {
+        if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
+        List<Shift> result = new ArrayList<>();
+        List<List<String>> chunks = new ArrayList<>();
+        for (int i = 0; i < classIds.size(); i += 10) {
+            chunks.add(classIds.subList(i, Math.min(i + 10, classIds.size())));
+        }
+        final int[] pending = {chunks.size()};
+        for (List<String> chunk : chunks) {
+            db.collection(COL_SHIFTS)
+                    .whereIn("classId", chunk)
+                    .get()
+                    .addOnSuccessListener(docs -> {
+                        for (DocumentSnapshot doc : docs.getDocuments()) {
+                            Shift s = doc.toObject(Shift.class);
+                            if (s != null) result.add(s);
+                        }
+                        pending[0]--;
+                        if (pending[0] == 0) onSuccess.onSuccess(result);
+                    })
+                    .addOnFailureListener(e -> {
+                        pending[0]--;
+                        if (pending[0] == 0) onSuccess.onSuccess(result);
+                    });
+        }
+    }
+
     public void updateShiftStatus(String shiftId, String status, boolean attendanceOpened,
                                   String sessionId) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", status);
         updates.put("attendanceOpened", attendanceOpened);
         if (sessionId != null) updates.put("attendanceSessionId", sessionId);
-        db.collection(COL_SHIFTS).document(shiftId).update(updates);
+        db.collection(COL_SHIFTS).document(shiftId).update(updates)
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "updateShiftStatus failed for shift " + shiftId, e));
     }
 
     // ==================== SESSIONS ====================
@@ -374,13 +566,21 @@ public class FirebaseRepository {
                               OnFailureListener onFailure) {
         session.setStartTime(Timestamp.now());
         session.setActive(true);
-        db.collection(COL_SESSIONS).document(session.getSessionId()).set(session)
-                .addOnSuccessListener(aVoid -> {
-                    // Update the linked shift
-                    updateShiftStatus(session.getShiftId(), Shift.STATUS_ONGOING,
-                            true, session.getSessionId());
-                    onSuccess.onSuccess(session.getSessionId());
-                })
+
+        // Write the session AND flip the linked shift to "ongoing" in one atomic
+        // batch. Both writes apply to the local cache immediately (latency
+        // compensation), so the shift list's real-time listener reflects the new
+        // status right away instead of waiting for the session write's server ack.
+        Map<String, Object> shiftUpdates = new HashMap<>();
+        shiftUpdates.put("status", Shift.STATUS_ONGOING);
+        shiftUpdates.put("attendanceOpened", true);
+        shiftUpdates.put("attendanceSessionId", session.getSessionId());
+
+        WriteBatch batch = db.batch();
+        batch.set(db.collection(COL_SESSIONS).document(session.getSessionId()), session);
+        batch.update(db.collection(COL_SHIFTS).document(session.getShiftId()), shiftUpdates);
+        batch.commit()
+                .addOnSuccessListener(unused -> onSuccess.onSuccess(session.getSessionId()))
                 .addOnFailureListener(onFailure::onFailure);
     }
 
@@ -395,12 +595,23 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
-    public void closeSession(String sessionId, String shiftId) {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("isActive", false);
-        updates.put("endTime", Timestamp.now());
-        db.collection(COL_SESSIONS).document(sessionId).update(updates);
-        updateShiftStatus(shiftId, Shift.STATUS_COMPLETED, false, null);
+    public void closeSession(String sessionId, String shiftId,
+                             OnSuccessListener<Void> onSuccess,
+                             OnFailureListener onFailure) {
+        Map<String, Object> sessionUpdates = new HashMap<>();
+        sessionUpdates.put("isActive", false);
+        sessionUpdates.put("endTime", Timestamp.now());
+
+        Map<String, Object> shiftUpdates = new HashMap<>();
+        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
+        shiftUpdates.put("attendanceOpened", false);
+
+        WriteBatch batch = db.batch();
+        batch.update(db.collection(COL_SESSIONS).document(sessionId), sessionUpdates);
+        batch.update(db.collection(COL_SHIFTS).document(shiftId), shiftUpdates);
+        batch.commit()
+                .addOnSuccessListener(unused -> onSuccess.onSuccess(null))
+                .addOnFailureListener(onFailure::onFailure);
     }
 
     // ==================== ATTENDANCE ====================
@@ -419,6 +630,116 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+    public void getClassAttendances(String classId,
+                                    OnSuccessListener<List<Attendance>> onSuccess,
+                                    OnFailureListener onFailure) {
+        db.collection(COL_ATTENDANCES)
+                .whereEqualTo("classId", classId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Attendance> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Attendance a = doc.toObject(Attendance.class);
+                        if (a != null) list.add(a);
+                    }
+                    onSuccess.onSuccess(list);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    public void getShiftAttendances(String shiftId,
+                                    OnSuccessListener<List<Attendance>> onSuccess,
+                                    OnFailureListener onFailure) {
+        db.collection(COL_ATTENDANCES)
+                .whereEqualTo("shiftId", shiftId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Attendance> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Attendance a = doc.toObject(Attendance.class);
+                        if (a != null) list.add(a);
+                    }
+                    onSuccess.onSuccess(list);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+            public void getStudentAttendanceCount(String classId, String studentId,
+                              OnSuccessListener<Integer> onSuccess,
+                              OnFailureListener onFailure) {
+            db.collection(COL_ATTENDANCES)
+                .whereEqualTo("classId", classId)
+                .whereEqualTo("studentId", studentId)
+                .get()
+                .addOnSuccessListener(snap -> onSuccess.onSuccess(snap.size()))
+                .addOnFailureListener(onFailure::onFailure);
+            }
+
+            public void deleteStudentAttendancesForClass(String studentId, String classId,
+                                 OnSuccessListener<Void> onSuccess,
+                                 OnFailureListener onFailure) {
+            Query query = db.collection(COL_ATTENDANCES)
+                .whereEqualTo("classId", classId)
+                .whereEqualTo("studentId", studentId);
+            deleteByQuery(query, () -> onSuccess.onSuccess(null), onFailure);
+            }
+
+    private void updateShiftsForClass(String classId, Map<String, Object> updates,
+                                      OnSuccessListener<Void> onSuccess,
+                                      OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS)
+                .whereEqualTo("classId", classId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<DocumentSnapshot> docs = snap.getDocuments();
+                    if (docs.isEmpty()) { onSuccess.onSuccess(null); return; }
+                    updateDocsInBatches(docs, 0, updates, onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void updateDocsInBatches(List<DocumentSnapshot> docs, int start,
+                                     Map<String, Object> updates,
+                                     OnSuccessListener<Void> onSuccess,
+                                     OnFailureListener onFailure) {
+        int end = Math.min(start + 450, docs.size());
+        WriteBatch batch = db.batch();
+        for (int i = start; i < end; i++) {
+            batch.update(docs.get(i).getReference(), updates);
+        }
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    if (end >= docs.size()) onSuccess.onSuccess(null);
+                    else updateDocsInBatches(docs, end, updates, onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void deleteByQuery(Query query, Runnable onSuccess, OnFailureListener onFailure) {
+        query.get()
+                .addOnSuccessListener(snap -> {
+                    List<DocumentSnapshot> docs = snap.getDocuments();
+                    if (docs.isEmpty()) { onSuccess.run(); return; }
+                    deleteDocsInBatches(docs, 0, onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void deleteDocsInBatches(List<DocumentSnapshot> docs, int start,
+                                     Runnable onSuccess, OnFailureListener onFailure) {
+        int end = Math.min(start + 450, docs.size());
+        WriteBatch batch = db.batch();
+        for (int i = start; i < end; i++) {
+            batch.delete(docs.get(i).getReference());
+        }
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    if (end >= docs.size()) onSuccess.run();
+                    else deleteDocsInBatches(docs, end, onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     public void checkAlreadyAttended(String studentId, String sessionId,
                                      OnSuccessListener<Boolean> onSuccess) {
         db.collection(COL_ATTENDANCES)
@@ -426,6 +747,37 @@ public class FirebaseRepository {
                 .whereEqualTo("sessionId", sessionId)
                 .get()
                 .addOnSuccessListener(docs -> onSuccess.onSuccess(!docs.isEmpty()));
+    }
+
+    /**
+     * Anti-cheat: mỗi buổi học (shift) chỉ chấp nhận một deviceId duy nhất cho mỗi
+     * bản ghi điểm danh. Trả về true nếu thiết bị này đã được dùng để điểm danh
+     * buổi đó bởi một sinh viên KHÁC (chống điểm danh hộ trên cùng một máy).
+     * Lưu ý: chỉ kiểm tra phía client; chỉ chặn được người dùng app bình thường.
+     */
+    public void checkDeviceUsedInShift(String shiftId, String deviceId, String excludeStudentId,
+                                       OnSuccessListener<Boolean> onSuccess) {
+        if (deviceId == null || deviceId.isEmpty()) { onSuccess.onSuccess(false); return; }
+        db.collection(COL_ATTENDANCES)
+                .whereEqualTo("shiftId", shiftId)
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    boolean used = false;
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Attendance a = doc.toObject(Attendance.class);
+                        if (a == null) continue;
+                        if (excludeStudentId == null || !excludeStudentId.equals(a.getStudentId())) {
+                            used = true;
+                            break;
+                        }
+                    }
+                    onSuccess.onSuccess(used);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "checkDeviceUsedInShift failed: " + e.getMessage());
+                    onSuccess.onSuccess(false); // fail-open để tránh chặn nhầm khi lỗi mạng
+                });
     }
 
     /**

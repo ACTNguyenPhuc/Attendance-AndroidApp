@@ -5,8 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
@@ -24,13 +26,22 @@ public final class DialogAddStudentBinding implements ViewBinding {
   public final TextInputEditText etStudentQuery;
 
   @NonNull
+  public final RecyclerView rvSearchResults;
+
+  @NonNull
   public final TextInputLayout tilStudentQuery;
 
+  @NonNull
+  public final TextView tvSearchEmpty;
+
   private DialogAddStudentBinding(@NonNull LinearLayout rootView,
-      @NonNull TextInputEditText etStudentQuery, @NonNull TextInputLayout tilStudentQuery) {
+      @NonNull TextInputEditText etStudentQuery, @NonNull RecyclerView rvSearchResults,
+      @NonNull TextInputLayout tilStudentQuery, @NonNull TextView tvSearchEmpty) {
     this.rootView = rootView;
     this.etStudentQuery = etStudentQuery;
+    this.rvSearchResults = rvSearchResults;
     this.tilStudentQuery = tilStudentQuery;
+    this.tvSearchEmpty = tvSearchEmpty;
   }
 
   @Override
@@ -66,13 +77,26 @@ public final class DialogAddStudentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.rv_search_results;
+      RecyclerView rvSearchResults = ViewBindings.findChildViewById(rootView, id);
+      if (rvSearchResults == null) {
+        break missingId;
+      }
+
       id = R.id.til_student_query;
       TextInputLayout tilStudentQuery = ViewBindings.findChildViewById(rootView, id);
       if (tilStudentQuery == null) {
         break missingId;
       }
 
-      return new DialogAddStudentBinding((LinearLayout) rootView, etStudentQuery, tilStudentQuery);
+      id = R.id.tv_search_empty;
+      TextView tvSearchEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (tvSearchEmpty == null) {
+        break missingId;
+      }
+
+      return new DialogAddStudentBinding((LinearLayout) rootView, etStudentQuery, rvSearchResults,
+          tilStudentQuery, tvSearchEmpty);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

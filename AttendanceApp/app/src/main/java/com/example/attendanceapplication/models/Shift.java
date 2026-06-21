@@ -75,8 +75,9 @@ public class Shift {
     public void setAttendanceStatus(String attendanceStatus) { this.attendanceStatus = attendanceStatus; }
 
     public String getDayOfWeekDisplay() {
-        String[] days = {"", "CN", "T2", "T3", "T4", "T5", "T6", "T7"};
-        if (dayOfWeek >= 1 && dayOfWeek <= 7) return days[dayOfWeek];
+        // The app stores Monday–Sunday as 2–8; Sunday must display as "CN", not "T8".
+        String[] days = {"", "CN", "T2", "T3", "T4", "T5", "T6", "T7", "CN"};
+        if (dayOfWeek >= 1 && dayOfWeek <= 8) return days[dayOfWeek];
         return "T" + dayOfWeek;
     }
 }

@@ -34,15 +34,23 @@ public final class ItemClassCardBinding implements ViewBinding {
   @NonNull
   public final TextView tvSchedule;
 
+  @NonNull
+  public final TextView tvStudentCount;
+
+  @NonNull
+  public final View viewHeader;
+
   private ItemClassCardBinding(@NonNull CardView rootView, @NonNull CardView cardClass,
       @NonNull TextView tvClassId, @NonNull TextView tvClassName, @NonNull TextView tvRoom,
-      @NonNull TextView tvSchedule) {
+      @NonNull TextView tvSchedule, @NonNull TextView tvStudentCount, @NonNull View viewHeader) {
     this.rootView = rootView;
     this.cardClass = cardClass;
     this.tvClassId = tvClassId;
     this.tvClassName = tvClassName;
     this.tvRoom = tvRoom;
     this.tvSchedule = tvSchedule;
+    this.tvStudentCount = tvStudentCount;
+    this.viewHeader = viewHeader;
   }
 
   @Override
@@ -98,8 +106,20 @@ public final class ItemClassCardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_student_count;
+      TextView tvStudentCount = ViewBindings.findChildViewById(rootView, id);
+      if (tvStudentCount == null) {
+        break missingId;
+      }
+
+      id = R.id.view_header;
+      View viewHeader = ViewBindings.findChildViewById(rootView, id);
+      if (viewHeader == null) {
+        break missingId;
+      }
+
       return new ItemClassCardBinding((CardView) rootView, cardClass, tvClassId, tvClassName,
-          tvRoom, tvSchedule);
+          tvRoom, tvSchedule, tvStudentCount, viewHeader);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

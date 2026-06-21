@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
@@ -44,6 +45,8 @@ public class ClassCardAdapter extends RecyclerView.Adapter<ClassCardAdapter.View
         holder.tvSchedule.setText(classModel.getScheduleDisplay() +
                 "  " + classModel.getStartAt() + "-" + classModel.getEndAt());
         holder.tvRoom.setText(classModel.getRoom() != null ? classModel.getRoom() : "");
+        holder.tvStudentCount.setText("Sinh vien: " + classModel.getStudentCount());
+        holder.viewHeader.setBackgroundColor(getHeaderColor(holder.itemView.getContext(), position));
 
         holder.card.setOnClickListener(v -> listener.onClick(classModel));
     }
@@ -53,15 +56,28 @@ public class ClassCardAdapter extends RecyclerView.Adapter<ClassCardAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView card;
-        TextView tvClassName, tvClassId, tvSchedule, tvRoom;
+        View viewHeader;
+        TextView tvClassName, tvClassId, tvSchedule, tvRoom, tvStudentCount;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             card        = itemView.findViewById(R.id.card_class);
+            viewHeader  = itemView.findViewById(R.id.view_header);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
             tvClassId   = itemView.findViewById(R.id.tv_class_id);
             tvSchedule  = itemView.findViewById(R.id.tv_schedule);
             tvRoom      = itemView.findViewById(R.id.tv_room);
+            tvStudentCount = itemView.findViewById(R.id.tv_student_count);
         }
+    }
+
+    private int getHeaderColor(android.content.Context ctx, int position) {
+        int[] colors = new int[] {
+                ContextCompat.getColor(ctx, R.color.accent_green),
+                ContextCompat.getColor(ctx, R.color.accent_yellow),
+                ContextCompat.getColor(ctx, R.color.primary_blue)
+        };
+        int index = position % colors.length;
+        return colors[index];
     }
 }

@@ -16,6 +16,7 @@
 
         <!-- Color Header -->
         <View
+            android:id="@+id/view_header"
             android:layout_width="match_parent"
             android:layout_height="6dp"
             android:background="@color/primary_blue" />
@@ -67,6 +68,15 @@
                     android:textSize="13sp"
                     android:textColor="@color/text_secondary" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_student_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Sinh viên: 0"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
     </LinearLayout>
 

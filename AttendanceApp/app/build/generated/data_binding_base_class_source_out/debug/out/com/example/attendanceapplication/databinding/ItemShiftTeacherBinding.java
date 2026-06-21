@@ -4,33 +4,34 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.button.MaterialButton;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemShiftTeacherBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final CardView rootView;
 
   @NonNull
-  public final Button btnOpenAttendance;
+  public final MaterialButton btnOpenAttendance;
 
   @NonNull
-  public final TextView tvAttIcon;
+  public final ImageView ivAttIcon;
+
+  @NonNull
+  public final TextView tvAttInfo;
 
   @NonNull
   public final TextView tvDate;
-
-  @NonNull
-  public final TextView tvDay;
 
   @NonNull
   public final TextView tvStatus;
@@ -38,21 +39,22 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
   @NonNull
   public final TextView tvTime;
 
-  private ItemShiftTeacherBinding(@NonNull LinearLayout rootView, @NonNull Button btnOpenAttendance,
-      @NonNull TextView tvAttIcon, @NonNull TextView tvDate, @NonNull TextView tvDay,
-      @NonNull TextView tvStatus, @NonNull TextView tvTime) {
+  private ItemShiftTeacherBinding(@NonNull CardView rootView,
+      @NonNull MaterialButton btnOpenAttendance, @NonNull ImageView ivAttIcon,
+      @NonNull TextView tvAttInfo, @NonNull TextView tvDate, @NonNull TextView tvStatus,
+      @NonNull TextView tvTime) {
     this.rootView = rootView;
     this.btnOpenAttendance = btnOpenAttendance;
-    this.tvAttIcon = tvAttIcon;
+    this.ivAttIcon = ivAttIcon;
+    this.tvAttInfo = tvAttInfo;
     this.tvDate = tvDate;
-    this.tvDay = tvDay;
     this.tvStatus = tvStatus;
     this.tvTime = tvTime;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public CardView getRoot() {
     return rootView;
   }
 
@@ -78,26 +80,26 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
     int id;
     missingId: {
       id = R.id.btn_open_attendance;
-      Button btnOpenAttendance = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton btnOpenAttendance = ViewBindings.findChildViewById(rootView, id);
       if (btnOpenAttendance == null) {
         break missingId;
       }
 
-      id = R.id.tv_att_icon;
-      TextView tvAttIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvAttIcon == null) {
+      id = R.id.iv_att_icon;
+      ImageView ivAttIcon = ViewBindings.findChildViewById(rootView, id);
+      if (ivAttIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_att_info;
+      TextView tvAttInfo = ViewBindings.findChildViewById(rootView, id);
+      if (tvAttInfo == null) {
         break missingId;
       }
 
       id = R.id.tv_date;
       TextView tvDate = ViewBindings.findChildViewById(rootView, id);
       if (tvDate == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_day;
-      TextView tvDay = ViewBindings.findChildViewById(rootView, id);
-      if (tvDay == null) {
         break missingId;
       }
 
@@ -113,8 +115,8 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemShiftTeacherBinding((LinearLayout) rootView, btnOpenAttendance, tvAttIcon,
-          tvDate, tvDay, tvStatus, tvTime);
+      return new ItemShiftTeacherBinding((CardView) rootView, btnOpenAttendance, ivAttIcon,
+          tvAttInfo, tvDate, tvStatus, tvTime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

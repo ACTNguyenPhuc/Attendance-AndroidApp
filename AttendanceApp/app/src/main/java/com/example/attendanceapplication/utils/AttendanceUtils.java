@@ -79,6 +79,30 @@ public class AttendanceUtils {
     }
 
     /**
+     * Whole-day difference between a shift date ("yyyy-MM-dd") and today.
+     * 0 = today, 1 = tomorrow, negative = in the past.
+     * Returns Long.MAX_VALUE if the date can't be parsed (treated as far future).
+     */
+    public static long daysFromToday(String date) {
+        try {
+            org.threeten.bp.LocalDate shiftDate = org.threeten.bp.LocalDate.parse(date);
+            return org.threeten.bp.temporal.ChronoUnit.DAYS.between(
+                    org.threeten.bp.LocalDate.now(), shiftDate);
+        } catch (Exception e) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    /**
+     * Whether an "upcoming" shift should show the "Sắp diễn ra" badge:
+     * only when the shift is today or within 1 day ahead.
+     */
+    public static boolean shouldShowUpcomingBadge(String date) {
+        long days = daysFromToday(date);
+        return days >= 0 && days <= 1;
+    }
+
+    /**
      * Get day-of-week integer from Calendar constant (Java Calendar uses 1=Sun, 2=Mon...).
      * Convert to Vietnamese convention: 2=Mon ... 8=Sun
      */

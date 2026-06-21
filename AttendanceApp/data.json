@@ -1,0 +1,144 @@
+{
+  "users": {
+    "teacher_001": {
+      "uid": "teacher_001",
+      "studentCode": "",
+      "name": "Teacher One",
+      "email": "teacher1@example.com",
+      "role": "teacher",
+      "avatarUrl": "",
+      "createdAt": "2026-05-21T08:00:00Z"
+    },
+    "student_001": {
+      "uid": "student_001",
+      "studentCode": "SV0001",
+      "name": "Student One",
+      "email": "sv0001@example.com",
+      "role": "student",
+      "avatarUrl": "",
+      "createdAt": "2026-05-21T08:05:00Z"
+    },
+    "student_002": {
+      "uid": "student_002",
+      "studentCode": "SV0002",
+      "name": "Student Two",
+      "email": "sv0002@example.com",
+      "role": "student",
+      "avatarUrl": "",
+      "createdAt": "2026-05-21T08:06:00Z"
+    },
+    "student_003": {
+      "uid": "student_003",
+      "studentCode": "SV0003",
+      "name": "Student Three",
+      "email": "sv0003@example.com",
+      "role": "student",
+      "avatarUrl": "",
+      "createdAt": "2026-05-21T08:07:00Z"
+    }
+  },
+  "classes": {
+    "CLS001": {
+      "classId": "CLS001",
+      "className": "Linux Core",
+      "teacherId": "teacher_001",
+      "teacherName": "Teacher One",
+      "startDate": "2026-05-20",
+      "endDate": "2026-06-20",
+      "schedule": [2, 4],
+      "startAt": "18:00",
+      "endAt": "20:00",
+      "room": "A101",
+      "description": "Intro class",
+      "studentCount": 3,
+      "createdAt": "2026-05-21T08:10:00Z"
+    }
+  },
+  "shifts": {
+    "CLS001_2026-05-22": {
+      "shiftId": "CLS001_2026-05-22",
+      "classId": "CLS001",
+      "className": "Linux Core",
+      "teacherName": "Teacher One",
+      "title": "Session 1",
+      "date": "2026-05-22",
+      "dayOfWeek": 4,
+      "startAt": "18:00",
+      "endAt": "20:00",
+      "room": "A101",
+      "status": "ongoing",
+      "attendanceOpened": true,
+      "attendanceSessionId": "SESSION_001",
+      "createdAt": "2026-05-21T08:15:00Z"
+    },
+    "CLS001_2026-05-26": {
+      "shiftId": "CLS001_2026-05-26",
+      "classId": "CLS001",
+      "className": "Linux Core",
+      "teacherName": "Teacher One",
+      "title": "Session 2",
+      "date": "2026-05-26",
+      "dayOfWeek": 2,
+      "startAt": "18:00",
+      "endAt": "20:00",
+      "room": "A101",
+      "status": "upcoming",
+      "attendanceOpened": false,
+      "attendanceSessionId": "",
+      "createdAt": "2026-05-21T08:16:00Z"
+    }
+  },
+  "sessions": {
+    "SESSION_001": {
+      "sessionId": "SESSION_001",
+      "classId": "CLS001",
+      "shiftId": "CLS001_2026-05-22",
+      "latitude": 10.762622,
+      "longitude": 106.660172,
+      "radius": 100,
+      "token": "ABC123",
+      "startTime": "2026-05-22T11:00:00Z",
+      "endTime": "2026-05-22T12:30:00Z",
+      "isActive": true
+    }
+  },
+  "enrollments": {
+    "student_001_CLS001": {
+      "studentId": "student_001",
+      "classId": "CLS001",
+      "joinedAt": "2026-05-21T09:00:00Z",
+      "status": "active"
+    },
+    "student_002_CLS001": {
+      "studentId": "student_002",
+      "classId": "CLS001",
+      "joinedAt": "2026-05-21T09:01:00Z",
+      "status": "active"
+    },
+    "student_003_CLS001": {
+      "studentId": "student_003",
+      "classId": "CLS001",
+      "joinedAt": "2026-05-21T09:02:00Z",
+      "status": "active"
+    }
+  },
+  "attendances": {
+    "ATT_001": {
+      "attendanceId": "ATT_001",
+      "studentId": "student_001",
+      "studentName": "Student One",
+      "studentCode": "SV0001",
+      "sessionId": "SESSION_001",
+      "shiftId": "CLS001_2026-05-22",
+      "classId": "CLS001",
+      "latitude": 10.7626,
+      "longitude": 106.6601,
+      "distance": 12.5,
+      "checkinTime": "2026-05-22T11:10:00Z",
+      "status": "present",
+      "selfieUrl": "",
+      "faceVerified": false,
+      "deviceId": "device_001"
+    }
+  }
+}

@@ -3,6 +3,8 @@ package com.example.attendanceapplication.models;
 import com.google.firebase.Timestamp;
 
 public class Session {
+    public static final int DEFAULT_LATE_AFTER_MINUTES = 15;
+
     private String sessionId;
     private String classId;
     private String shiftId;
@@ -13,6 +15,9 @@ public class Session {
     private Timestamp startTime;
     private Timestamp endTime;
     private boolean isActive;
+    // Minutes from startTime within which a check-in counts as on-time;
+    // checking in later is marked "late". Default 15.
+    private int lateAfterMinutes = DEFAULT_LATE_AFTER_MINUTES;
 
     public Session() {}
 
@@ -46,4 +51,10 @@ public class Session {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public int getLateAfterMinutes() {
+        // Guard old sessions stored without this field (deserialized as 0).
+        return lateAfterMinutes > 0 ? lateAfterMinutes : DEFAULT_LATE_AFTER_MINUTES;
+    }
+    public void setLateAfterMinutes(int lateAfterMinutes) { this.lateAfterMinutes = lateAfterMinutes; }
 }

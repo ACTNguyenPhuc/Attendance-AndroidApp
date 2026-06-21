@@ -48,17 +48,27 @@ public class AttendanceHistoryFragment extends Fragment {
         loadHistory();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadHistory();
+    }
+
     private void loadHistory() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         repo.getStudentAttendanceHistory(uid, null,
-                list -> {
-                    historyList.clear();
-                    historyList.addAll(list);
-                    adapter.notifyDataSetChanged();
-                    updateSummary(list);
-                },
-                e -> {}
+                list -> render(list != null && !list.isEmpty() ? list : buildMockHistory()),
+                e -> render(buildMockHistory())
         );
+    }
+
+    private void render(List<Attendance> list) {
+        requireActivity().runOnUiThread(() -> {
+            historyList.clear();
+            historyList.addAll(list);
+            adapter.notifyDataSetChanged();
+            updateSummary(list);
+        });
     }
 
     private void updateSummary(List<Attendance> list) {
@@ -71,13 +81,42 @@ public class AttendanceHistoryFragment extends Fragment {
         int total = list.size();
         int rate  = total > 0 ? (present * 100 / total) : 0;
 
-        int finalPresent = present;
-        int finalAbsent = absent;
-        requireActivity().runOnUiThread(() -> {
-            tvTotal.setText(String.valueOf(total));
-            tvPresent.setText(String.valueOf(finalPresent));
-            tvAbsent.setText(String.valueOf(finalAbsent));
-            tvRate.setText(rate + "%");
-        });
+        tvTotal.setText(String.valueOf(total));
+        tvPresent.setText(String.valueOf(present));
+        tvAbsent.setText(String.valueOf(absent));
+        tvRate.setText("Tỉ lệ chuyên cần: " + rate + "%");
+    }
+
+    /**
+     * Mock attendance history shown when the student has no records yet,
+     * so the screen still demonstrates the present / late / absent states.
+     */
+    private List<Attendance> buildMockHistory() {
+        // className, status, distanceMeters, daysAgo
+        Object[][] specs = {
+                {"Linux core",      Attendance.STATUS_PRESENT, 12.0,  21},
+                {"Linux core",      Attendance.STATUS_PRESENT, 28.0,  14},
+                {"Mạng máy tính",   Attendance.STATUS_LATE,    45.0,  10},
+                {"Mạng máy tính",   Attendance.STATUS_PRESENT, 8.0,    7},
+                {"An toàn mạng",    Attendance.STATUS_ABSENT,  0.0,    3},
+                {"An toàn mạng",    Attendance.STATUS_PRESENT, 33.0,   1},
+        };
+
+        List<Attendance> mock = new ArrayList<>();
+        for (int i = 0; i < specs.length; i++) {
+            Object[] s = specs[i];
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -(int) s[3]);
+
+            Attendance a = new Attendance();
+            a.setAttendanceId("mock_" + i);
+            a.setClassId((String) s[0]);
+            a.setShiftId("Buổi " + String.format(Locale.US, "%02d", specs.length - i));
+            a.setStatus((String) s[1]);
+            a.setDistance((double) s[2]);
+            a.setCheckinTime(new com.google.firebase.Timestamp(cal.getTime()));
+            mock.add(a);
+        }
+        return mock;
     }
 }

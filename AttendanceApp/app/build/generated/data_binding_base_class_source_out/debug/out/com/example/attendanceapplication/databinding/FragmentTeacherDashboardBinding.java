@@ -4,28 +4,33 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class FragmentTeacherDashboardBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
-
-  @NonNull
-  public final FloatingActionButton fabCreateClass;
+  private final NestedScrollView rootView;
 
   @NonNull
   public final RecyclerView rvClasses;
+
+  @NonNull
+  public final RecyclerView rvTodayShifts;
+
+  @NonNull
+  public final TextView tvAvatar;
+
+  @NonNull
+  public final TextView tvCreateClass;
 
   @NonNull
   public final TextView tvDate;
@@ -34,27 +39,43 @@ public final class FragmentTeacherDashboardBinding implements ViewBinding {
   public final TextView tvGreeting;
 
   @NonNull
+  public final TextView tvPendingOpen;
+
+  @NonNull
+  public final TextView tvTodayEmpty;
+
+  @NonNull
   public final TextView tvTodaySessions;
 
   @NonNull
   public final TextView tvTotalClasses;
 
-  private FragmentTeacherDashboardBinding(@NonNull LinearLayout rootView,
-      @NonNull FloatingActionButton fabCreateClass, @NonNull RecyclerView rvClasses,
-      @NonNull TextView tvDate, @NonNull TextView tvGreeting, @NonNull TextView tvTodaySessions,
-      @NonNull TextView tvTotalClasses) {
+  @NonNull
+  public final TextView tvViewAllShifts;
+
+  private FragmentTeacherDashboardBinding(@NonNull NestedScrollView rootView,
+      @NonNull RecyclerView rvClasses, @NonNull RecyclerView rvTodayShifts,
+      @NonNull TextView tvAvatar, @NonNull TextView tvCreateClass, @NonNull TextView tvDate,
+      @NonNull TextView tvGreeting, @NonNull TextView tvPendingOpen, @NonNull TextView tvTodayEmpty,
+      @NonNull TextView tvTodaySessions, @NonNull TextView tvTotalClasses,
+      @NonNull TextView tvViewAllShifts) {
     this.rootView = rootView;
-    this.fabCreateClass = fabCreateClass;
     this.rvClasses = rvClasses;
+    this.rvTodayShifts = rvTodayShifts;
+    this.tvAvatar = tvAvatar;
+    this.tvCreateClass = tvCreateClass;
     this.tvDate = tvDate;
     this.tvGreeting = tvGreeting;
+    this.tvPendingOpen = tvPendingOpen;
+    this.tvTodayEmpty = tvTodayEmpty;
     this.tvTodaySessions = tvTodaySessions;
     this.tvTotalClasses = tvTotalClasses;
+    this.tvViewAllShifts = tvViewAllShifts;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public NestedScrollView getRoot() {
     return rootView;
   }
 
@@ -79,15 +100,27 @@ public final class FragmentTeacherDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.fab_create_class;
-      FloatingActionButton fabCreateClass = ViewBindings.findChildViewById(rootView, id);
-      if (fabCreateClass == null) {
-        break missingId;
-      }
-
       id = R.id.rv_classes;
       RecyclerView rvClasses = ViewBindings.findChildViewById(rootView, id);
       if (rvClasses == null) {
+        break missingId;
+      }
+
+      id = R.id.rv_today_shifts;
+      RecyclerView rvTodayShifts = ViewBindings.findChildViewById(rootView, id);
+      if (rvTodayShifts == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_avatar;
+      TextView tvAvatar = ViewBindings.findChildViewById(rootView, id);
+      if (tvAvatar == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_create_class;
+      TextView tvCreateClass = ViewBindings.findChildViewById(rootView, id);
+      if (tvCreateClass == null) {
         break missingId;
       }
 
@@ -103,6 +136,18 @@ public final class FragmentTeacherDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_pending_open;
+      TextView tvPendingOpen = ViewBindings.findChildViewById(rootView, id);
+      if (tvPendingOpen == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_today_empty;
+      TextView tvTodayEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (tvTodayEmpty == null) {
+        break missingId;
+      }
+
       id = R.id.tv_today_sessions;
       TextView tvTodaySessions = ViewBindings.findChildViewById(rootView, id);
       if (tvTodaySessions == null) {
@@ -115,8 +160,15 @@ public final class FragmentTeacherDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentTeacherDashboardBinding((LinearLayout) rootView, fabCreateClass, rvClasses,
-          tvDate, tvGreeting, tvTodaySessions, tvTotalClasses);
+      id = R.id.tv_view_all_shifts;
+      TextView tvViewAllShifts = ViewBindings.findChildViewById(rootView, id);
+      if (tvViewAllShifts == null) {
+        break missingId;
+      }
+
+      return new FragmentTeacherDashboardBinding((NestedScrollView) rootView, rvClasses,
+          rvTodayShifts, tvAvatar, tvCreateClass, tvDate, tvGreeting, tvPendingOpen, tvTodayEmpty,
+          tvTodaySessions, tvTotalClasses, tvViewAllShifts);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

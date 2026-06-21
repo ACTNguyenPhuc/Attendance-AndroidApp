@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-94:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-94:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-94:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-94:12
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
 MERGED from [androidx.databinding:viewbinding:8.2.2] C:\Users\Admin\.gradle\caches\transforms-3\60e7003366aff800641f22dc1a81709e\transformed\jetified-viewbinding-8.2.2\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:15:1-31:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Admin\.gradle\caches\transforms-3\9287c5ea0dbd9dca7290d1f343e8b0bf\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
@@ -30,6 +30,7 @@ MERGED from [com.google.firebase:firebase-firestore:24.11.0] C:\Users\Admin\.gra
 MERGED from [com.google.firebase:firebase-appcheck-playintegrity:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\30206af3beccc7ae286ea134b8536623\transformed\jetified-firebase-appcheck-playintegrity-17.1.2\AndroidManifest.xml:15:1-31:12
 MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:17:1-66:12
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:15:1-39:12
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:15:1-38:12
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:15:1-34:12
 MERGED from [com.google.android.gms:play-services-auth-api-phone:17.4.0] C:\Users\Admin\.gradle\caches\transforms-3\041aa1d33620cf2b7a2923480ac454e8\transformed\jetified-play-services-auth-api-phone-17.4.0\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.firebase:firebase-database-collection:18.0.1] C:\Users\Admin\.gradle\caches\transforms-3\b121be286b04222a89721785cfda597a\transformed\jetified-firebase-database-collection-18.0.1\AndroidManifest.xml:2:1-9:12
@@ -129,6 +130,8 @@ MERGED from [com.google.firebase:firebase-firestore:24.11.0] C:\Users\Admin\.gra
 MERGED from [com.google.firebase:firebase-firestore:24.11.0] C:\Users\Admin\.gradle\caches\transforms-3\1980ba8c79bd3c43e5c94bbcdf29a758\transformed\jetified-firebase-firestore-24.11.0\AndroidManifest.xml:11:5-67
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:24:5-67
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:24:5-67
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:23:5-67
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:23:5-67
 MERGED from [com.google.firebase:firebase-installations:17.2.0] C:\Users\Admin\.gradle\caches\transforms-3\d371144da518f1baee2043d19be87b38\transformed\jetified-firebase-installations-17.2.0\AndroidManifest.xml:8:5-67
 MERGED from [com.google.firebase:firebase-installations:17.2.0] C:\Users\Admin\.gradle\caches\transforms-3\d371144da518f1baee2043d19be87b38\transformed\jetified-firebase-installations-17.2.0\AndroidManifest.xml:8:5-67
 MERGED from [com.google.android.recaptcha:recaptcha:18.4.0] C:\Users\Admin\.gradle\caches\transforms-3\c24e81ea31e74e0a69f4a9ab9937fa2a\transformed\jetified-recaptcha-18.4.0\AndroidManifest.xml:7:5-67
@@ -190,8 +193,8 @@ ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\
 	android:name
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:19-63
 application
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-92:19
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-92:19
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-94:19
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-94:19
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:21:5-29:19
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:21:5-29:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Admin\.gradle\caches\transforms-3\9287c5ea0dbd9dca7290d1f343e8b0bf\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
@@ -224,6 +227,8 @@ MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.grad
 MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:28:5-64:19
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:26:5-37:19
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:26:5-37:19
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:25:5-36:19
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:25:5-36:19
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:21:5-32:19
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:21:5-32:19
 MERGED from [com.google.firebase:firebase-appcheck-interop:17.1.0] C:\Users\Admin\.gradle\caches\transforms-3\33c47c46c001c05a1343ee54b03bcf81\transformed\jetified-firebase-appcheck-interop-17.1.0\AndroidManifest.xml:21:5-20
@@ -360,68 +365,74 @@ ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:59:13-37
 	android:name
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:58:19-71
-activity#com.example.attendanceapplication.activities.CreateSessionActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:9-62:58
-	android:windowSoftInputMode
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:13-55
+activity#com.example.attendanceapplication.activities.ShiftAttendanceListActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:9-61:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:61:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:19-67
-activity#com.example.attendanceapplication.activities.StudentMainActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:65:9-66:40
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:19-73
+activity#com.example.attendanceapplication.activities.CreateSessionActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:9-64:58
+	android:windowSoftInputMode
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:64:13-55
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:66:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:63:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:65:19-65
-activity#com.example.attendanceapplication.activities.JoinClassActivity
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:19-67
+activity#com.example.attendanceapplication.activities.StudentMainActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:9-68:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:68:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:19-63
-activity#com.example.attendanceapplication.activities.ScanAttendanceActivity
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:19-65
+activity#com.example.attendanceapplication.activities.JoinClassActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:9-70:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:70:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:19-68
-activity#com.example.attendanceapplication.activities.AttendanceResultActivity
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:19-63
+activity#com.example.attendanceapplication.activities.ScanAttendanceActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:71:9-72:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:72:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:71:19-70
-activity#com.example.attendanceapplication.activities.ClassDetailStudentActivity
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:71:19-68
+activity#com.example.attendanceapplication.activities.AttendanceResultActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:9-74:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:74:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:19-72
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:19-70
+activity#com.example.attendanceapplication.activities.ClassDetailStudentActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:75:9-76:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:75:19-72
 activity#com.example.attendanceapplication.activities.ShiftDetailActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:9-77:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:78:9-79:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:77:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:79:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:19-65
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:78:19-65
 activity#com.example.attendanceapplication.activities.ProfileActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:80:9-81:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:82:9-83:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:81:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:83:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:80:19-61
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:82:19-61
 service#com.example.attendanceapplication.utils.FCMService
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:84:9-90:19
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:86:9-92:19
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:86:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:88:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:85:13-45
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:87:13-45
 intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:87:13-89:29
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:89:13-91:29
 action#com.google.firebase.MESSAGING_EVENT
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:88:17-78
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:90:17-78
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:88:25-75
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:90:25-75
 uses-sdk
 INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml
@@ -478,6 +489,8 @@ MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.grad
 MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:20:5-44
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:19:5-44
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:19:5-44
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:18:5-44
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:18:5-44
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:18:5-44
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:18:5-44
 MERGED from [com.google.android.gms:play-services-auth-api-phone:17.4.0] C:\Users\Admin\.gradle\caches\transforms-3\041aa1d33620cf2b7a2923480ac454e8\transformed\jetified-play-services-auth-api-phone-17.4.0\AndroidManifest.xml:5:5-44
@@ -658,6 +671,8 @@ MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.grad
 MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:54:9-63:19
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:27:9-36:19
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:27:9-36:19
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:26:9-35:19
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:26:9-35:19
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:22:9-31:19
 MERGED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:22:9-31:19
 MERGED from [com.google.firebase:firebase-installations:17.2.0] C:\Users\Admin\.gradle\caches\transforms-3\d371144da518f1baee2043d19be87b38\transformed\jetified-firebase-installations-17.2.0\AndroidManifest.xml:12:9-21:19
@@ -760,6 +775,8 @@ MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.grad
 MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:22:5-79
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:23:5-79
 MERGED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:23:5-79
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:22:5-79
+MERGED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:22:5-79
 MERGED from [com.google.firebase:firebase-installations:17.2.0] C:\Users\Admin\.gradle\caches\transforms-3\d371144da518f1baee2043d19be87b38\transformed\jetified-firebase-installations-17.2.0\AndroidManifest.xml:7:5-79
 MERGED from [com.google.firebase:firebase-installations:17.2.0] C:\Users\Admin\.gradle\caches\transforms-3\d371144da518f1baee2043d19be87b38\transformed\jetified-firebase-installations-17.2.0\AndroidManifest.xml:7:5-79
 MERGED from [com.google.android.recaptcha:recaptcha:18.4.0] C:\Users\Admin\.gradle\caches\transforms-3\c24e81ea31e74e0a69f4a9ab9937fa2a\transformed\jetified-recaptcha-18.4.0\AndroidManifest.xml:8:5-79
@@ -914,6 +931,18 @@ ADDED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\
 		ADDED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:35:17-82
 	android:name
 		ADDED from [com.google.firebase:firebase-storage:20.3.0] C:\Users\Admin\.gradle\caches\transforms-3\62a4130a76bd2b1ecdf927aca002fab7\transformed\jetified-firebase-storage-20.3.0\AndroidManifest.xml:34:17-107
+meta-data#com.google.firebase.components:com.google.firebase.database.FirebaseDatabaseKtxRegistrar
+ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:29:13-31:85
+	android:value
+		ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:31:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:30:17-120
+meta-data#com.google.firebase.components:com.google.firebase.database.DatabaseRegistrar
+ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:32:13-34:85
+	android:value
+		ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:34:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-database:20.3.1] C:\Users\Admin\.gradle\caches\transforms-3\f1f037d6b53c9c6b6e06719e7e149399\transformed\jetified-firebase-database-20.3.1\AndroidManifest.xml:33:17-109
 meta-data#com.google.firebase.components:com.google.firebase.appcheck.FirebaseAppCheckKtxRegistrar
 ADDED from [com.google.firebase:firebase-appcheck:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\d7868df95ce2dea01f7437431dd9f4e6\transformed\jetified-firebase-appcheck-17.1.2\AndroidManifest.xml:25:13-27:85
 	android:value

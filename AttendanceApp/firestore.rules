@@ -2,58 +2,102 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    // True nếu người gọi là giáo viên chủ của lớp classId.
+    function isClassTeacher(classId) {
+      return isSignedIn() &&
+             get(/databases/$(database)/documents/classes/$(classId)).data.teacherId == request.auth.uid;
+    }
+    // Dữ liệu của một phiên điểm danh.
+    function sessionData(sessionId) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)).data;
+    }
+    // True nếu người gọi đã ghi danh vào lớp (enrollment id = studentId_classId).
+    function isEnrolled(classId) {
+      return exists(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + classId));
+    }
+
     // ── Users ────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read:  if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read:  if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // ── Classes ──────────────────────────────────────────────────────────────
     match /classes/{classId} {
       // Anyone authenticated can read (students need to see class info)
-      allow read: if request.auth != null;
+      allow read: if isSignedIn();
       // Only the teacher who created it can write
-      allow create: if request.auth != null &&
+      allow create: if isSignedIn() &&
                        request.resource.data.teacherId == request.auth.uid;
-      allow update, delete: if request.auth != null &&
+      allow update, delete: if isSignedIn() &&
                                resource.data.teacherId == request.auth.uid;
     }
 
     // ── Shifts ───────────────────────────────────────────────────────────────
     match /shifts/{shiftId} {
-      allow read: if request.auth != null;
-      // Shifts are created/updated by the class teacher only
-      allow write: if request.auth != null &&
-                      get(/databases/$(database)/documents/classes/$(resource.data.classId))
-                        .data.teacherId == request.auth.uid;
+      allow read: if isSignedIn();
+      // A new shift has no stored document; authorize from the incoming classId.
+      allow create: if isClassTeacher(request.resource.data.classId);
+      // A shift stays with its original class; only that class's teacher may change it.
+      allow update: if isSignedIn() &&
+                      request.resource.data.classId == resource.data.classId &&
+                      isClassTeacher(resource.data.classId);
+      allow delete: if isClassTeacher(resource.data.classId);
     }
 
     // ── Sessions ─────────────────────────────────────────────────────────────
+    // Chỉ giáo viên chủ lớp mới được mở/sửa/đóng phiên điểm danh.
     match /sessions/{sessionId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow read:   if isSignedIn();
+      allow create: if isClassTeacher(request.resource.data.classId);
+      // classId không được đổi; chỉ chủ lớp mới sửa (vd đóng phiên).
+      allow update: if isSignedIn() &&
+                      request.resource.data.classId == resource.data.classId &&
+                      isClassTeacher(resource.data.classId);
+      allow delete: if isClassTeacher(resource.data.classId);
     }
 
     // ── Attendances ──────────────────────────────────────────────────────────
     match /attendances/{attendanceId} {
       // Anyone authenticated can read (teacher sees all, student sees own)
-      allow read: if request.auth != null;
-      // Students create their own attendance record
-      allow create: if request.auth != null &&
-                       request.resource.data.studentId == request.auth.uid;
-      // No updates/deletes by students; teachers can update (e.g. mark absent)
-      allow update: if request.auth != null;
+      allow read: if isSignedIn();
+
+      // Sinh viên chỉ tạo được bản ghi điểm danh CỦA CHÍNH MÌNH, và chỉ khi:
+      //  - đã ghi danh vào lớp,
+      //  - phiên (sessionId) đang mở (isActive == true),
+      //  - classId/shiftId trong bản ghi khớp với phiên (chống giả mạo),
+      //  - trạng thái chỉ là present/late (không tự đặt absent).
+      allow create: if isSignedIn() &&
+                      request.resource.data.studentId == request.auth.uid &&
+                      request.resource.data.status in ['present', 'late'] &&
+                      isEnrolled(request.resource.data.classId) &&
+                      sessionData(request.resource.data.sessionId).isActive == true &&
+                      sessionData(request.resource.data.sessionId).classId == request.resource.data.classId &&
+                      sessionData(request.resource.data.sessionId).shiftId == request.resource.data.shiftId;
+
+      // Không cho sinh viên sửa; chỉ giáo viên chủ lớp được cập nhật (vd đánh dấu vắng).
+      allow update: if isClassTeacher(resource.data.classId);
+      // Cấm xóa bản ghi điểm danh.
       allow delete: if false;
     }
 
     // ── Enrollments ──────────────────────────────────────────────────────────
     match /enrollments/{enrollmentId} {
-      allow read: if request.auth != null;
-      // Students create their own enrollment
-      allow create: if request.auth != null &&
-                       request.resource.data.studentId == request.auth.uid;
-      allow update, delete: if request.auth != null;
+      allow read: if isSignedIn();
+      // A student can join personally, or the class teacher can add a student manually.
+      allow create: if isSignedIn() &&
+                      (request.resource.data.studentId == request.auth.uid ||
+                       isClassTeacher(request.resource.data.classId));
+      // Only the owning teacher may edit an enrollment.
+      allow update: if isClassTeacher(resource.data.classId);
+      // Students can leave themselves; the owning teacher can remove them.
+      allow delete: if isSignedIn() &&
+                      (resource.data.studentId == request.auth.uid ||
+                       isClassTeacher(resource.data.classId));
     }
   }
 }

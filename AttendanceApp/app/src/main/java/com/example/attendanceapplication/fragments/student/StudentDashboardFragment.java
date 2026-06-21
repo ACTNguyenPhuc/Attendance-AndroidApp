@@ -1,7 +1,6 @@
 package com.example.attendanceapplication.fragments.student;
 
 import android.content.Intent;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
@@ -23,6 +22,7 @@ public class StudentDashboardFragment extends Fragment {
 
     private TextView tvGreeting, tvStudentCode, tvTotalClasses;
     private Button btnJoinClass;
+    private ImageButton btnScanAttendance;
     private RecyclerView rvClasses;
     private ClassCardAdapter adapter;
     private List<ClassModel> classList = new ArrayList<>();
@@ -43,6 +43,7 @@ public class StudentDashboardFragment extends Fragment {
         tvStudentCode  = view.findViewById(R.id.tv_student_code);
         tvTotalClasses = view.findViewById(R.id.tv_total_classes);
         btnJoinClass   = view.findViewById(R.id.btn_join_class);
+        btnScanAttendance = view.findViewById(R.id.btn_scan_attendance);
         rvClasses      = view.findViewById(R.id.rv_classes);
 
         adapter = new ClassCardAdapter(classList, cls -> {
@@ -58,24 +59,40 @@ public class StudentDashboardFragment extends Fragment {
         btnJoinClass.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), JoinClassActivity.class)));
 
+        if (btnScanAttendance != null) {
+            btnScanAttendance.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ScanAttendanceActivity.class)));
+        }
+
         loadProfile();
         loadClasses();
     }
 
     private void loadProfile() {
+        if (!isAdded()) return;
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         repo.getUserProfile(uid,
-                user -> requireActivity().runOnUiThread(() -> {
-                    tvGreeting.setText("Xin chào, " + user.getName());
-                    tvStudentCode.setText(user.getStudentCode());
-                }),
+                user -> {
+                    if (!isAdded()) return;
+                    android.app.Activity activity = getActivity();
+                    if (activity == null) return;
+                    activity.runOnUiThread(() -> {
+                        if (!isAdded()) return;
+                        tvGreeting.setText("Xin chào, " + user.getName());
+                        tvStudentCode.setText(user.getStudentCode());
+                    });
+                },
                 e -> {}
         );
     }
 
     private void loadClasses() {
+        if (!isAdded()) return;
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         repo.getStudentClasses(uid).observe(getViewLifecycleOwner(), classes -> {
+            if (!isAdded()) return;
             classList.clear();
             classList.addAll(classes);
             adapter.notifyDataSetChanged();

@@ -4,8 +4,24 @@
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_register.xml"
     },
     {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_shift_attendance_list.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_shift_attendance_list.xml"
+    },
+    {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_create_class.xml",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_create_class.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_student_search.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_student_search.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_shift_home_card.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_home_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_student_absent.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_student_absent.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_login.xml",
@@ -14,6 +30,10 @@
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_shift_student.xml",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_student.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_class_card_teacher.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_class_card_teacher.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\fragment_students_tab.xml",
@@ -28,16 +48,16 @@
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_teacher.xml"
     },
     {
-        "merged": "com.example.attendanceapplication.app-mergeDebugResources-52:/layout/dialog_add_student.xml",
-        "source": "com.example.attendanceapplication.app-main-55:/layout/dialog_add_student.xml"
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_shift_agenda.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_agenda.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_scan_attendance.xml",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_scan_attendance.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_shift_agenda.xml",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\item_shift_agenda.xml"
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\dialog_add_student.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\dialog_add_student.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\item_student.xml",
@@ -50,6 +70,14 @@
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_teacher_main.xml",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\activity_teacher_main.xml"
+    },
+    {
+        "merged": "com.example.attendanceapplication.app-mergeDebugResources-52:/layout/activity_class_detail_teacher.xml",
+        "source": "com.example.attendanceapplication.app-main-55:/layout/activity_class_detail_teacher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\dialog_edit_class.xml",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\dialog_edit_class.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\activity_join_class.xml",
@@ -110,10 +138,6 @@
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\fragment_profile.xml",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-main-55:\\layout\\fragment_profile.xml"
-    },
-    {
-        "merged": "com.example.attendanceapplication.app-mergeDebugResources-52:/layout/fragment_students_tab.xml",
-        "source": "com.example.attendanceapplication.app-main-55:/layout/fragment_students_tab.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.4\\com.example.attendanceapplication.app-mergeDebugResources-52:\\layout\\dialog_class_qr.xml",

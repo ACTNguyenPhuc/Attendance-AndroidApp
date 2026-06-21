@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/transparent"
-            app:titleTextColor="@color/white" />
+            app:titleTextColor="@color/white"
+            app:iconTint="@color/white" />
 
         <TextView
             android:id="@+id/tv_class_name"
@@ -74,10 +75,13 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:tabSelectedTextColor="@color/primary_blue"
-        app:tabTextColor="@color/text_secondary"
-        app:tabIndicatorColor="@color/primary_blue" />
+        android:background="@color/primary_blue"
+        app:tabInlineLabel="true"
+        app:tabTextAppearance="@style/TabTextCompact"
+        app:tabIconTint="@color/white"
+        app:tabSelectedTextColor="@color/white"
+        app:tabTextColor="#CCFFFFFF"
+        app:tabIndicatorColor="@color/white" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"

@@ -5,7 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +21,7 @@ import java.lang.String;
 
 public final class FragmentTeacherClassListBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final FrameLayout rootView;
 
   @NonNull
   public final EditText etSearch;
@@ -28,20 +30,28 @@ public final class FragmentTeacherClassListBinding implements ViewBinding {
   public final FloatingActionButton fabAdd;
 
   @NonNull
+  public final ImageView ivSearch;
+
+  @NonNull
   public final RecyclerView rvClasses;
 
-  private FragmentTeacherClassListBinding(@NonNull LinearLayout rootView,
-      @NonNull EditText etSearch, @NonNull FloatingActionButton fabAdd,
-      @NonNull RecyclerView rvClasses) {
+  @NonNull
+  public final TextView tvTitle;
+
+  private FragmentTeacherClassListBinding(@NonNull FrameLayout rootView, @NonNull EditText etSearch,
+      @NonNull FloatingActionButton fabAdd, @NonNull ImageView ivSearch,
+      @NonNull RecyclerView rvClasses, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.etSearch = etSearch;
     this.fabAdd = fabAdd;
+    this.ivSearch = ivSearch;
     this.rvClasses = rvClasses;
+    this.tvTitle = tvTitle;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public FrameLayout getRoot() {
     return rootView;
   }
 
@@ -78,14 +88,26 @@ public final class FragmentTeacherClassListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.iv_search;
+      ImageView ivSearch = ViewBindings.findChildViewById(rootView, id);
+      if (ivSearch == null) {
+        break missingId;
+      }
+
       id = R.id.rv_classes;
       RecyclerView rvClasses = ViewBindings.findChildViewById(rootView, id);
       if (rvClasses == null) {
         break missingId;
       }
 
-      return new FragmentTeacherClassListBinding((LinearLayout) rootView, etSearch, fabAdd,
-          rvClasses);
+      id = R.id.tv_title;
+      TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvTitle == null) {
+        break missingId;
+      }
+
+      return new FragmentTeacherClassListBinding((FrameLayout) rootView, etSearch, fabAdd, ivSearch,
+          rvClasses, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

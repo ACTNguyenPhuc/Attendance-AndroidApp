@@ -1,6 +1,10 @@
 package com.example.attendanceapplication.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,8 +33,12 @@ import com.google.firebase.firestore.ListenerRegistration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SessionManagementActivity extends AppCompatActivity {
 
@@ -50,6 +59,7 @@ public class SessionManagementActivity extends AppCompatActivity {
     private int totalStudents = 0;
 
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
+    private final ExecutorService geocodingExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +76,10 @@ public class SessionManagementActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Điểm danh - " + className);
         }
-
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         initViews();
         setupRecyclerView();
         createOrLoadSession();
@@ -74,8 +87,13 @@ public class SessionManagementActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) { confirmClose(); return true; }
+        if (item.getItemId() == android.R.id.home) { finish(); return true; }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     private void initViews() {
@@ -138,10 +156,48 @@ public class SessionManagementActivity extends AppCompatActivity {
                     displayQrCode(session);
                     startRealtimeListener(id);
                     tvSessionStatus.setText("ĐANG MỞ ĐIỂM DANH");
-                    tvShiftInfo.setText(String.format("Vị trí: %.5f, %.5f  (bán kính 100m)", lat, lng));
+                    displayLocation(lat, lng);
                 },
                 e -> Toast.makeText(this, "Lỗi tạo phiên: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
+    }
+
+    @SuppressWarnings("deprecation")
+    private void displayLocation(double latitude, double longitude) {
+        String coordinates = String.format(Locale.getDefault(),
+                "Vị trí: %.5f, %.5f  (bán kính 100m)", latitude, longitude);
+        tvShiftInfo.setText(coordinates);
+
+        // A fallback GPS location (0,0) cannot be meaningfully reverse-geocoded.
+        if ((latitude == 0 && longitude == 0) || !Geocoder.isPresent()) return;
+
+        geocodingExecutor.execute(() -> {
+            try {
+                List<Address> addresses = new Geocoder(this, Locale.getDefault())
+                        .getFromLocation(latitude, longitude, 1);
+                if (addresses == null || addresses.isEmpty()) return;
+
+                Address address = addresses.get(0);
+                String city = address.getLocality();
+                if (city == null || city.isEmpty()) city = address.getSubAdminArea();
+                if (city == null || city.isEmpty()) city = address.getAdminArea();
+                String country = address.getCountryName();
+
+                if ((city == null || city.isEmpty()) && (country == null || country.isEmpty())) {
+                    return;
+                }
+                String place = city == null || city.isEmpty() ? country
+                        : country == null || country.isEmpty() ? city
+                        : city + ", " + country;
+                runOnUiThread(() -> {
+                    if (!isFinishing() && !isDestroyed()) {
+                        tvShiftInfo.setText(coordinates + "\n" + place);
+                    }
+                });
+            } catch (IOException ignored) {
+                // Keep showing coordinates when the device has no geocoding service or network.
+            }
+        });
     }
 
     private void displayQrCode(Session session) {
@@ -187,16 +243,34 @@ public class SessionManagementActivity extends AppCompatActivity {
     }
 
     private void closeSession() {
-        if (currentSession != null) {
-            repo.closeSession(currentSession.getSessionId(), shiftId);
+        if (currentSession == null) {
+            finish();
+            return;
         }
-        if (attendanceListener != null) attendanceListener.remove();
-        finish();
+        btnCloseSession.setEnabled(false);
+        btnRefreshQr.setEnabled(false);
+        tvSessionStatus.setText("ĐANG ĐÓNG PHIÊN...");
+        repo.closeSession(currentSession.getSessionId(), shiftId,
+                unused -> {
+                    if (attendanceListener != null) attendanceListener.remove();
+                    setResult(RESULT_OK, new Intent().putExtra(EXTRA_SHIFT_ID, shiftId));
+                    Toast.makeText(this, "Đã đóng phiên điểm danh", Toast.LENGTH_SHORT).show();
+                    finish();
+                },
+                e -> {
+                    btnCloseSession.setEnabled(true);
+                    btnRefreshQr.setEnabled(true);
+                    tvSessionStatus.setText("ĐÓNG PHIÊN THẤT BẠI");
+                    Toast.makeText(this, "Lỗi đóng phiên: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+        );
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (attendanceListener != null) attendanceListener.remove();
+        geocodingExecutor.shutdownNow();
     }
 }

@@ -125,31 +125,40 @@
                 <com.google.android.material.chip.Chip android:id="@+id/chip_mon"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T2" app:chipBackgroundColor="@color/divider" />
+                    android:text="T2" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white"
+                    
+                    />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_tue"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T3" app:chipBackgroundColor="@color/divider" />
+                    android:text="T3" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_wed"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T4" app:chipBackgroundColor="@color/divider" />
+                    android:text="T4" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_thu"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T5" app:chipBackgroundColor="@color/divider" />
+                    android:text="T5" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_fri"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T6" app:chipBackgroundColor="@color/divider" />
+                    android:text="T6" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_sat"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="T7" app:chipBackgroundColor="@color/divider" />
+                    android:text="T7" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
                 <com.google.android.material.chip.Chip android:id="@+id/chip_sun"
                     style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="CN" app:chipBackgroundColor="@color/divider" />
+                    android:text="CN" android:textColor="@color/chip_text_selector"
+                    app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
             </com.google.android.material.chip.ChipGroup>
 
             <!-- Class Time -->

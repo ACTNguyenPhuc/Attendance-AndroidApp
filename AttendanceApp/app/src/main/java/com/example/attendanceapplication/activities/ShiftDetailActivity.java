@@ -30,6 +30,9 @@ public class ShiftDetailActivity extends AppCompatActivity {
 
     private String shiftId, classId, className;
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
+    // Latest realtime shift, kept so onResume can re-check the attendance state
+    // (e.g. right after the student checks in) without re-subscribing the LiveData.
+    private Shift currentShift;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,34 +73,43 @@ public class ShiftDetailActivity extends AppCompatActivity {
     }
 
     private void checkAttendanceStatus() {
-        String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Get shift to check session
+        // Get shift to check session (realtime). The attendance check is
+        // re-run separately so onResume can refresh it without re-observing.
         repo.getClassShifts(classId).observe(this, shifts -> {
             for (Shift shift : shifts) {
                 if (shift.getShiftId().equals(shiftId)) {
+                    currentShift = shift;
                     tvDate.setText(shift.getDate());
                     tvDayTime.setText(shift.getDayOfWeekDisplay() + "  " +
                             shift.getStartAt() + " - " + shift.getEndAt());
                     tvRoom.setText(shift.getRoom() != null ? "Phòng: " + shift.getRoom() : "");
-
-                    if (shift.isAttendanceOpened() && shift.getAttendanceSessionId() != null) {
-                        // Check if student already attended
-                        repo.checkAlreadyAttended(studentId, shift.getAttendanceSessionId(),
-                                attended -> runOnUiThread(() -> {
-                                    if (attended) {
-                                        showAlreadyAttended();
-                                    } else {
-                                        showCanAttend(shift.getAttendanceSessionId());
-                                    }
-                                }));
-                    } else {
-                        showSessionNotOpen();
-                    }
+                    evaluateAttendance(shift);
                     break;
                 }
             }
         });
+    }
+
+    private void evaluateAttendance(Shift shift) {
+        if (shift.isAttendanceOpened() && shift.getAttendanceSessionId() != null) {
+            String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            repo.checkAlreadyAttended(studentId, shift.getAttendanceSessionId(),
+                    attended -> runOnUiThread(() -> {
+                        if (attended) {
+                            showAlreadyAttended();
+                        } else {
+                            showCanAttend(shift.getAttendanceSessionId());
+                        }
+                    }));
+        } else {
+            showSessionNotOpen();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentShift != null) evaluateAttendance(currentShift);
     }
 
     private void showAlreadyAttended() {

@@ -108,6 +108,9 @@
             android:name="com.example.attendanceapplication.activities.SessionManagementActivity"
             android:exported="false" />
         <activity
+            android:name="com.example.attendanceapplication.activities.ShiftAttendanceListActivity"
+            android:exported="false" />
+        <activity
             android:name="com.example.attendanceapplication.activities.CreateSessionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -175,6 +178,12 @@
                 android:value="com.google.firebase.components.ComponentRegistrar" />
             <meta-data
                 android:name="com.google.firebase.components:com.google.firebase.storage.StorageRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.database.FirebaseDatabaseKtxRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.database.DatabaseRegistrar"
                 android:value="com.google.firebase.components.ComponentRegistrar" />
             <meta-data
                 android:name="com.google.firebase.components:com.google.firebase.appcheck.FirebaseAppCheckKtxRegistrar"

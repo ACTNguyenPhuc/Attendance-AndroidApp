@@ -23,6 +23,7 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
 
     private String classId, className;
     private TextView tvClassName, tvSchedule, tvAttendanceRate;
+    private TextView tvStatPast, tvStatPresent, tvStatAbsent;
     private RecyclerView rvShifts;
 
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
@@ -30,6 +31,9 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
     // Simple shift adapter for student
     private StudentShiftAdapter adapter;
     private List<Shift> shiftList = new ArrayList<>();
+    // Latest realtime shifts, kept so onResume can refresh attendance status
+    // without re-subscribing the LiveData (which would leak snapshot listeners).
+    private List<Shift> latestShifts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +47,19 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white);
             getSupportActionBar().setTitle(className);
         }
 
         tvClassName      = findViewById(R.id.tv_class_name);
         tvSchedule       = findViewById(R.id.tv_schedule);
         tvAttendanceRate = findViewById(R.id.tv_attendance_rate);
+        tvStatPast       = findViewById(R.id.tv_stat_past);
+        tvStatPresent    = findViewById(R.id.tv_stat_present);
+        tvStatAbsent     = findViewById(R.id.tv_stat_absent);
         rvShifts         = findViewById(R.id.rv_shifts);
+
+        if (className != null) tvClassName.setText(className);
 
         adapter = new StudentShiftAdapter(shiftList, shift -> {
             Intent i = new Intent(this, ShiftDetailActivity.class);
@@ -75,52 +85,124 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
                 e -> {}
         );
 
-        // Load shifts with attendance status
-        String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Load shifts (realtime). Attendance status is refreshed on top of them.
         repo.getClassShifts(classId).observe(this, shifts -> {
-            shiftList.clear();
-
-            // Load student attendance history for this class to mark each shift
-            repo.getStudentAttendanceHistory(studentId, classId, attendanceList -> {
-                // Build a map: shiftId -> status
-                java.util.HashMap<String, String> attMap = new java.util.HashMap<>();
-                for (Attendance a : attendanceList) {
-                    attMap.put(a.getShiftId(), a.getStatus());
-                }
-
-                for (Shift s : shifts) {
-                    String attStatus = attMap.get(s.getShiftId());
-                    if (attStatus != null) {
-                        s.setAttendanceStatus(attStatus);
-                    } else {
-                        s.setAttendanceStatus("not_checked");
-                    }
-                    shiftList.add(s);
-                }
-
-                // Calculate rate (capture final values for UI lambda)
-                final int total = shiftList.size();
-                int presentCount = 0;
-                for (Shift s : shiftList) {
-                    if ("present".equals(s.getAttendanceStatus()) ||
-                            "late".equals(s.getAttendanceStatus())) {
-                        presentCount++;
-                    }
-                }
-                final int present = presentCount;
-                final int rate = total > 0 ? (present * 100 / total) : 0;
-
-                runOnUiThread(() -> {
-                    adapter.notifyDataSetChanged();
-                    tvAttendanceRate.setText(String.format(
-                            "Điểm danh: %d/%d buổi (%d%%)", present, total, rate));
-                    // Color rate
-                    if (rate >= 80) tvAttendanceRate.setTextColor(getColor(R.color.accent_green));
-                    else if (rate >= 60) tvAttendanceRate.setTextColor(getColor(R.color.warning_yellow));
-                    else tvAttendanceRate.setTextColor(getColor(R.color.error_red));
-                });
-            }, e -> runOnUiThread(() -> adapter.notifyDataSetChanged()));
+            // No shifts in Firestore → show mock data so the screen isn't empty
+            if (shifts == null || shifts.isEmpty()) {
+                latestShifts = null;
+                runOnUiThread(() -> renderShifts(buildMockShifts()));
+                return;
+            }
+            latestShifts = shifts;
+            applyAttendanceStatus(shifts);
         });
+    }
+
+    /**
+     * Re-fetches the student's attendance history (one-shot) and marks each shift,
+     * then renders. Called from the realtime shift observer and from onResume,
+     * so the status updates immediately after the student checks in and returns.
+     */
+    private void applyAttendanceStatus(List<Shift> shifts) {
+        String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        repo.getStudentAttendanceHistory(studentId, classId, attendanceList -> {
+            java.util.HashMap<String, String> attMap = new java.util.HashMap<>();
+            for (Attendance a : attendanceList) {
+                attMap.put(a.getShiftId(), a.getStatus());
+            }
+            for (Shift s : shifts) {
+                String attStatus = attMap.get(s.getShiftId());
+                s.setAttendanceStatus(attStatus != null ? attStatus : "not_checked");
+            }
+            runOnUiThread(() -> renderShifts(shifts));
+        }, e -> runOnUiThread(() -> renderShifts(shifts)));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (latestShifts != null) applyAttendanceStatus(latestShifts);
+    }
+
+    /**
+     * Render the shift list and recompute the stat cards.
+     * A shift counts as "past" once it is completed or has been attended;
+     * past = attended + absent.
+     */
+    private void renderShifts(List<Shift> shifts) {
+        shiftList.clear();
+        shiftList.addAll(shifts);
+
+        int attended = 0, absent = 0;
+        for (Shift s : shiftList) {
+            String st = s.getAttendanceStatus();
+            boolean isPresent = "present".equals(st) || "late".equals(st);
+            if (isPresent) {
+                attended++;
+            } else if (Shift.STATUS_COMPLETED.equals(s.getStatus())) {
+                absent++;
+            }
+        }
+        final int past = attended + absent;
+        final int rate = past > 0 ? (attended * 100 / past) : 0;
+
+        adapter.notifyDataSetChanged();
+
+        tvStatPast.setText(String.valueOf(past));
+        tvStatPresent.setText(String.valueOf(attended));
+        tvStatAbsent.setText(String.valueOf(absent));
+
+        tvAttendanceRate.setText(String.format(
+                "Điểm danh: %d/%d buổi (%d%%)", attended, past, rate));
+        if (rate >= 80) tvAttendanceRate.setTextColor(getColor(R.color.accent_green));
+        else if (rate >= 60) tvAttendanceRate.setTextColor(getColor(R.color.warning_yellow));
+        else tvAttendanceRate.setTextColor(getColor(R.color.error_red));
+    }
+
+    /**
+     * Mock shift list used when this class has no shifts in Firestore yet,
+     * so the screen still demonstrates attended / absent / upcoming states.
+     */
+    private List<Shift> buildMockShifts() {
+        if (tvSchedule.getText().toString().trim().isEmpty()
+                || "T2+T4  18:00-20:00".equals(tvSchedule.getText().toString())) {
+            tvSchedule.setText("T4  16:17-17:25  (dữ liệu mẫu)");
+        }
+
+        // statusOfShift, attendanceStatus, attendanceOpened, daysFromToday
+        Object[][] specs = {
+                {Shift.STATUS_COMPLETED, "present",     false, -21},
+                {Shift.STATUS_COMPLETED, "present",     false, -14},
+                {Shift.STATUS_COMPLETED, "not_checked", false, -7},
+                {Shift.STATUS_COMPLETED, "late",        false, -3},
+                {Shift.STATUS_ONGOING,   "not_checked", true,   0},
+                {Shift.STATUS_UPCOMING,  "not_checked", false,  4},
+                {Shift.STATUS_UPCOMING,  "not_checked", false,  11},
+        };
+
+        java.text.SimpleDateFormat df =
+                new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+        List<Shift> mock = new ArrayList<>();
+        for (int i = 0; i < specs.length; i++) {
+            Object[] spec = specs[i];
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.add(java.util.Calendar.DAY_OF_YEAR, (int) spec[3]);
+
+            Shift s = new Shift();
+            s.setShiftId("mock_" + i);
+            s.setClassId(classId);
+            s.setClassName(className);
+            s.setDate(df.format(cal.getTime()));
+            s.setDayOfWeek(com.example.attendanceapplication.utils.AttendanceUtils
+                    .getDayOfWeekVN(cal.get(java.util.Calendar.DAY_OF_WEEK)));
+            s.setStartAt("16:17");
+            s.setEndAt("17:25");
+            s.setStatus((String) spec[0]);
+            s.setAttendanceStatus((String) spec[1]);
+            s.setAttendanceOpened((boolean) spec[2]);
+            mock.add(s);
+        }
+        return mock;
     }
 
     @Override
@@ -155,7 +237,7 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@androidx.annotation.NonNull VH h, int pos) {
             Shift s = list.get(pos);
-            h.tvDate.setText(s.getDate());
+            h.tvDate.setText(shortDate(s.getDate()));
             h.tvDay.setText(s.getDayOfWeekDisplay());
             h.tvTime.setText(s.getStartAt() + " - " + s.getEndAt());
 
@@ -190,6 +272,14 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         }
 
         @Override public int getItemCount() { return list.size(); }
+
+        // "2026-05-31" -> "31/05"; falls back to the raw value if unparseable.
+        private static String shortDate(String date) {
+            if (date == null) return "";
+            String[] p = date.split("-");
+            if (p.length == 3) return p[2] + "/" + p[1];
+            return date;
+        }
 
         static class VH extends RecyclerView.ViewHolder {
             TextView tvDate, tvDay, tvTime, tvAttIcon, tvAttLabel;

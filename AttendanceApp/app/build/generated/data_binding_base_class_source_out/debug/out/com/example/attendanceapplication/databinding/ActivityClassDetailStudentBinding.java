@@ -36,15 +36,28 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
   @NonNull
   public final TextView tvSchedule;
 
+  @NonNull
+  public final TextView tvStatAbsent;
+
+  @NonNull
+  public final TextView tvStatPast;
+
+  @NonNull
+  public final TextView tvStatPresent;
+
   private ActivityClassDetailStudentBinding(@NonNull LinearLayout rootView,
       @NonNull RecyclerView rvShifts, @NonNull Toolbar toolbar, @NonNull TextView tvAttendanceRate,
-      @NonNull TextView tvClassName, @NonNull TextView tvSchedule) {
+      @NonNull TextView tvClassName, @NonNull TextView tvSchedule, @NonNull TextView tvStatAbsent,
+      @NonNull TextView tvStatPast, @NonNull TextView tvStatPresent) {
     this.rootView = rootView;
     this.rvShifts = rvShifts;
     this.toolbar = toolbar;
     this.tvAttendanceRate = tvAttendanceRate;
     this.tvClassName = tvClassName;
     this.tvSchedule = tvSchedule;
+    this.tvStatAbsent = tvStatAbsent;
+    this.tvStatPast = tvStatPast;
+    this.tvStatPresent = tvStatPresent;
   }
 
   @Override
@@ -104,8 +117,26 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_stat_absent;
+      TextView tvStatAbsent = ViewBindings.findChildViewById(rootView, id);
+      if (tvStatAbsent == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_stat_past;
+      TextView tvStatPast = ViewBindings.findChildViewById(rootView, id);
+      if (tvStatPast == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_stat_present;
+      TextView tvStatPresent = ViewBindings.findChildViewById(rootView, id);
+      if (tvStatPresent == null) {
+        break missingId;
+      }
+
       return new ActivityClassDetailStudentBinding((LinearLayout) rootView, rvShifts, toolbar,
-          tvAttendanceRate, tvClassName, tvSchedule);
+          tvAttendanceRate, tvClassName, tvSchedule, tvStatAbsent, tvStatPast, tvStatPresent);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

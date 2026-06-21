@@ -1,7 +1,10 @@
 package com.example.attendanceapplication.models;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
+@IgnoreExtraProperties
 public class User {
     public static final String ROLE_TEACHER = "teacher";
     public static final String ROLE_STUDENT = "student";
@@ -46,6 +49,9 @@ public class User {
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
+    @Exclude
     public boolean isTeacher() { return ROLE_TEACHER.equals(role); }
+
+    @Exclude
     public boolean isStudent() { return ROLE_STUDENT.equals(role); }
 }
