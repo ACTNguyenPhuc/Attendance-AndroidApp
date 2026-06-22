@@ -784,17 +784,34 @@ public class FirebaseRepository {
      * Real-time listener for teacher to monitor attendance in a session.
      */
     public ListenerRegistration listenToSessionAttendance(String sessionId,
-                                                          OnSuccessListener<List<Attendance>> onUpdate) {
+                                                          OnSuccessListener<List<Attendance>> onUpdate,
+                                                          OnFailureListener onFailure) {
         return db.collection(COL_ATTENDANCES)
                 .whereEqualTo("sessionId", sessionId)
-                .orderBy("checkinTime")
                 .addSnapshotListener((snapshots, error) -> {
-                    if (error != null || snapshots == null) return;
+                    if (error != null) {
+                        Log.e(TAG, "listenToSessionAttendance failed for session " + sessionId, error);
+                        onFailure.onFailure(error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+
                     List<Attendance> list = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         Attendance a = doc.toObject(Attendance.class);
                         if (a != null) list.add(a);
                     }
+
+                    // Sort locally so this real-time query only needs the built-in single-field
+                    // index on sessionId. This keeps the teacher's screen live even when a
+                    // composite Firestore index has not yet been deployed.
+                    Collections.sort(list, (first, second) -> {
+                        Timestamp firstTime = first.getCheckinTime();
+                        Timestamp secondTime = second.getCheckinTime();
+                        if (firstTime == null) return secondTime == null ? 0 : 1;
+                        if (secondTime == null) return -1;
+                        return firstTime.compareTo(secondTime);
+                    });
                     onUpdate.onSuccess(list);
                 });
     }

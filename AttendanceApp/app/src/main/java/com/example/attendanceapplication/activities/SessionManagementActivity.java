@@ -82,6 +82,7 @@ public class SessionManagementActivity extends AppCompatActivity {
         }
         initViews();
         setupRecyclerView();
+        loadTotalStudents();
         createOrLoadSession();
     }
 
@@ -113,6 +114,16 @@ public class SessionManagementActivity extends AppCompatActivity {
         adapter = new RealtimeAttendanceAdapter(attendanceList);
         rvAttendance.setLayoutManager(new LinearLayoutManager(this));
         rvAttendance.setAdapter(adapter);
+    }
+
+    private void loadTotalStudents() {
+        repo.getClassStudents(classId,
+                students -> {
+                    totalStudents = students.size();
+                    updateAttendanceCount();
+                },
+                e -> Toast.makeText(this, "Không thể tải sĩ số lớp: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show());
     }
 
     private void createOrLoadSession() {
@@ -222,15 +233,22 @@ public class SessionManagementActivity extends AppCompatActivity {
     }
 
     private void startRealtimeListener(String sessionId) {
+        if (attendanceListener != null) attendanceListener.remove();
         attendanceListener = repo.listenToSessionAttendance(sessionId,
                 list -> {
                     attendanceList.clear();
                     attendanceList.addAll(list);
                     adapter.notifyDataSetChanged();
-                    tvAttendanceCount.setText(String.format("Đã điểm danh: %d/%d sinh viên",
-                            list.size(), totalStudents));
-                }
+                    updateAttendanceCount();
+                },
+                e -> Toast.makeText(this, "Không thể cập nhật điểm danh: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show()
         );
+    }
+
+    private void updateAttendanceCount() {
+        tvAttendanceCount.setText(String.format(Locale.getDefault(),
+                "Đã điểm danh: %d/%d sinh viên", attendanceList.size(), totalStudents));
     }
 
     private void confirmClose() {

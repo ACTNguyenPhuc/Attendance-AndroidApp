@@ -21,8 +21,10 @@ import com.example.attendanceapplication.models.User;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ShiftAttendanceListActivity extends AppCompatActivity {
@@ -136,6 +138,24 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
     }
 
     private void computeLists() {
+        // Bổ sung tên + mã SV cho các bản ghi điểm danh còn thiếu (lưu trước đây
+        // chưa có studentName/studentCode), lấy từ danh sách sinh viên của lớp.
+        Map<String, User> studentById = new HashMap<>();
+        for (User u : classStudents) {
+            if (u.getUid() != null) studentById.put(u.getUid(), u);
+        }
+        for (Attendance a : attendanceList) {
+            User u = a.getStudentId() == null ? null : studentById.get(a.getStudentId());
+            if (u == null) continue;
+            if (a.getStudentName() == null || a.getStudentName().isEmpty()) {
+                a.setStudentName(u.getName());
+            }
+            if (a.getStudentCode() == null || a.getStudentCode().isEmpty()) {
+                a.setStudentCode(u.getStudentCode());
+            }
+        }
+        adapter.notifyDataSetChanged();
+
         int totalStudents = classStudents.size();
         int attended = attendanceList.size();
         int absent = Math.max(0, totalStudents - attended);

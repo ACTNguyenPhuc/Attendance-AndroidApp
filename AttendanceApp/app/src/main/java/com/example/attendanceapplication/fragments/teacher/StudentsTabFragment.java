@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.*;
 
 import com.example.attendanceapplication.R;
+import com.example.attendanceapplication.models.Attendance;
+import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.models.User;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.google.android.material.snackbar.Snackbar;
@@ -72,6 +74,50 @@ public class StudentsTabFragment extends Fragment {
         }
 
         loadStudents();
+        loadAttendanceStats();
+    }
+
+    /**
+     * Tính số buổi tham gia của từng sinh viên:
+     *  - Mẫu số = số buổi ĐÃ QUA (status = completed), giống tab Thống kê.
+     *  - Tử số = số buổi đã qua mà SV có mặt/đi muộn (present/late).
+     * Quan sát shifts realtime nên khi đóng phiên (buổi -> completed) sẽ tự tính lại.
+     */
+    private void loadAttendanceStats() {
+        if (classId == null) return;
+        repo.getClassShifts(classId).observe(getViewLifecycleOwner(), shifts -> {
+            Set<String> completedShiftIds = new HashSet<>();
+            for (Shift s : shifts) {
+                if (Shift.STATUS_COMPLETED.equals(s.getStatus()) && s.getShiftId() != null) {
+                    completedShiftIds.add(s.getShiftId());
+                }
+            }
+            final int totalPast = completedShiftIds.size();
+
+            repo.getClassAttendances(classId,
+                    attendances -> {
+                        if (!isAdded()) return;
+                        Map<String, Set<String>> attendedShiftsByStudent = new HashMap<>();
+                        for (Attendance a : attendances) {
+                            if (a == null || a.getStudentId() == null || a.getShiftId() == null) continue;
+                            if (!completedShiftIds.contains(a.getShiftId())) continue;
+                            String st = a.getStatus();
+                            if (!Attendance.STATUS_PRESENT.equals(st)
+                                    && !Attendance.STATUS_LATE.equals(st)) continue;
+                            attendedShiftsByStudent
+                                    .computeIfAbsent(a.getStudentId(), k -> new HashSet<>())
+                                    .add(a.getShiftId());
+                        }
+                        Map<String, Integer> attendedByStudent = new HashMap<>();
+                        for (Map.Entry<String, Set<String>> e : attendedShiftsByStudent.entrySet()) {
+                            attendedByStudent.put(e.getKey(), e.getValue().size());
+                        }
+                        requireActivity().runOnUiThread(() ->
+                                adapter.setAttendanceStats(totalPast, attendedByStudent));
+                    },
+                    e -> {}
+            );
+        });
     }
 
     private void loadStudents() {
@@ -342,6 +388,8 @@ public class StudentsTabFragment extends Fragment {
 
         private final List<User> users;
         private final OnRemoveClickListener onRemoveClickListener;
+        private int totalPastShifts = 0;
+        private final Map<String, Integer> attendedByStudent = new HashMap<>();
 
         StudentListAdapter(List<User> users, OnRemoveClickListener onRemoveClickListener) {
             this.users = users;
@@ -351,6 +399,13 @@ public class StudentsTabFragment extends Fragment {
         void setData(List<User> newData) {
             users.clear();
             users.addAll(newData);
+            notifyDataSetChanged();
+        }
+
+        void setAttendanceStats(int totalPastShifts, Map<String, Integer> attendedByStudent) {
+            this.totalPastShifts = totalPastShifts;
+            this.attendedByStudent.clear();
+            if (attendedByStudent != null) this.attendedByStudent.putAll(attendedByStudent);
             notifyDataSetChanged();
         }
 
@@ -366,8 +421,13 @@ public class StudentsTabFragment extends Fragment {
             User u = users.get(position);
             holder.tvName.setText(u.getName());
             holder.tvCode.setText(u.getStudentCode());
-            holder.tvAttendanceSummary.setText("0/0 buổi (0%)");
-            holder.progressAttendance.setProgress(0);
+
+            int attended = u.getUid() == null ? 0
+                    : attendedByStudent.getOrDefault(u.getUid(), 0);
+            int percent = totalPastShifts > 0 ? (attended * 100 / totalPastShifts) : 0;
+            holder.tvAttendanceSummary.setText(
+                    attended + "/" + totalPastShifts + " buổi (" + percent + "%)");
+            holder.progressAttendance.setProgress(percent);
             // Avatar initial
             if (u.getName() != null && !u.getName().isEmpty()) {
                 holder.tvAvatar.setText(String.valueOf(u.getName().charAt(0)).toUpperCase());

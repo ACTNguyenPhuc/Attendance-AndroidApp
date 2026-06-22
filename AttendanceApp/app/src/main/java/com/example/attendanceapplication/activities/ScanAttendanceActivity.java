@@ -240,13 +240,27 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         attendance.setFaceVerified(false);
 
         final boolean finalIsLate = isLate;
+        // Gắn tên + mã sinh viên vào bản ghi để danh sách điểm danh hiển thị đúng.
+        repo.getUserProfile(studentId,
+                user -> {
+                    if (user != null) {
+                        attendance.setStudentName(user.getName());
+                        attendance.setStudentCode(user.getStudentCode());
+                    }
+                    persistAttendance(attendance, distance, finalIsLate);
+                },
+                e -> persistAttendance(attendance, distance, finalIsLate)
+        );
+    }
+
+    private void persistAttendance(Attendance attendance, double distance, boolean isLate) {
         repo.saveAttendance(attendance,
                 aVoid -> {
                     // Navigate to success screen
                     Intent intent = new Intent(this, AttendanceResultActivity.class);
                     intent.putExtra(AttendanceResultActivity.EXTRA_SUCCESS, true);
                     intent.putExtra(AttendanceResultActivity.EXTRA_DISTANCE, (float) distance);
-                    intent.putExtra(AttendanceResultActivity.EXTRA_LATE, finalIsLate);
+                    intent.putExtra(AttendanceResultActivity.EXTRA_LATE, isLate);
                     startActivity(intent);
                     finish();
                 },
