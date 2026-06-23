@@ -242,12 +242,25 @@ public class TeacherClassListFragment extends Fragment {
     }
 
     private void confirmDeleteClass(ClassModel classModel) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Xóa lớp")
-                .setMessage("Bạn có chắc muốn xóa lớp " + classModel.getClassName() + "?")
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Xóa", (d, which) -> deleteClass(classModel))
-                .show();
+        // Không cho xóa lớp đã phát sinh phiên điểm danh (đã có bản ghi).
+        repo.classHasSessions(classModel.getClassId(), hasSessions -> {
+            if (!isAdded()) return;
+            if (hasSessions) {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Không thể xóa lớp")
+                        .setMessage("Lớp " + classModel.getClassName()
+                                + " đã phát sinh bản ghi điểm danh nên không thể xóa.")
+                        .setPositiveButton("Đã hiểu", null)
+                        .show();
+                return;
+            }
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Xóa lớp")
+                    .setMessage("Bạn có chắc muốn xóa lớp " + classModel.getClassName() + "?")
+                    .setNegativeButton("Hủy", null)
+                    .setPositiveButton("Xóa", (d, which) -> deleteClass(classModel))
+                    .show();
+        });
     }
 
     private void deleteClass(ClassModel classModel) {

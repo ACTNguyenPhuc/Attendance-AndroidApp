@@ -193,17 +193,17 @@
             </LinearLayout>
 
             <!-- Preview -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="#E3F2FD"
-                app:cardCornerRadius="8dp" app:cardElevation="0dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="0dp">
                 <TextView android:id="@+id/tv_shift_preview"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:padding="12dp"
                     android:text=""
                     android:textSize="13sp" android:textColor="@color/primary_dark" />
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Create Button -->
             <com.google.android.material.button.MaterialButton

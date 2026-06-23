@@ -22,7 +22,7 @@ import java.util.List;
 public class ClassDetailStudentActivity extends AppCompatActivity {
 
     private String classId, className;
-    private TextView tvClassName, tvSchedule, tvAttendanceRate;
+    private TextView tvClassName, tvSchedule, tvAttendanceRate, tvTeacher, tvRoom;
     private TextView tvStatPast, tvStatPresent, tvStatAbsent;
     private RecyclerView rvShifts;
 
@@ -54,6 +54,8 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         tvClassName      = findViewById(R.id.tv_class_name);
         tvSchedule       = findViewById(R.id.tv_schedule);
         tvAttendanceRate = findViewById(R.id.tv_attendance_rate);
+        tvTeacher        = findViewById(R.id.tv_teacher);
+        tvRoom           = findViewById(R.id.tv_room);
         tvStatPast       = findViewById(R.id.tv_stat_past);
         tvStatPresent    = findViewById(R.id.tv_stat_present);
         tvStatAbsent     = findViewById(R.id.tv_stat_absent);
@@ -81,6 +83,20 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
                     tvClassName.setText(cls.getClassName());
                     tvSchedule.setText(cls.getScheduleDisplay() + "  " +
                             cls.getStartAt() + "-" + cls.getEndAt());
+                    tvRoom.setText(cls.getRoom() != null && !cls.getRoom().isEmpty()
+                            ? cls.getRoom() : "Chưa có phòng");
+                    // Tên giáo viên: ưu tiên dữ liệu sẵn có, nếu thiếu thì lấy từ users.
+                    if (cls.getTeacherName() != null && !cls.getTeacherName().isEmpty()) {
+                        tvTeacher.setText(cls.getTeacherName());
+                    } else if (cls.getTeacherId() != null && !cls.getTeacherId().isEmpty()) {
+                        repo.getUserProfile(cls.getTeacherId(),
+                                user -> runOnUiThread(() -> tvTeacher.setText(
+                                        user != null && user.getName() != null
+                                                ? user.getName() : "Chưa rõ")),
+                                err -> {});
+                    } else {
+                        tvTeacher.setText("Chưa rõ");
+                    }
                 }),
                 e -> {}
         );
@@ -241,32 +257,28 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
             h.tvDay.setText(s.getDayOfWeekDisplay());
             h.tvTime.setText(s.getStartAt() + " - " + s.getEndAt());
 
+            android.content.Context ctx = h.itemView.getContext();
             String attStatus = s.getAttendanceStatus();
+            int iconRes, colorRes;
+            String label;
             if ("present".equals(attStatus) || "late".equals(attStatus)) {
-                h.tvAttIcon.setText("✅");
-                h.tvAttLabel.setText("Đã điểm danh");
-                h.tvAttLabel.setTextColor(
-                        androidx.core.content.ContextCompat.getColor(
-                                h.itemView.getContext(), R.color.accent_green));
+                iconRes = R.drawable.ic_check_circle; colorRes = R.color.accent_green;
+                label = "Đã điểm danh";
             } else if (Shift.STATUS_COMPLETED.equals(s.getStatus())) {
-                h.tvAttIcon.setText("❌");
-                h.tvAttLabel.setText("Vắng mặt");
-                h.tvAttLabel.setTextColor(
-                        androidx.core.content.ContextCompat.getColor(
-                                h.itemView.getContext(), R.color.error_red));
+                iconRes = R.drawable.ic_cancel; colorRes = R.color.error_red;
+                label = "Vắng mặt";
             } else if (s.isAttendanceOpened()) {
-                h.tvAttIcon.setText("📷");
-                h.tvAttLabel.setText("Điểm danh ngay!");
-                h.tvAttLabel.setTextColor(
-                        androidx.core.content.ContextCompat.getColor(
-                                h.itemView.getContext(), R.color.primary_blue));
+                iconRes = R.drawable.ic_qr; colorRes = R.color.primary_blue;
+                label = "Điểm danh ngay!";
             } else {
-                h.tvAttIcon.setText("🕐");
-                h.tvAttLabel.setText("Chưa mở");
-                h.tvAttLabel.setTextColor(
-                        androidx.core.content.ContextCompat.getColor(
-                                h.itemView.getContext(), R.color.text_secondary));
+                iconRes = R.drawable.ic_clock; colorRes = R.color.text_secondary;
+                label = "Chưa mở";
             }
+            int color = androidx.core.content.ContextCompat.getColor(ctx, colorRes);
+            h.ivAttIcon.setImageResource(iconRes);
+            h.ivAttIcon.setColorFilter(color);
+            h.tvAttLabel.setText(label);
+            h.tvAttLabel.setTextColor(color);
 
             h.itemView.setOnClickListener(v -> listener.onClick(s));
         }
@@ -282,13 +294,14 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         }
 
         static class VH extends RecyclerView.ViewHolder {
-            TextView tvDate, tvDay, tvTime, tvAttIcon, tvAttLabel;
+            TextView tvDate, tvDay, tvTime, tvAttLabel;
+            android.widget.ImageView ivAttIcon;
             VH(@androidx.annotation.NonNull android.view.View v) {
                 super(v);
                 tvDate     = v.findViewById(R.id.tv_date);
                 tvDay      = v.findViewById(R.id.tv_day);
                 tvTime     = v.findViewById(R.id.tv_time);
-                tvAttIcon  = v.findViewById(R.id.tv_att_icon);
+                ivAttIcon  = v.findViewById(R.id.iv_att_icon);
                 tvAttLabel = v.findViewById(R.id.tv_att_label);
             }
         }

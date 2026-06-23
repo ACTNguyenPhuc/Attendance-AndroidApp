@@ -18,6 +18,8 @@ import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.adapters.RealtimeAttendanceAdapter;
 import com.example.attendanceapplication.models.Attendance;
 import com.example.attendanceapplication.models.User;
+import com.example.attendanceapplication.models.Session;
+import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 
 import java.util.ArrayList;
@@ -34,9 +36,11 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
     public static final String EXTRA_CLASS_NAME = "className";
     public static final String EXTRA_SHIFT_TITLE = "shiftTitle";
     public static final String EXTRA_SHIFT_TIME = "shiftTime";
+    public static final String EXTRA_SHIFT_CONTENT = "shiftContent";
 
     private TextView tvShiftTitle;
     private TextView tvShiftTime;
+    private TextView tvShiftContent;
     private TextView tvTotalStudents;
     private TextView tvTotalAttended;
     private TextView tvTotalAbsent;
@@ -65,6 +69,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         String className = getIntent().getStringExtra(EXTRA_CLASS_NAME);
         String shiftTitle = getIntent().getStringExtra(EXTRA_SHIFT_TITLE);
         String shiftTime = getIntent().getStringExtra(EXTRA_SHIFT_TIME);
+        String shiftContent = getIntent().getStringExtra(EXTRA_SHIFT_CONTENT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,6 +80,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
 
         tvShiftTitle = findViewById(R.id.tv_shift_title);
         tvShiftTime = findViewById(R.id.tv_shift_time);
+        tvShiftContent = findViewById(R.id.tv_shift_content);
         tvTotalStudents = findViewById(R.id.tv_total_students);
         tvTotalAttended = findViewById(R.id.tv_total_attended);
         tvTotalAbsent = findViewById(R.id.tv_total_absent);
@@ -85,6 +91,11 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
 
         tvShiftTitle.setText(shiftTitle != null ? shiftTitle : "Buổi học");
         tvShiftTime.setText(shiftTime != null ? shiftTime : "");
+
+        // Hiển thị nội dung buổi học: ưu tiên giá trị truyền sang (vừa đóng phiên),
+        // đồng thời nạp lại từ session để áp dụng cho các luồng xem lại khác.
+        showContent(shiftContent);
+        loadShiftContent();
 
         adapter = new RealtimeAttendanceAdapter(attendanceList);
         rvAttendance.setLayoutManager(new LinearLayoutManager(this));
@@ -135,6 +146,30 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
                 e -> runOnUiThread(() ->
                         Toast.makeText(this, "Lỗi tải điểm danh: " + e.getMessage(), Toast.LENGTH_SHORT).show())
         );
+    }
+
+    /** Nạp nội dung buổi học từ session (theo attendanceSessionId của shift). */
+    private void loadShiftContent() {
+        if (shiftId == null) return;
+        repo.getShiftById(shiftId,
+                shift -> {
+                    if (shift == null) return;
+                    String sid = shift.getAttendanceSessionId();
+                    if (sid == null || sid.isEmpty()) return;
+                    repo.getSession(sid,
+                            session -> { if (session != null) showContent(session.getContent()); },
+                            e -> {});
+                },
+                e -> {});
+    }
+
+    private void showContent(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            tvShiftContent.setVisibility(View.GONE);
+        } else {
+            tvShiftContent.setText("📝 " + content.trim());
+            tvShiftContent.setVisibility(View.VISIBLE);
+        }
     }
 
     private void computeLists() {

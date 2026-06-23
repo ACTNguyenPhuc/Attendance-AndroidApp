@@ -37,18 +37,30 @@
             android:textSize="13sp"
             android:textColor="@color/text_secondary" />
 
+        <TextView
+            android:id="@+id/tv_shift_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:drawablePadding="6dp"
+            android:text=""
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
-                app:cardCornerRadius="10dp" app:cardElevation="2dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="2dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -70,14 +82,14 @@
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="6dp"
-                app:cardCornerRadius="10dp" app:cardElevation="2dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="2dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -99,14 +111,14 @@
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                app:cardCornerRadius="10dp" app:cardElevation="2dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="2dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -128,7 +140,7 @@
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </LinearLayout>
 

@@ -15,6 +15,9 @@ public class Session {
     private Timestamp startTime;
     private Timestamp endTime;
     private boolean isActive;
+    // Nội dung buổi học do giáo viên nhập khi đóng phiên,
+    // ví dụ "Buổi 8 - Giao thức TCP/IP".
+    private String content;
     // Minutes from startTime within which a check-in counts as on-time;
     // checking in later is marked "late". Default 15.
     private int lateAfterMinutes = DEFAULT_LATE_AFTER_MINUTES;
@@ -51,6 +54,9 @@ public class Session {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
     public int getLateAfterMinutes() {
         // Guard old sessions stored without this field (deserialized as 0).

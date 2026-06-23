@@ -58,10 +58,11 @@ public class ShiftAgendaAdapter extends RecyclerView.Adapter<ShiftAgendaAdapter.
         holder.tvTimeEnd.setText(shift.getEndAt() != null ? shift.getEndAt() : "");
         holder.tvRoom.setText(shift.getRoom() != null ? "Phòng: " + shift.getRoom() : "");
         holder.tvTeacher.setText(shift.getTeacherName() != null ? "Giảng viên: " + shift.getTeacherName() : "");
-        // "Sắp diễn ra" only shows when the shift is within 1 day from today.
+        // "Sắp diễn ra" only shows when the shift is within 1 day from today
+        // AND its start time has not passed yet.
         boolean hideUpcoming = Shift.STATUS_UPCOMING.equals(shift.getStatus())
                 && !com.example.attendanceapplication.utils.AttendanceUtils
-                        .shouldShowUpcomingBadge(shift.getDate());
+                        .shouldShowUpcomingBadge(shift.getDate(), shift.getStartAt());
         if (hideUpcoming) {
             holder.tvStatus.setVisibility(View.GONE);
         } else {

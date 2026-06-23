@@ -27,12 +27,12 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                app:cardCornerRadius="10dp" app:cardElevation="3dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="3dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="8dp" android:gravity="center">
                     <TextView android:id="@+id/tv_total_shifts"
@@ -44,14 +44,14 @@
                         android:text="Tổng buổi" android:textSize="11sp" android:gravity="center"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
-                app:cardCornerRadius="10dp" app:cardElevation="3dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="3dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="8dp" android:gravity="center">
                     <TextView android:id="@+id/tv_past_shifts"
@@ -63,14 +63,14 @@
                         android:text="Buổi đã qua" android:textSize="11sp" android:gravity="center"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
-                app:cardCornerRadius="10dp" app:cardElevation="3dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="3dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="8dp" android:gravity="center">
                     <TextView android:id="@+id/tv_total_students"
@@ -82,14 +82,14 @@
                         android:text="Sinh viên" android:textSize="11sp" android:gravity="center"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
-                app:cardCornerRadius="10dp" app:cardElevation="3dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="3dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="8dp" android:gravity="center">
                     <TextView android:id="@+id/tv_avg_rate"
@@ -101,15 +101,15 @@
                         android:text="Tỷ lệ điểm danh" android:textSize="11sp" android:gravity="center"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
         <!-- Bar Chart: per shift -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp" app:cardElevation="4dp">
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="4dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,14 +128,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="240dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Pie Chart -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp" app:cardElevation="4dp">
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="4dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,6 +151,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="260dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

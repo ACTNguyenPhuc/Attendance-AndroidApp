@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.activities.CreateClassActivity;
 import com.example.attendanceapplication.activities.SessionManagementActivity;
+import com.example.attendanceapplication.activities.ShiftAttendanceListActivity;
 import com.example.attendanceapplication.adapters.ClassCardAdapter;
 import com.example.attendanceapplication.adapters.ShiftHomeAdapter;
 import com.example.attendanceapplication.models.ClassModel;
@@ -112,6 +113,19 @@ public class TeacherDashboardFragment extends Fragment {
         rvClasses.setAdapter(adapter);
 
         shiftHomeAdapter = new ShiftHomeAdapter(todayShiftList, shift -> {
+            if (Shift.STATUS_COMPLETED.equals(shift.getStatus())) {
+                // Buổi đã kết thúc: mở trang kết quả điểm danh thay vì tạo phiên mới.
+                Intent intent = new Intent(requireContext(), ShiftAttendanceListActivity.class);
+                intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_ID, shift.getShiftId());
+                intent.putExtra(ShiftAttendanceListActivity.EXTRA_CLASS_ID, shift.getClassId());
+                intent.putExtra(ShiftAttendanceListActivity.EXTRA_CLASS_NAME, shift.getClassName());
+                intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_TITLE,
+                        shift.getTitle() != null ? shift.getTitle() : shift.getClassName());
+                intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_TIME,
+                        shift.getDayOfWeekDisplay() + "  " + shift.getStartAt() + " - " + shift.getEndAt());
+                startActivity(intent);
+                return;
+            }
             Intent intent = new Intent(requireContext(), SessionManagementActivity.class);
             intent.putExtra(SessionManagementActivity.EXTRA_SHIFT_ID, shift.getShiftId());
             intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, shift.getClassId());

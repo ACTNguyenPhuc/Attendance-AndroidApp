@@ -49,11 +49,11 @@
         </LinearLayout>
 
         <!-- Form Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:cardCornerRadius="12dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
             app:cardElevation="4dp">
 
             <LinearLayout
@@ -145,7 +145,7 @@
                     app:cornerRadius="8dp" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

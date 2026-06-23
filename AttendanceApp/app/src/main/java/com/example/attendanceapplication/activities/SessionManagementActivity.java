@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +54,7 @@ public class SessionManagementActivity extends AppCompatActivity {
     private RecyclerView rvAttendance;
 
     private String shiftId, classId, className;
+    private Shift currentShift;
     private Session currentSession;
     private RealtimeAttendanceAdapter adapter;
     private ListenerRegistration attendanceListener;
@@ -127,6 +130,39 @@ public class SessionManagementActivity extends AppCompatActivity {
     }
 
     private void createOrLoadSession() {
+        tvSessionStatus.setText("Đang tải phiên điểm danh...");
+        // Nếu buổi học đã mở điểm danh từ trước (đang diễn ra), nạp lại đúng phiên
+        // đó để thấy danh sách sinh viên đã điểm danh — thay vì tạo phiên mới (rỗng).
+        repo.getShiftById(shiftId,
+                shift -> {
+                    currentShift = shift;
+                    if (shift != null && shift.isAttendanceOpened()
+                            && shift.getAttendanceSessionId() != null
+                            && !shift.getAttendanceSessionId().isEmpty()) {
+                        loadExistingSession(shift.getAttendanceSessionId());
+                    } else {
+                        startNewSession();
+                    }
+                },
+                e -> startNewSession()
+        );
+    }
+
+    private void loadExistingSession(String sessionId) {
+        repo.getSession(sessionId,
+                session -> {
+                    currentSession = session;
+                    displayQrCode(session);
+                    startRealtimeListener(session.getSessionId());
+                    tvSessionStatus.setText("ĐANG MỞ ĐIỂM DANH");
+                    displayLocation(session.getLatitude(), session.getLongitude());
+                },
+                // Phiên cũ không đọc được → tạo phiên mới
+                e -> startNewSession()
+        );
+    }
+
+    private void startNewSession() {
         tvSessionStatus.setText("Đang lấy vị trí GPS...");
         LocationService locationService = new LocationService(this);
         locationService.getCurrentLocation(new LocationService.LocationCallback2() {
@@ -252,27 +288,58 @@ public class SessionManagementActivity extends AppCompatActivity {
     }
 
     private void confirmClose() {
-        new AlertDialog.Builder(this)
+        // Giáo viên bắt buộc nhập nội dung buổi học trước khi đóng phiên.
+        final EditText input = new EditText(this);
+        input.setHint("Nội dung buổi học, vd: Buổi 8 - Giao thức TCP/IP");
+        input.setSingleLine(true);
+        if (currentSession != null && currentSession.getContent() != null) {
+            input.setText(currentSession.getContent());
+        }
+
+        int pad = (int) (20 * getResources().getDisplayMetrics().density);
+        FrameLayout container = new FrameLayout(this);
+        container.setPadding(pad, pad / 2, pad, 0);
+        container.addView(input);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Đóng phiên điểm danh")
-                .setMessage("Bạn có chắc muốn đóng phiên điểm danh này?")
-                .setPositiveButton("Đóng phiên", (d, w) -> closeSession())
+                .setMessage("Nhập nội dung buổi học trước khi đóng phiên:")
+                .setView(container)
+                .setPositiveButton("Đóng phiên", null)
                 .setNegativeButton("Hủy", null)
-                .show();
+                .create();
+
+        // Tự kiểm tra rỗng mà không đóng dialog (override sau khi show).
+        dialog.setOnShowListener(d -> {
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(v -> {
+                String content = input.getText().toString().trim();
+                if (content.isEmpty()) {
+                    input.setError("Vui lòng nhập nội dung buổi học");
+                    return;
+                }
+                dialog.dismiss();
+                closeSession(content);
+            });
+        });
+        dialog.show();
     }
 
-    private void closeSession() {
+    private void closeSession(String content) {
         if (currentSession == null) {
             finish();
             return;
         }
+        currentSession.setContent(content);
         btnCloseSession.setEnabled(false);
         btnRefreshQr.setEnabled(false);
         tvSessionStatus.setText("ĐANG ĐÓNG PHIÊN...");
-        repo.closeSession(currentSession.getSessionId(), shiftId,
+        repo.closeSession(currentSession.getSessionId(), shiftId, content,
                 unused -> {
-                    if (attendanceListener != null) attendanceListener.remove();
+                    if (attendanceListener != null) { attendanceListener.remove(); attendanceListener = null; }
                     setResult(RESULT_OK, new Intent().putExtra(EXTRA_SHIFT_ID, shiftId));
                     Toast.makeText(this, "Đã đóng phiên điểm danh", Toast.LENGTH_SHORT).show();
+                    openAttendanceResult();
                     finish();
                 },
                 e -> {
@@ -283,6 +350,28 @@ public class SessionManagementActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
         );
+    }
+
+    // Sau khi đóng phiên, mở luôn màn kết quả điểm danh của buổi học này
+    // (danh sách đã/chưa điểm danh) thay vì thoát về màn buổi học.
+    private void openAttendanceResult() {
+        Intent intent = new Intent(this, ShiftAttendanceListActivity.class);
+        intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_ID, shiftId);
+        intent.putExtra(ShiftAttendanceListActivity.EXTRA_CLASS_ID, classId);
+        intent.putExtra(ShiftAttendanceListActivity.EXTRA_CLASS_NAME, className);
+        if (currentShift != null) {
+            String title = currentShift.getTitle() != null && !currentShift.getTitle().isEmpty()
+                    ? currentShift.getTitle() : className;
+            intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_TITLE, title);
+            intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_TIME,
+                    currentShift.getDayOfWeekDisplay() + "  "
+                            + currentShift.getStartAt() + " - " + currentShift.getEndAt());
+        }
+        if (currentSession != null && currentSession.getContent() != null) {
+            intent.putExtra(ShiftAttendanceListActivity.EXTRA_SHIFT_CONTENT,
+                    currentSession.getContent());
+        }
+        startActivity(intent);
     }
 
     @Override

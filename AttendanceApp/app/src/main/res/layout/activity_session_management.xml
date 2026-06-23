@@ -25,11 +25,11 @@
             android:padding="16dp">
 
             <!-- Session Status -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
                 app:cardElevation="4dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -54,14 +54,14 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- QR Code Display -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
                 app:cardElevation="4dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                         android:textColor="@color/primary_blue"
                         app:strokeColor="@color/primary_blue" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Realtime Attendance List -->
             <LinearLayout

@@ -55,6 +55,15 @@
         <item name="cardBackgroundColor">@color/card_surface</item>
     </style>
 
+    <!-- Card shape: chỉ bo tròn nhẹ 2 góc dưới (trái-dưới & phải-dưới), 2 góc trên vuông -->
+    <style name="ShapeAppearance.AttendanceApp.Card.BottomRounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+    </style>
+
     <!-- TextInputLayout -->
     <style name="Widget.AttendanceApp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/primary_blue</item>

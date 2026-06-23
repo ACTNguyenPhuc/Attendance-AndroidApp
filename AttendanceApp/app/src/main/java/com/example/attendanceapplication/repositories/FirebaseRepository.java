@@ -140,6 +140,24 @@ public class FirebaseRepository {
         }
 
     /**
+     * Kiểm tra lớp đã phát sinh phiên điểm danh (session) nào chưa. Dùng để chặn
+     * việc xóa lớp khi đã có dữ liệu điểm danh phát sinh. Trả về {@code false}
+     * khi lỗi truy vấn để tránh chặn nhầm.
+     */
+    public void classHasSessions(String classId, OnSuccessListener<Boolean> onResult) {
+        if (classId == null || classId.isEmpty()) { onResult.onSuccess(false); return; }
+        db.collection(COL_SESSIONS)
+                .whereEqualTo("classId", classId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snap -> onResult.onSuccess(!snap.isEmpty()))
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "classHasSessions failed: " + e.getMessage());
+                    onResult.onSuccess(false);
+                });
+    }
+
+    /**
      * Auto-generate shift documents for every scheduled day in the semester.
      */
     private void generateShifts(ClassModel classModel,
@@ -503,6 +521,17 @@ public class FirebaseRepository {
         return liveData;
     }
 
+    public void getShiftById(String shiftId,
+                             OnSuccessListener<Shift> onSuccess,
+                             OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS).document(shiftId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) onSuccess.onSuccess(doc.toObject(Shift.class));
+                    else onFailure.onFailure(new Exception("Shift not found"));
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     public void getShiftsByDate(List<String> classIds, String date,
                                 OnSuccessListener<List<Shift>> onSuccess) {
         if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
@@ -595,16 +624,19 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
-    public void closeSession(String sessionId, String shiftId,
+    public void closeSession(String sessionId, String shiftId, String content,
                              OnSuccessListener<Void> onSuccess,
                              OnFailureListener onFailure) {
         Map<String, Object> sessionUpdates = new HashMap<>();
         sessionUpdates.put("isActive", false);
         sessionUpdates.put("endTime", Timestamp.now());
+        if (content != null) sessionUpdates.put("content", content);
 
         Map<String, Object> shiftUpdates = new HashMap<>();
         shiftUpdates.put("status", Shift.STATUS_COMPLETED);
         shiftUpdates.put("attendanceOpened", false);
+        // Lưu kèm nội dung buổi học lên shift để màn lịch sử lấy nhanh, khỏi đọc từng session.
+        if (content != null) shiftUpdates.put("content", content);
 
         WriteBatch batch = db.batch();
         batch.update(db.collection(COL_SESSIONS).document(sessionId), sessionUpdates);
@@ -750,6 +782,27 @@ public class FirebaseRepository {
     }
 
     /**
+     * Lấy bản ghi điểm danh của một sinh viên cho một phiên (session) cụ thể.
+     * Trả về {@code null} nếu sinh viên chưa điểm danh phiên đó.
+     */
+    public void getStudentAttendanceForSession(String studentId, String sessionId,
+                                               OnSuccessListener<Attendance> onSuccess) {
+        if (sessionId == null) { onSuccess.onSuccess(null); return; }
+        db.collection(COL_ATTENDANCES)
+                .whereEqualTo("studentId", studentId)
+                .whereEqualTo("sessionId", sessionId)
+                .get()
+                .addOnSuccessListener(docs -> {
+                    if (docs.isEmpty()) { onSuccess.onSuccess(null); return; }
+                    onSuccess.onSuccess(docs.getDocuments().get(0).toObject(Attendance.class));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "getStudentAttendanceForSession failed: " + e.getMessage());
+                    onSuccess.onSuccess(null);
+                });
+    }
+
+    /**
      * Anti-cheat: mỗi buổi học (shift) chỉ chấp nhận một deviceId duy nhất cho mỗi
      * bản ghi điểm danh. Trả về true nếu thiết bị này đã được dùng để điểm danh
      * buổi đó bởi một sinh viên KHÁC (chống điểm danh hộ trên cùng một máy).
@@ -832,9 +885,27 @@ public class FirebaseRepository {
                         Attendance a = doc.toObject(Attendance.class);
                         if (a != null) list.add(a);
                     }
+
+                    // In chi tiết danh sách bản ghi điểm danh lấy được ra Logcat.
+                    Log.d(TAG, "getStudentAttendanceHistory: studentId=" + studentId
+                            + ", classId=" + classId + " -> " + list.size() + " ban ghi");
+                    for (int i = 0; i < list.size(); i++) {
+                        Attendance a = list.get(i);
+                        Log.d(TAG, String.format(Locale.US,
+                                "  [%d] id=%s | classId=%s | shiftId=%s | sessionId=%s | "
+                                        + "status=%s | distance=%.1fm | toaDo=%.5f,%.5f | checkin=%s",
+                                i, a.getAttendanceId(), a.getClassId(), a.getShiftId(),
+                                a.getSessionId(), a.getStatus(), a.getDistance(),
+                                a.getLatitude(), a.getLongitude(),
+                                a.getCheckinTime() != null ? a.getCheckinTime().toDate() : "null"));
+                    }
+
                     onSuccess.onSuccess(list);
                 })
-                .addOnFailureListener(onFailure::onFailure);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "getStudentAttendanceHistory THAT BAI: studentId=" + studentId, e);
+                    onFailure.onFailure(e);
+                });
     }
 
     // ==================== HELPER INTERFACES ====================

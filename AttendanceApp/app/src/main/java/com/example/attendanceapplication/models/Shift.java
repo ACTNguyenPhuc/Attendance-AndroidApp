@@ -21,6 +21,8 @@ public class Shift {
     private String status;
     private boolean attendanceOpened;
     private String attendanceSessionId;
+    // Nội dung buổi học do giáo viên nhập khi đóng phiên (vd "Buổi 8 - Giao thức TCP/IP").
+    private String content;
     private Timestamp createdAt;
 
     // Local state (not stored in Firestore)
@@ -67,6 +69,9 @@ public class Shift {
 
     public String getAttendanceSessionId() { return attendanceSessionId; }
     public void setAttendanceSessionId(String attendanceSessionId) { this.attendanceSessionId = attendanceSessionId; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

@@ -1,83 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- item_class_card.xml -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_class"
-    android:layout_width="match_parent"
+    android:layout_width="160dp"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
-    app:cardElevation="3dp">
+    android:layout_marginEnd="10dp"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Color Header -->
-        <View
-            android:id="@+id/view_header"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:background="@color/primary_blue" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/tv_class_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:minLines="2"
                 android:text="Tên lớp"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_class_id"
+                android:id="@+id/tv_class_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Mã lớp"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tv_schedule"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="T2 + T4  18:00-20:00"
-                    android:textSize="13sp"
-                    android:textColor="@color/primary_blue" />
+                    android:text="Tỉ lệ ĐD"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_room"
+                    android:id="@+id/tv_rate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A101"
+                    android:text="0%"
+                    android:textColor="@color/accent_green"
                     android:textSize="13sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_student_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ProgressBar
+                android:id="@+id/progress_rate"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
                 android:layout_marginTop="6dp"
-                android:text="Sinh viên: 0"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
+                android:max="100"
+                android:progress="0" />
         </LinearLayout>
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

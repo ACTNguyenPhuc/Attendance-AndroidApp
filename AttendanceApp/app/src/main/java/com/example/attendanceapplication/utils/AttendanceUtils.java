@@ -103,6 +103,29 @@ public class AttendanceUtils {
     }
 
     /**
+     * Like {@link #shouldShowUpcomingBadge(String)} but also requires the shift's
+     * start time to still be in the future: a shift that is today/within 1 day but
+     * whose start time (HH:mm) has already passed should not show "Sắp diễn ra".
+     */
+    public static boolean shouldShowUpcomingBadge(String date, String startAt) {
+        if (!shouldShowUpcomingBadge(date)) return false;
+        return isStartTimeInFuture(date, startAt);
+    }
+
+    /** Whether the shift's start instant (date + startAt "HH:mm") is after now. */
+    public static boolean isStartTimeInFuture(String date, String startAt) {
+        try {
+            org.threeten.bp.LocalDate shiftDate = org.threeten.bp.LocalDate.parse(date);
+            org.threeten.bp.LocalTime shiftStart = org.threeten.bp.LocalTime.parse(startAt);
+            return org.threeten.bp.LocalDateTime.of(shiftDate, shiftStart)
+                    .isAfter(org.threeten.bp.LocalDateTime.now());
+        } catch (Exception e) {
+            // Fail-open: keep the previous date-only behaviour if time can't be parsed.
+            return true;
+        }
+    }
+
+    /**
      * Get day-of-week integer from Calendar constant (Java Calendar uses 1=Sun, 2=Mon...).
      * Convert to Vietnamese convention: 2=Mon ... 8=Sun
      */
