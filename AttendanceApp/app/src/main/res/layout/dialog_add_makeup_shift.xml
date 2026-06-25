@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Ngày học -->
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Ngày học" android:textSize="12sp"
+            android:textColor="@color/text_secondary" />
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="match_parent" android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_outlined_field"
+            android:paddingHorizontal="12dp"
+            android:text="Chọn ngày"
+            android:textColor="@color/text_primary" android:textSize="14sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Giờ học -->
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Giờ học" android:textSize="12sp"
+            android:textColor="@color/text_secondary" />
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+            <TextView
+                android:id="@+id/tv_start_time"
+                android:layout_width="0dp" android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_outlined_field"
+                android:paddingHorizontal="12dp"
+                android:text="Giờ bắt đầu"
+                android:textColor="@color/text_primary" android:textSize="14sp" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text=" – " android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tv_end_time"
+                android:layout_width="0dp" android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_outlined_field"
+                android:paddingHorizontal="12dp"
+                android:text="Giờ kết thúc"
+                android:textColor="@color/text_primary" android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Phòng (tùy chọn) -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Phòng học (tùy chọn)"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_room"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Ghi chú (tùy chọn) -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Ghi chú (tùy chọn)">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_title"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+</ScrollView>

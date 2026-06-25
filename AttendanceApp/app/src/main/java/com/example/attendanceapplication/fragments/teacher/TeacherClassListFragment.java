@@ -145,10 +145,13 @@ public class TeacherClassListFragment extends Fragment {
         for (ClassModel c : allClasses) {
             if (c.getClassId() == null || c.getClassId().isEmpty()) continue;
             repo.getClassStudents(c.getClassId(),
-                    students -> requireActivity().runOnUiThread(() -> {
-                        c.setStudentCount(students.size());
-                        notifyClassUpdated(c.getClassId());
-                    }),
+                    students -> {
+                        if (!isAdded() || getActivity() == null) return;
+                        requireActivity().runOnUiThread(() -> {
+                            c.setStudentCount(students.size());
+                            notifyClassUpdated(c.getClassId());
+                        });
+                    },
                     e -> {}
             );
         }

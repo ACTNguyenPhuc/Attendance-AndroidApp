@@ -161,36 +161,21 @@
                     app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
             </com.google.android.material.chip.ChipGroup>
 
-            <!-- Class Time -->
+            <!-- Class Time (per-day) -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Giờ học" android:textSize="16sp" android:textStyle="bold"
-                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+                android:text="Giờ học theo từng ngày" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="4dp" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:layout_marginBottom="16dp">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Giờ bắt đầu" android:textSize="12sp" android:textColor="@color/text_secondary" />
-                    <TextView android:id="@+id/tv_start_time"
-                        android:layout_width="match_parent" android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_outlined_field"
-                        android:paddingHorizontal="12dp"
-                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
-                </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Giờ kết thúc" android:textSize="12sp" android:textColor="@color/text_secondary" />
-                    <TextView android:id="@+id/tv_end_time"
-                        android:layout_width="match_parent" android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_outlined_field"
-                        android:paddingHorizontal="12dp"
-                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
-                </LinearLayout>
-            </LinearLayout>
+            <TextView android:id="@+id/tv_day_times_hint"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Chọn ngày học ở trên, sau đó nhập giờ riêng cho từng ngày."
+                android:textSize="12sp" android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Mỗi ngày được chọn sẽ có một dòng giờ riêng được thêm động vào đây -->
+            <LinearLayout android:id="@+id/ll_day_times"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginBottom="16dp" />
 
             <!-- Preview -->
             <com.google.android.material.card.MaterialCardView

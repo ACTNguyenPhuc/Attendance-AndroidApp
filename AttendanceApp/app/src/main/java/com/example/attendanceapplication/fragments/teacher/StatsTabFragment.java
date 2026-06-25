@@ -105,21 +105,27 @@ public class StatsTabFragment extends Fragment {
     private void loadOneShotStats() {
         if (classId == null) return;
         repo.getClassStudents(classId,
-                students -> requireActivity().runOnUiThread(() -> {
-                    currentStudents.clear();
-                    currentStudents.addAll(students);
-                    tvTotalStudents.setText(String.valueOf(students.size()));
-                    recomputeStats();
-                }),
+                students -> {
+                    if (!isAdded() || getActivity() == null) return;
+                    requireActivity().runOnUiThread(() -> {
+                        currentStudents.clear();
+                        currentStudents.addAll(students);
+                        tvTotalStudents.setText(String.valueOf(students.size()));
+                        recomputeStats();
+                    });
+                },
                 e -> {}
         );
 
         repo.getClassAttendances(classId,
-                attendances -> requireActivity().runOnUiThread(() -> {
-                    currentAttendances.clear();
-                    currentAttendances.addAll(attendances);
-                    recomputeStats();
-                }),
+                attendances -> {
+                    if (!isAdded() || getActivity() == null) return;
+                    requireActivity().runOnUiThread(() -> {
+                        currentAttendances.clear();
+                        currentAttendances.addAll(attendances);
+                        recomputeStats();
+                    });
+                },
                 e -> {}
         );
     }

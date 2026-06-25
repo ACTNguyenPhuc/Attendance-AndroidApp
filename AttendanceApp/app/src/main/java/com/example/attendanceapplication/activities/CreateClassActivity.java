@@ -5,9 +5,11 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.ClassModel;
+import com.example.attendanceapplication.models.DaySchedule;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -32,12 +35,17 @@ public class CreateClassActivity extends AppCompatActivity {
     public static final String EXTRA_CREATED_CLASS_ID = "createdClassId";
 
     private TextInputEditText etClassName, etClassId, etDescription, etRoom;
-    private TextView tvStartDate, tvEndDate, tvStartTime, tvEndTime, tvShiftPreview;
+    private TextView tvStartDate, tvEndDate, tvShiftPreview;
     private ChipGroup chipGroupSchedule;
+    private LinearLayout llDayTimes;
     private Button btnCreate;
     private View loadingOverlay;
 
-    private String startDate = "", endDate = "", startAt = "", endAt = "";
+    private String startDate = "", endDate = "";
+    // Giờ học theo từng thứ (2=T2 … 8=CN). LinkedHashMap để giữ thứ tự ngày được chọn.
+    private final Map<Integer, String> startByDay = new LinkedHashMap<>();
+    private final Map<Integer, String> endByDay = new LinkedHashMap<>();
+
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
@@ -73,10 +81,9 @@ public class CreateClassActivity extends AppCompatActivity {
         etRoom         = findViewById(R.id.et_room);
         tvStartDate    = findViewById(R.id.tv_start_date);
         tvEndDate      = findViewById(R.id.tv_end_date);
-        tvStartTime    = findViewById(R.id.tv_start_time);
-        tvEndTime      = findViewById(R.id.tv_end_time);
         tvShiftPreview = findViewById(R.id.tv_shift_preview);
         chipGroupSchedule = findViewById(R.id.chip_group_schedule);
+        llDayTimes     = findViewById(R.id.ll_day_times);
         btnCreate      = findViewById(R.id.btn_create);
         loadingOverlay = findViewById(R.id.loading_overlay);
     }
@@ -84,9 +91,10 @@ public class CreateClassActivity extends AppCompatActivity {
     private void setupListeners() {
         tvStartDate.setOnClickListener(v -> showDatePicker(true));
         tvEndDate.setOnClickListener(v -> showDatePicker(false));
-        tvStartTime.setOnClickListener(v -> showTimePicker(true));
-        tvEndTime.setOnClickListener(v -> showTimePicker(false));
-        chipGroupSchedule.setOnCheckedStateChangeListener((g, ids) -> updateShiftPreview());
+        chipGroupSchedule.setOnCheckedStateChangeListener((g, ids) -> {
+            rebuildDayTimeRows();
+            updateShiftPreview();
+        });
         btnCreate.setOnClickListener(v -> createClass());
     }
 
@@ -108,18 +116,50 @@ public class CreateClassActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTimePicker(boolean isStart) {
+    /**
+     * Dựng lại danh sách dòng nhập giờ theo các ngày đang được chọn. Giờ đã nhập
+     * của những ngày vẫn được chọn được giữ nguyên; ngày bỏ chọn sẽ bị xóa giờ.
+     */
+    private void rebuildDayTimeRows() {
+        List<Integer> selected = getSelectedSchedule();
+        startByDay.keySet().retainAll(selected);
+        endByDay.keySet().retainAll(selected);
+
+        llDayTimes.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (int day : selected) {
+            View row = inflater.inflate(R.layout.item_day_time_picker, llDayTimes, false);
+            TextView tvLabel = row.findViewById(R.id.tv_day_label);
+            TextView tvStart = row.findViewById(R.id.tv_start_time);
+            TextView tvEnd   = row.findViewById(R.id.tv_end_time);
+
+            tvLabel.setText(dayLabel(day));
+            if (startByDay.containsKey(day)) tvStart.setText(startByDay.get(day));
+            if (endByDay.containsKey(day))   tvEnd.setText(endByDay.get(day));
+
+            tvStart.setOnClickListener(v -> showDayTimePicker(day, true, tvStart));
+            tvEnd.setOnClickListener(v -> showDayTimePicker(day, false, tvEnd));
+
+            llDayTimes.addView(row);
+        }
+    }
+
+    private void showDayTimePicker(int day, boolean isStart, TextView target) {
         Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY), minute = cal.get(Calendar.MINUTE);
+        String existing = isStart ? startByDay.get(day) : endByDay.get(day);
+        if (existing != null) {
+            String[] p = existing.split(":");
+            try {
+                hour = Integer.parseInt(p[0]);
+                minute = Integer.parseInt(p[1]);
+            } catch (Exception ignored) {}
+        }
         TimePickerDialog dialog = new TimePickerDialog(this, (view, h, m) -> {
             String time = String.format(Locale.US, "%02d:%02d", h, m);
-            if (isStart) {
-                startAt = time;
-                tvStartTime.setText(time);
-            } else {
-                endAt = time;
-                tvEndTime.setText(time);
-            }
-        }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true);
+            if (isStart) startByDay.put(day, time); else endByDay.put(day, time);
+            target.setText(time);
+        }, hour, minute, true);
         dialog.show();
     }
 
@@ -166,22 +206,24 @@ public class CreateClassActivity extends AppCompatActivity {
     }
 
     private String getScheduleString(List<Integer> schedule) {
-        String[] names = {"", "CN", "T2", "T3", "T4", "T5", "T6", "T7", "CN"};
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < schedule.size(); i++) {
             if (i > 0) sb.append("+");
-            int day = schedule.get(i);
-            if (day >= 0 && day < names.length) sb.append(names[day]);
+            sb.append(dayLabel(schedule.get(i)));
         }
         return sb.toString();
+    }
+
+    private String dayLabel(int day) {
+        String[] names = {"", "CN", "T2", "T3", "T4", "T5", "T6", "T7", "CN"};
+        return (day >= 0 && day < names.length) ? names[day] : "T" + day;
     }
 
     private void createClass() {
         String className = etClassName.getText().toString().trim();
         String classId   = etClassId.getText().toString().trim();
 
-        if (className.isEmpty() || classId.isEmpty() || startDate.isEmpty() ||
-                endDate.isEmpty() || startAt.isEmpty() || endAt.isEmpty()) {
+        if (className.isEmpty() || classId.isEmpty() || startDate.isEmpty() || endDate.isEmpty()) {
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -189,75 +231,68 @@ public class CreateClassActivity extends AppCompatActivity {
             Toast.makeText(this, "Ngày kết thúc phải sau ngày bắt đầu", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!isEndTimeAfterStartTime()) {
-            Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
-            return;
-        }
         List<Integer> schedule = getSelectedSchedule();
         if (schedule.isEmpty()) {
             Toast.makeText(this, "Vui lòng chọn ngày học trong tuần", Toast.LENGTH_SHORT).show();
             return;
+        }
+        // Mỗi ngày phải có đủ giờ bắt đầu/kết thúc và giờ kết thúc sau giờ bắt đầu.
+        for (int day : schedule) {
+            String s = startByDay.get(day), e = endByDay.get(day);
+            if (s == null || s.isEmpty() || e == null || e.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập giờ học cho " + dayLabel(day), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (toMinutes(e) <= toMinutes(s)) {
+                Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu (" + dayLabel(day) + ")", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        List<DaySchedule> daySchedules = new ArrayList<>();
+        for (int day : schedule) {
+            daySchedules.add(new DaySchedule(day, startByDay.get(day), endByDay.get(day)));
         }
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         loadingOverlay.setVisibility(View.VISIBLE);
         btnCreate.setEnabled(false);
 
-        // Fetch teacher name first
+        // Fetch teacher name first; nếu lỗi vẫn tạo lớp nhưng thiếu tên giáo viên.
         repo.getUserProfile(uid,
-                teacher -> {
-                    ClassModel classModel = new ClassModel();
-                    classModel.setClassId(classId);
-                    classModel.setClassName(className);
-                    classModel.setTeacherId(uid);
-                    classModel.setTeacherName(teacher.getName());
-                    classModel.setStartDate(startDate);
-                    classModel.setEndDate(endDate);
-                    classModel.setSchedule(schedule);
-                    classModel.setStartAt(startAt);
-                    classModel.setEndAt(endAt);
-                    classModel.setRoom(etRoom.getText().toString().trim());
-                    classModel.setDescription(etDescription.getText().toString().trim());
+                teacher -> submitClass(uid, teacher.getName(), schedule, daySchedules),
+                e -> submitClass(uid, null, schedule, daySchedules)
+        );
+    }
 
-                    repo.createClass(classModel,
-                            id -> {
-                                loadingOverlay.setVisibility(View.GONE);
-                                Toast.makeText(this, "Tạo lớp học thành công!", Toast.LENGTH_SHORT).show();
-                                finishWithCreatedClass(id);
-                            },
-                            e -> {
-                                loadingOverlay.setVisibility(View.GONE);
-                                btnCreate.setEnabled(true);
-                                Snackbar.make(btnCreate, "Lỗi: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
-                            }
-                    );
+    private void submitClass(String uid, String teacherName,
+                             List<Integer> schedule, List<DaySchedule> daySchedules) {
+        ClassModel classModel = new ClassModel();
+        classModel.setClassId(etClassId.getText().toString().trim());
+        classModel.setClassName(etClassName.getText().toString().trim());
+        classModel.setTeacherId(uid);
+        if (teacherName != null) classModel.setTeacherName(teacherName);
+        classModel.setStartDate(startDate);
+        classModel.setEndDate(endDate);
+        classModel.setSchedule(schedule);
+        classModel.setDaySchedules(daySchedules);
+        // Giờ chung (legacy/fallback): lấy theo ngày học đầu tiên.
+        DaySchedule first = daySchedules.get(0);
+        classModel.setStartAt(first.getStartAt());
+        classModel.setEndAt(first.getEndAt());
+        classModel.setRoom(etRoom.getText().toString().trim());
+        classModel.setDescription(etDescription.getText().toString().trim());
+
+        repo.createClass(classModel,
+                id -> {
+                    loadingOverlay.setVisibility(View.GONE);
+                    Toast.makeText(this, "Tạo lớp học thành công!", Toast.LENGTH_SHORT).show();
+                    finishWithCreatedClass(id);
                 },
-                e -> {
-                    // Fallback: create without teacher name
-                    ClassModel classModel = new ClassModel();
-                    classModel.setClassId(classId);
-                    classModel.setClassName(className);
-                    classModel.setTeacherId(uid);
-                    classModel.setStartDate(startDate);
-                    classModel.setEndDate(endDate);
-                    classModel.setSchedule(schedule);
-                    classModel.setStartAt(startAt);
-                    classModel.setEndAt(endAt);
-                    classModel.setRoom(etRoom.getText().toString().trim());
-                    classModel.setDescription(etDescription.getText().toString().trim());
-
-                    repo.createClass(classModel,
-                            id -> {
-                                loadingOverlay.setVisibility(View.GONE);
-                                Toast.makeText(this, "Tạo lớp học thành công!", Toast.LENGTH_SHORT).show();
-                                finishWithCreatedClass(id);
-                            },
-                            err -> {
-                                loadingOverlay.setVisibility(View.GONE);
-                                btnCreate.setEnabled(true);
-                                Snackbar.make(btnCreate, "Lỗi: " + err.getMessage(), Snackbar.LENGTH_LONG).show();
-                            }
-                    );
+                err -> {
+                    loadingOverlay.setVisibility(View.GONE);
+                    btnCreate.setEnabled(true);
+                    Snackbar.make(btnCreate, "Lỗi: " + err.getMessage(), Snackbar.LENGTH_LONG).show();
                 }
         );
     }
@@ -271,11 +306,6 @@ public class CreateClassActivity extends AppCompatActivity {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    /** Giờ kết thúc phải sau giờ bắt đầu (strictly after). */
-    private boolean isEndTimeAfterStartTime() {
-        return toMinutes(endAt) > toMinutes(startAt);
     }
 
     private int toMinutes(String time) {

@@ -20,6 +20,8 @@ public class Shift {
     private String room;
     private String status;
     private boolean attendanceOpened;
+    // true nếu là ca học bù do giáo viên thêm ngoài lịch học gốc của lớp.
+    private boolean makeup;
     private String attendanceSessionId;
     // Nội dung buổi học do giáo viên nhập khi đóng phiên (vd "Buổi 8 - Giao thức TCP/IP").
     private String content;
@@ -66,6 +68,9 @@ public class Shift {
 
     public boolean isAttendanceOpened() { return attendanceOpened; }
     public void setAttendanceOpened(boolean attendanceOpened) { this.attendanceOpened = attendanceOpened; }
+
+    public boolean isMakeup() { return makeup; }
+    public void setMakeup(boolean makeup) { this.makeup = makeup; }
 
     public String getAttendanceSessionId() { return attendanceSessionId; }
     public void setAttendanceSessionId(String attendanceSessionId) { this.attendanceSessionId = attendanceSessionId; }

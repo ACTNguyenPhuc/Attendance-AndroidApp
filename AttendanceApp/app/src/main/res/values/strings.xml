@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QR Attendance</string>
-    <string name="app_tagline">Điểm danh thông minh - Chống gian lận hiệu quả</string>
+    <string name="app_tagline">Ứng dụng điểm danh thông minh</string>
 
     <!-- Auth -->
     <string name="login">Đăng nhập</string>
@@ -24,7 +24,7 @@
     <string name="today_sessions">Buổi học hôm nay</string>
     <string name="open_attendance">Mở điểm danh</string>
     <string name="close_session">Đóng phiên điểm danh</string>
-    <string name="refresh_qr">🔄 Làm mới QR</string>
+    <string name="refresh_qr">Làm mới QR</string>
     <string name="realtime_list">Danh sách điểm danh</string>
 
     <!-- Student -->
@@ -33,7 +33,7 @@
     <string name="scan_attendance">Điểm danh</string>
     <string name="timetable">Thời khóa biểu</string>
     <string name="attendance_history">Lịch sử điểm danh</string>
-    <string name="attend_now">📷 Điểm danh ngay</string>
+    <string name="attend_now">Điểm danh ngay</string>
 
     <!-- Status -->
     <string name="status_present">Đã điểm danh</string>

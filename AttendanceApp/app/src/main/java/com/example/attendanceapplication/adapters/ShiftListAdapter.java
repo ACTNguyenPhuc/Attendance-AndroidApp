@@ -32,20 +32,45 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         void onClick(Shift shift);
     }
 
+    public interface OnRescheduleListener {
+        void onReschedule(Shift shift);
+    }
+
     private final List<Shift> shiftList;
     private final String classId;
     private final String className;
     private final OnOpenAttendanceListener listener;
     private final OnShiftClickListener shiftClickListener;
+    private final OnRescheduleListener rescheduleListener;
 
     public ShiftListAdapter(List<Shift> shiftList, String classId, String className,
                             OnOpenAttendanceListener listener,
-                            OnShiftClickListener shiftClickListener) {
+                            OnShiftClickListener shiftClickListener,
+                            OnRescheduleListener rescheduleListener) {
         this.shiftList = shiftList;
         this.classId   = classId;
         this.className = className;
         this.listener  = listener;
         this.shiftClickListener = shiftClickListener;
+        this.rescheduleListener = rescheduleListener;
+    }
+
+    /** Ca học chỉ được dời khi chưa mở điểm danh và chưa kết thúc/hủy. */
+    public static boolean isReschedulable(Shift shift) {
+        if (shift == null) return false;
+        if (shift.isAttendanceOpened()) return false;
+        String status = shift.getStatus();
+        return !Shift.STATUS_COMPLETED.equals(status)
+                && !Shift.STATUS_CANCELLED.equals(status);
+    }
+
+    public Shift getShiftAt(int position) {
+        if (position < 0 || position >= shiftList.size()) return null;
+        return shiftList.get(position);
+    }
+
+    public void notifyReschedule(Shift shift) {
+        if (rescheduleListener != null && shift != null) rescheduleListener.onReschedule(shift);
     }
 
     @NonNull
@@ -63,6 +88,7 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
 
         holder.tvDate.setText(formatDateVN(shift.getDate()));
         holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
+        holder.tvMakeupBadge.setVisibility(shift.isMakeup() ? View.VISIBLE : View.GONE);
 
         // Status badge. "Sắp diễn ra" only shows when the shift is within 1 day.
         String status = shift.getStatus();
@@ -144,15 +170,19 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
     public int getItemCount() { return shiftList.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvTime, tvStatus, tvAttInfo;
+        TextView tvDate, tvTime, tvStatus, tvAttInfo, tvMakeupBadge;
         ImageView ivAttIcon;
         MaterialButton btnOpenAtt;
+        // Lớp foreground được dịch chuyển khi vuốt để lộ panel "Dời ca" phía sau.
+        View foreground;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+            foreground = itemView.findViewById(R.id.foreground);
             tvDate     = itemView.findViewById(R.id.tv_date);
             tvTime     = itemView.findViewById(R.id.tv_time);
             tvStatus   = itemView.findViewById(R.id.tv_status);
+            tvMakeupBadge = itemView.findViewById(R.id.tv_makeup_badge);
             tvAttInfo  = itemView.findViewById(R.id.tv_att_info);
             ivAttIcon  = itemView.findViewById(R.id.iv_att_icon);
             btnOpenAtt = itemView.findViewById(R.id.btn_open_attendance);

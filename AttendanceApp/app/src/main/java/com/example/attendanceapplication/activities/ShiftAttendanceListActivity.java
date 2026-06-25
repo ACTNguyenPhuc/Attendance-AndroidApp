@@ -1,5 +1,6 @@
 package com.example.attendanceapplication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -58,6 +61,8 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
     private final List<User> classStudents = new ArrayList<>();
     private String classId;
     private String shiftId;
+    private String className;
+    private MaterialButton btnMakeup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +71,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
 
         shiftId = getIntent().getStringExtra(EXTRA_SHIFT_ID);
         classId = getIntent().getStringExtra(EXTRA_CLASS_ID);
-        String className = getIntent().getStringExtra(EXTRA_CLASS_NAME);
+        className = getIntent().getStringExtra(EXTRA_CLASS_NAME);
         String shiftTitle = getIntent().getStringExtra(EXTRA_SHIFT_TITLE);
         String shiftTime = getIntent().getStringExtra(EXTRA_SHIFT_TIME);
         String shiftContent = getIntent().getStringExtra(EXTRA_SHIFT_CONTENT);
@@ -88,14 +93,14 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         tvAbsentEmpty = findViewById(R.id.tv_absent_empty);
         rvAttendance = findViewById(R.id.rv_attendance);
         rvAbsent = findViewById(R.id.rv_absent);
+        btnMakeup = findViewById(R.id.btn_makeup_attendance);
+        btnMakeup.setOnClickListener(v -> openMakeupSession());
 
         tvShiftTitle.setText(shiftTitle != null ? shiftTitle : "Buổi học");
         tvShiftTime.setText(shiftTime != null ? shiftTime : "");
 
-        // Hiển thị nội dung buổi học: ưu tiên giá trị truyền sang (vừa đóng phiên),
-        // đồng thời nạp lại từ session để áp dụng cho các luồng xem lại khác.
+        // Hiển thị nội dung buổi học: ưu tiên giá trị truyền sang (vừa đóng phiên).
         showContent(shiftContent);
-        loadShiftContent();
 
         adapter = new RealtimeAttendanceAdapter(attendanceList);
         rvAttendance.setLayoutManager(new LinearLayoutManager(this));
@@ -126,6 +131,8 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
             return;
         }
 
+        loadShiftContent();
+
         repo.getClassStudents(classId,
                 students -> runOnUiThread(() -> {
                     classStudents.clear();
@@ -148,12 +155,17 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         );
     }
 
-    /** Nạp nội dung buổi học từ session (theo attendanceSessionId của shift). */
+    /**
+     * Nạp trạng thái buổi học: hiện nút "điểm danh bù" khi buổi đã kết thúc,
+     * và nạp nội dung buổi học từ session (theo attendanceSessionId của shift).
+     */
     private void loadShiftContent() {
         if (shiftId == null) return;
         repo.getShiftById(shiftId,
                 shift -> {
                     if (shift == null) return;
+                    boolean completed = Shift.STATUS_COMPLETED.equals(shift.getStatus());
+                    btnMakeup.setVisibility(completed ? View.VISIBLE : View.GONE);
                     String sid = shift.getAttendanceSessionId();
                     if (sid == null || sid.isEmpty()) return;
                     repo.getSession(sid,
@@ -161,6 +173,16 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
                             e -> {});
                 },
                 e -> {});
+    }
+
+    /** Mở phiên điểm danh bù cho buổi học đã kết thúc (SV đi muộn điểm danh). */
+    private void openMakeupSession() {
+        Intent intent = new Intent(this, SessionManagementActivity.class);
+        intent.putExtra(SessionManagementActivity.EXTRA_SHIFT_ID, shiftId);
+        intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, classId);
+        intent.putExtra(SessionManagementActivity.EXTRA_CLASS_NAME, className);
+        intent.putExtra(SessionManagementActivity.EXTRA_MAKEUP, true);
+        startActivity(intent);
     }
 
     private void showContent(String content) {

@@ -71,8 +71,15 @@ public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCa
 
         holder.tvClassName.setText(classModel.getClassName());
         holder.tvClassId.setText(classModel.getClassId());
-        holder.tvSchedule.setText(classModel.getScheduleDisplay());
-        holder.tvTime.setText(classModel.getStartAt() + "-" + classModel.getEndAt());
+        if (classModel.getDaySchedules() != null && !classModel.getDaySchedules().isEmpty()) {
+            // Giờ riêng theo từng ngày: gộp vào một chip, ẩn chip giờ chung.
+            holder.tvSchedule.setText(classModel.getScheduleTimeDisplay());
+            holder.tvTime.setVisibility(View.GONE);
+        } else {
+            holder.tvSchedule.setText(classModel.getScheduleDisplay());
+            holder.tvTime.setText(classModel.getStartAt() + "-" + classModel.getEndAt());
+            holder.tvTime.setVisibility(View.VISIBLE);
+        }
         holder.tvStudentCount.setText(classModel.getStudentCount() + " sinh viên");
 
         holder.tvAvatar.setText(getInitials(classModel.getClassName()));

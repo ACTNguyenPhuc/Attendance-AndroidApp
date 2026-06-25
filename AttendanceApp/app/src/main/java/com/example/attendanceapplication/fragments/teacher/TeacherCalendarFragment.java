@@ -146,6 +146,7 @@ public class TeacherCalendarFragment extends Fragment {
         }
 
         repo.getShiftsForClasses(classIds, shifts -> {
+            if (!isAdded() || getContext() == null) return;
             shiftDays.clear();
             for (Shift s : shifts) {
                 CalendarDay day = parseShiftDay(s);

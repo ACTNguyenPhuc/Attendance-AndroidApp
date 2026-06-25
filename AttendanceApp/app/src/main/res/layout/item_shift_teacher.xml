@@ -1,93 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Root là FrameLayout để hỗ trợ "swipe actions": vuốt thẻ (foreground) sang trái
+  sẽ lộ ra panel "Dời ca" (swipe_action_panel) nằm phía sau, bên phải.
+  Việc dịch chuyển thẻ do ShiftSwipeCallback (ItemTouchHelper) xử lý.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
-    app:cardElevation="2dp">
+    android:layout_marginBottom="10dp">
 
+    <!-- Panel hành động lộ ra khi vuốt: nút "Dời ca" -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="110dp"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:id="@+id/swipe_action_panel"
+        android:layout_width="96dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@drawable/bg_swipe_reschedule"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_date"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Thứ Bảy, 09 tháng 05 2026"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <TextView
-                android:id="@+id/tv_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge_green"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:text="Đang diễn ra"
-                android:textSize="12sp"
-                android:textColor="@color/white" />
-        </LinearLayout>
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_reschedule"
+            app:tint="@color/white"
+            android:contentDescription="Dời ca học" />
 
         <TextView
-            android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="18:00 - 20:00"
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary" />
+            android:text="Dời ca"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Foreground: nội dung thẻ ca học (phần được vuốt) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/foreground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/card_surface"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="110dp"
+            android:orientation="vertical"
+            android:padding="12dp">
 
-            <ImageView
-                android:id="@+id/iv_att_icon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@android:drawable/ic_menu_camera"
-                android:tint="@color/accent_green"
-                android:contentDescription="Điểm danh"
-                android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Thứ Bảy, 09 tháng 05 2026"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tv_makeup_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_chip_blue_light"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Bù"
+                    android:textSize="12sp"
+                    android:textColor="@color/primary_blue"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_green"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Đang diễn ra"
+                    android:textSize="12sp"
+                    android:textColor="@color/white" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tv_att_info"
+                android:id="@+id/tv_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="Đã mở điểm danh"
-                android:textSize="12sp"
+                android:layout_marginTop="4dp"
+                android:text="18:00 - 20:00"
+                android:textSize="13sp"
                 android:textColor="@color/text_secondary" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_open_attendance"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:text="Mở điểm danh"
-                android:textSize="12sp"
-                style="@style/Widget.AttendanceApp.Button.Success"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/iv_att_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:tint="@color/accent_green"
+                    android:contentDescription="Điểm danh"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_att_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="Đã mở điểm danh"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_open_attendance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:text="Mở điểm danh"
+                    android:textSize="12sp"
+                    style="@style/Widget.AttendanceApp.Button.Success"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

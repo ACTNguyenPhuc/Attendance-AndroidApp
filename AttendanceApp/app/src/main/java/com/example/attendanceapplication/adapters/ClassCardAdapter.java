@@ -42,8 +42,7 @@ public class ClassCardAdapter extends RecyclerView.Adapter<ClassCardAdapter.View
         ClassModel classModel = classList.get(position);
         holder.tvClassName.setText(classModel.getClassName());
         holder.tvClassId.setText(classModel.getClassId());
-        holder.tvSchedule.setText(classModel.getScheduleDisplay() +
-                "  " + classModel.getStartAt() + "-" + classModel.getEndAt());
+        holder.tvSchedule.setText(classModel.getScheduleTimeDisplay());
         holder.tvRoom.setText(classModel.getRoom() != null ? classModel.getRoom() : "");
         holder.tvStudentCount.setText("Sinh vien: " + classModel.getStudentCount());
         holder.viewHeader.setBackgroundColor(getHeaderColor(holder.itemView.getContext(), position));

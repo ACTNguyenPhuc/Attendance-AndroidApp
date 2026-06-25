@@ -59,6 +59,8 @@
             android:exported="false" />
         <activity android:name=".activities.ShiftAttendanceListActivity"
             android:exported="false" />
+        <activity android:name=".activities.StudentAttendanceDetailActivity"
+            android:exported="false" />
         <activity android:name=".activities.CreateSessionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

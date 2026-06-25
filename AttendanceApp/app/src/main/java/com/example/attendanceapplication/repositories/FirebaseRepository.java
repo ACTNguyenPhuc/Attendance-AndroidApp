@@ -28,6 +28,10 @@ public class FirebaseRepository {
     private static final String COL_ATTENDANCES = "attendances";
     private static final String COL_ENROLLMENTS = "enrollments";
 
+    // Firestore giới hạn số phần tử cho mỗi truy vấn whereIn/in — cắt list dài
+    // thành các đoạn không vượt quá giới hạn này (xem runChunkedWhereIn).
+    private static final int WHERE_IN_CHUNK_SIZE = 10;
+
     private final FirebaseAuth mAuth;
     private final FirebaseFirestore db;
     private static FirebaseRepository instance;
@@ -184,6 +188,11 @@ public class FirebaseRepository {
                     String dateStr = sdf.format(cal.getTime());
                     String shiftId = classModel.getClassId() + "_" + dateStr;
 
+                    // Giờ học theo từng thứ; fallback giờ chung cho lớp dữ liệu cũ.
+                    DaySchedule daySchedule = classModel.getDayScheduleFor(vnDow);
+                    String shiftStartAt = daySchedule != null ? daySchedule.getStartAt() : classModel.getStartAt();
+                    String shiftEndAt = daySchedule != null ? daySchedule.getEndAt() : classModel.getEndAt();
+
                     Shift shift = new Shift();
                     shift.setShiftId(shiftId);
                     shift.setClassId(classModel.getClassId());
@@ -191,8 +200,8 @@ public class FirebaseRepository {
                     shift.setTitle("Buổi học ngày " + dateStr);
                     shift.setDate(dateStr);
                     shift.setDayOfWeek(vnDow);
-                    shift.setStartAt(classModel.getStartAt());
-                    shift.setEndAt(classModel.getEndAt());
+                    shift.setStartAt(shiftStartAt);
+                    shift.setEndAt(shiftEndAt);
                     shift.setRoom(classModel.getRoom() != null ? classModel.getRoom() : "");
                     shift.setStatus(Shift.STATUS_UPCOMING);
                     shift.setAttendanceOpened(false);
@@ -217,6 +226,110 @@ public class FirebaseRepository {
                     .addOnFailureListener(onFailure::onFailure);
         } catch (Exception e) {
             onFailure.onFailure(e);
+        }
+    }
+
+    /** Lỗi nghiệp vụ: ca học mới trùng/chồng thời gian với một ca đã có cùng ngày. */
+    public static class ShiftConflictException extends Exception {
+        public ShiftConflictException(String message) { super(message); }
+    }
+
+    /**
+     * Tạo một ca học bù (phát sinh ngoài lịch gốc) cho lớp. Thông tin lớp
+     * (tên lớp, giáo viên, phòng mặc định) được lấy từ document lớp tương ứng.
+     *
+     * <p>Trước khi tạo sẽ kiểm tra trùng lịch: nếu cùng ngày đã có một ca học mà
+     * khoảng giờ chồng lên nhau (trừ ca đã hủy) thì báo lỗi
+     * {@link ShiftConflictException} và KHÔNG tạo.
+     *
+     * @param date   ngày học "yyyy-MM-dd"
+     * @param room   phòng học; để rỗng sẽ dùng phòng mặc định của lớp
+     * @param title  tiêu đề; để rỗng sẽ tự đặt "Ca học bù ngày ..."
+     */
+    public void createMakeupShift(String classId, String date, String startAt, String endAt,
+                                  String room, String title,
+                                  OnSuccessListener<String> onSuccess,
+                                  OnFailureListener onFailure) {
+        // Kiểm tra trùng lịch với các ca đã có cùng ngày của lớp.
+        db.collection(COL_SHIFTS)
+                .whereEqualTo("classId", classId)
+                .whereEqualTo("date", date)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Shift existing = doc.toObject(Shift.class);
+                        if (existing == null) continue;
+                        if (Shift.STATUS_CANCELLED.equals(existing.getStatus())) continue;
+                        if (shiftTimesOverlap(startAt, endAt, existing.getStartAt(), existing.getEndAt())) {
+                            onFailure.onFailure(new ShiftConflictException(
+                                    "Đã tồn tại ca học trùng thời gian trong ngày này"));
+                            return;
+                        }
+                    }
+                    writeMakeupShift(classId, date, startAt, endAt, room, title, onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void writeMakeupShift(String classId, String date, String startAt, String endAt,
+                                  String room, String title,
+                                  OnSuccessListener<String> onSuccess,
+                                  OnFailureListener onFailure) {
+        getClassById(classId, classModel -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(sdf.parse(date));
+                int vnDow = AttendanceUtils.getDayOfWeekVN(cal.get(Calendar.DAY_OF_WEEK));
+
+                // ID duy nhất để không đè lên ca chính cùng ngày (nếu có).
+                String shiftId = classId + "_" + date + "_m" + System.currentTimeMillis();
+
+                Shift shift = new Shift();
+                shift.setShiftId(shiftId);
+                shift.setClassId(classId);
+                shift.setClassName(classModel.getClassName());
+                shift.setTeacherName(classModel.getTeacherName());
+                shift.setTitle(title != null && !title.isEmpty() ? title : "Ca học bù ngày " + date);
+                shift.setDate(date);
+                shift.setDayOfWeek(vnDow);
+                shift.setStartAt(startAt);
+                shift.setEndAt(endAt);
+                shift.setRoom(room != null && !room.isEmpty()
+                        ? room
+                        : (classModel.getRoom() != null ? classModel.getRoom() : ""));
+                shift.setStatus(Shift.STATUS_UPCOMING);
+                shift.setAttendanceOpened(false);
+                shift.setMakeup(true);
+                shift.setCreatedAt(Timestamp.now());
+
+                db.collection(COL_SHIFTS).document(shiftId).set(shift)
+                        .addOnSuccessListener(aVoid -> onSuccess.onSuccess(shiftId))
+                        .addOnFailureListener(onFailure::onFailure);
+            } catch (Exception e) {
+                onFailure.onFailure(e);
+            }
+        }, onFailure);
+    }
+
+    /**
+     * Hai khoảng giờ "HH:mm" có chồng nhau không (nửa mở: [start, end)).
+     * Trả về {@code false} nếu dữ liệu giờ không hợp lệ để tránh chặn nhầm.
+     */
+    private boolean shiftTimesOverlap(String start1, String end1, String start2, String end2) {
+        int s1 = parseMinutes(start1), e1 = parseMinutes(end1);
+        int s2 = parseMinutes(start2), e2 = parseMinutes(end2);
+        if (s1 < 0 || e1 < 0 || s2 < 0 || e2 < 0) return false;
+        return s1 < e2 && s2 < e1;
+    }
+
+    private int parseMinutes(String time) {
+        if (time == null) return -1;
+        try {
+            String[] p = time.split(":");
+            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+        } catch (Exception e) {
+            return -1;
         }
     }
 
@@ -254,13 +367,12 @@ public class FirebaseRepository {
                     }
                     if (classIds.isEmpty()) { liveData.postValue(new ArrayList<>()); return; }
 
-                    // Fetch class details
-                    db.collection(COL_CLASSES)
-                            .whereIn(FieldPath.documentId(), classIds)
-                            .get()
-                            .addOnSuccessListener(classDocs -> {
+                    // Fetch class details (chunk vì whereIn giới hạn số phần tử)
+                    runChunkedWhereIn(classIds,
+                            chunk -> db.collection(COL_CLASSES).whereIn(FieldPath.documentId(), chunk),
+                            classDocs -> {
                                 List<ClassModel> classList = new ArrayList<>();
-                                for (DocumentSnapshot doc : classDocs.getDocuments()) {
+                                for (DocumentSnapshot doc : classDocs) {
                                     ClassModel c = doc.toObject(ClassModel.class);
                                     if (c != null) classList.add(c);
                                 }
@@ -325,18 +437,17 @@ public class FirebaseRepository {
                     }
                     if (studentIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
 
-                    db.collection(COL_USERS)
-                            .whereIn(FieldPath.documentId(), studentIds)
-                            .get()
-                            .addOnSuccessListener(userDocs -> {
+                    // Chunk vì whereIn giới hạn số phần tử cho mỗi truy vấn.
+                    runChunkedWhereIn(studentIds,
+                            chunk -> db.collection(COL_USERS).whereIn(FieldPath.documentId(), chunk),
+                            userDocs -> {
                                 List<User> users = new ArrayList<>();
-                                for (DocumentSnapshot doc : userDocs.getDocuments()) {
+                                for (DocumentSnapshot doc : userDocs) {
                                     User u = doc.toObject(User.class);
                                     if (u != null) users.add(u);
                                 }
                                 onSuccess.onSuccess(users);
-                            })
-                            .addOnFailureListener(onFailure::onFailure);
+                            });
                 })
                 .addOnFailureListener(onFailure::onFailure);
     }
@@ -534,14 +645,12 @@ public class FirebaseRepository {
 
     public void getShiftsByDate(List<String> classIds, String date,
                                 OnSuccessListener<List<Shift>> onSuccess) {
-        if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
-        db.collection(COL_SHIFTS)
-                .whereIn("classId", classIds)
-                .whereEqualTo("date", date)
-                .get()
-                .addOnSuccessListener(docs -> {
+        runChunkedWhereIn(classIds,
+                chunk -> db.collection(COL_SHIFTS).whereIn("classId", chunk)
+                        .whereEqualTo("date", date),
+                docs -> {
                     List<Shift> list = new ArrayList<>();
-                    for (DocumentSnapshot doc : docs.getDocuments()) {
+                    for (DocumentSnapshot doc : docs) {
                         Shift s = doc.toObject(Shift.class);
                         if (s != null) list.add(s);
                     }
@@ -551,28 +660,48 @@ public class FirebaseRepository {
 
     public void getShiftsForClasses(List<String> classIds,
                                     OnSuccessListener<List<Shift>> onSuccess) {
-        if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
-        List<Shift> result = new ArrayList<>();
+        runChunkedWhereIn(classIds,
+                chunk -> db.collection(COL_SHIFTS).whereIn("classId", chunk),
+                docs -> {
+                    List<Shift> result = new ArrayList<>();
+                    for (DocumentSnapshot doc : docs) {
+                        Shift s = doc.toObject(Shift.class);
+                        if (s != null) result.add(s);
+                    }
+                    onSuccess.onSuccess(result);
+                });
+    }
+
+    /** Tạo một truy vấn {@code whereIn} cho một đoạn id (≤ {@link #WHERE_IN_CHUNK_SIZE} phần tử). */
+    private interface ChunkQueryBuilder {
+        Query build(List<String> chunk);
+    }
+
+    /**
+     * Chạy một truy vấn {@code whereIn} trên danh sách id dài mà không vượt giới hạn
+     * của Firestore: cắt {@code ids} thành các đoạn ≤ {@link #WHERE_IN_CHUNK_SIZE},
+     * gọi song song một query cho mỗi đoạn (do {@code builder} tạo) rồi gộp toàn bộ
+     * document trả về và phát một lần qua {@code onComplete}. List rỗng/null trả về
+     * ngay danh sách rỗng. Lỗi của một đoạn chỉ làm thiếu dữ liệu của đoạn đó (giống
+     * hành vi cũ của getShiftsForClasses), không làm hỏng cả kết quả.
+     */
+    private void runChunkedWhereIn(List<String> ids, ChunkQueryBuilder builder,
+                                   OnSuccessListener<List<DocumentSnapshot>> onComplete) {
+        if (ids == null || ids.isEmpty()) { onComplete.onSuccess(new ArrayList<>()); return; }
         List<List<String>> chunks = new ArrayList<>();
-        for (int i = 0; i < classIds.size(); i += 10) {
-            chunks.add(classIds.subList(i, Math.min(i + 10, classIds.size())));
+        for (int i = 0; i < ids.size(); i += WHERE_IN_CHUNK_SIZE) {
+            chunks.add(ids.subList(i, Math.min(i + WHERE_IN_CHUNK_SIZE, ids.size())));
         }
+        List<DocumentSnapshot> all = new ArrayList<>();
         final int[] pending = {chunks.size()};
         for (List<String> chunk : chunks) {
-            db.collection(COL_SHIFTS)
-                    .whereIn("classId", chunk)
-                    .get()
+            builder.build(chunk).get()
                     .addOnSuccessListener(docs -> {
-                        for (DocumentSnapshot doc : docs.getDocuments()) {
-                            Shift s = doc.toObject(Shift.class);
-                            if (s != null) result.add(s);
-                        }
-                        pending[0]--;
-                        if (pending[0] == 0) onSuccess.onSuccess(result);
+                        all.addAll(docs.getDocuments());
+                        if (--pending[0] == 0) onComplete.onSuccess(all);
                     })
                     .addOnFailureListener(e -> {
-                        pending[0]--;
-                        if (pending[0] == 0) onSuccess.onSuccess(result);
+                        if (--pending[0] == 0) onComplete.onSuccess(all);
                     });
         }
     }
@@ -588,6 +717,91 @@ public class FirebaseRepository {
                         Log.e(TAG, "updateShiftStatus failed for shift " + shiftId, e));
     }
 
+    /**
+     * Dời (cập nhật lịch) một ca học sang ngày/giờ/phòng mới.
+     *
+     * <p>Điều kiện: ca học CHƯA mở điểm danh và chưa kết thúc/hủy — được kiểm tra
+     * lại ở phía server (đọc bản mới nhất) để tránh tình huống ca vừa được mở điểm
+     * danh ngay trước khi dời. Đồng thời kiểm tra trùng lịch với các ca khác cùng
+     * ngày (trừ chính nó và các ca đã hủy). {@code dayOfWeek} được tính lại từ ngày
+     * mới để {@code getDayOfWeekDisplay()} hiển thị đúng thứ.
+     *
+     * @param newRoom phòng mới; để rỗng/null sẽ giữ nguyên phòng hiện tại
+     */
+    public void rescheduleShift(String shiftId, String classId, String newDate,
+                                String newStartAt, String newEndAt, String newRoom,
+                                OnSuccessListener<Void> onSuccess,
+                                OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS).document(shiftId).get()
+                .addOnSuccessListener(doc -> {
+                    Shift current = doc.exists() ? doc.toObject(Shift.class) : null;
+                    if (current == null) {
+                        onFailure.onFailure(new Exception("Không tìm thấy ca học"));
+                        return;
+                    }
+                    if (current.isAttendanceOpened()
+                            || Shift.STATUS_COMPLETED.equals(current.getStatus())
+                            || Shift.STATUS_CANCELLED.equals(current.getStatus())) {
+                        onFailure.onFailure(new ShiftConflictException(
+                                "Ca học đã mở điểm danh hoặc đã kết thúc, không thể dời"));
+                        return;
+                    }
+                    // Kiểm tra trùng lịch với các ca khác cùng ngày của lớp.
+                    db.collection(COL_SHIFTS)
+                            .whereEqualTo("classId", classId)
+                            .whereEqualTo("date", newDate)
+                            .get()
+                            .addOnSuccessListener(snap -> {
+                                for (DocumentSnapshot other : snap.getDocuments()) {
+                                    if (shiftId.equals(other.getId())) continue;
+                                    Shift existing = other.toObject(Shift.class);
+                                    if (existing == null) continue;
+                                    if (Shift.STATUS_CANCELLED.equals(existing.getStatus())) continue;
+                                    if (shiftTimesOverlap(newStartAt, newEndAt,
+                                            existing.getStartAt(), existing.getEndAt())) {
+                                        onFailure.onFailure(new ShiftConflictException(
+                                                "Đã tồn tại ca học trùng thời gian trong ngày này"));
+                                        return;
+                                    }
+                                }
+                                writeReschedule(shiftId, newDate, newStartAt, newEndAt, newRoom,
+                                        onSuccess, onFailure);
+                            })
+                            .addOnFailureListener(onFailure::onFailure);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void writeReschedule(String shiftId, String newDate, String newStartAt,
+                                 String newEndAt, String newRoom,
+                                 OnSuccessListener<Void> onSuccess,
+                                 OnFailureListener onFailure) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(newDate));
+            int vnDow = AttendanceUtils.getDayOfWeekVN(cal.get(Calendar.DAY_OF_WEEK));
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("date", newDate);
+            updates.put("dayOfWeek", vnDow);
+            updates.put("startAt", newStartAt);
+            updates.put("endAt", newEndAt);
+            // Phòng tùy chọn: chỉ ghi đè khi giáo viên nhập phòng mới.
+            if (newRoom != null && !newRoom.trim().isEmpty()) {
+                updates.put("room", newRoom.trim());
+            }
+            // Dời lịch luôn đưa ca về trạng thái sắp diễn ra.
+            updates.put("status", Shift.STATUS_UPCOMING);
+
+            db.collection(COL_SHIFTS).document(shiftId).update(updates)
+                    .addOnSuccessListener(aVoid -> onSuccess.onSuccess(null))
+                    .addOnFailureListener(onFailure::onFailure);
+        } catch (Exception e) {
+            onFailure.onFailure(e);
+        }
+    }
+
     // ==================== SESSIONS ====================
 
     public void createSession(Session session,
@@ -600,6 +814,51 @@ public class FirebaseRepository {
         // batch. Both writes apply to the local cache immediately (latency
         // compensation), so the shift list's real-time listener reflects the new
         // status right away instead of waiting for the session write's server ack.
+        Map<String, Object> shiftUpdates = new HashMap<>();
+        shiftUpdates.put("status", Shift.STATUS_ONGOING);
+        shiftUpdates.put("attendanceOpened", true);
+        shiftUpdates.put("attendanceSessionId", session.getSessionId());
+
+        WriteBatch batch = db.batch();
+        batch.set(db.collection(COL_SESSIONS).document(session.getSessionId()), session);
+        batch.update(db.collection(COL_SHIFTS).document(session.getShiftId()), shiftUpdates);
+        batch.commit()
+                .addOnSuccessListener(unused -> onSuccess.onSuccess(session.getSessionId()))
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /** Cập nhật số phút cho phép vào muộn của một phiên điểm danh. */
+    public void updateSessionLateMinutes(String sessionId, int lateAfterMinutes,
+                                         OnSuccessListener<Void> onSuccess,
+                                         OnFailureListener onFailure) {
+        db.collection(COL_SESSIONS).document(sessionId)
+                .update("lateAfterMinutes", lateAfterMinutes)
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    public void updateSessionToken(String sessionId, String token,
+                                   OnSuccessListener<Void> onSuccess,
+                                   OnFailureListener onFailure) {
+        db.collection(COL_SESSIONS).document(sessionId)
+                .update("token", token)
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /**
+     * Tạo một phiên điểm danh BÙ cho buổi học đã kết thúc (cho sinh viên đi muộn).
+     * Bắt buộc đặt {@code startTime = now - lateAfterMinutes} để mọi sinh viên
+     * điểm danh trong phiên này đều được tính là MUỘN. Buổi học được mở lại
+     * (status = ongoing) cho tới khi giáo viên đóng phiên.
+     */
+    public void createMakeupSession(Session session,
+                                    OnSuccessListener<String> onSuccess,
+                                    OnFailureListener onFailure) {
+        long backMillis = (long) session.getLateAfterMinutes() * 60_000L;
+        session.setStartTime(new Timestamp(new Date(System.currentTimeMillis() - backMillis)));
+        session.setActive(true);
+
         Map<String, Object> shiftUpdates = new HashMap<>();
         shiftUpdates.put("status", Shift.STATUS_ONGOING);
         shiftUpdates.put("attendanceOpened", true);
@@ -777,6 +1036,19 @@ public class FirebaseRepository {
         db.collection(COL_ATTENDANCES)
                 .whereEqualTo("studentId", studentId)
                 .whereEqualTo("sessionId", sessionId)
+                .get()
+                .addOnSuccessListener(docs -> onSuccess.onSuccess(!docs.isEmpty()));
+    }
+
+    /**
+     * Sinh viên đã có bản ghi điểm danh cho BUỔI HỌC này chưa (bất kỳ phiên nào,
+     * kể cả phiên bù). Dùng để chặn điểm danh trùng khi một buổi có nhiều phiên.
+     */
+    public void checkStudentAttendedShift(String studentId, String shiftId,
+                                          OnSuccessListener<Boolean> onSuccess) {
+        db.collection(COL_ATTENDANCES)
+                .whereEqualTo("studentId", studentId)
+                .whereEqualTo("shiftId", shiftId)
                 .get()
                 .addOnSuccessListener(docs -> onSuccess.onSuccess(!docs.isEmpty()));
     }

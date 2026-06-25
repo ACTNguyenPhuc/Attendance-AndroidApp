@@ -43,12 +43,15 @@ public class ProfileFragment extends Fragment {
     private void loadProfile() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         repo.getUserProfile(uid,
-                user -> requireActivity().runOnUiThread(() -> {
-                    tvName.setText(user.getName());
-                    tvEmail.setText(user.getEmail());
-                    tvCode.setText(user.getStudentCode());
-                    tvRole.setText("teacher".equals(user.getRole()) ? "GIẢNG VIÊN" : "SINH VIÊN");
-                }),
+                user -> {
+                    if (!isAdded() || getActivity() == null) return;
+                    requireActivity().runOnUiThread(() -> {
+                        tvName.setText(user.getName());
+                        tvEmail.setText(user.getEmail());
+                        tvCode.setText(user.getStudentCode());
+                        tvRole.setText("teacher".equals(user.getRole()) ? "GIẢNG VIÊN" : "SINH VIÊN");
+                    });
+                },
                 e -> {}
         );
     }

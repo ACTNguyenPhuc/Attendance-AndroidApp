@@ -152,8 +152,8 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                         }
 
                         String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        // Check already attended
-                        repo.checkAlreadyAttended(studentId, sessionId, alreadyDone -> {
+                        // Chặn điểm danh trùng theo BUỔI HỌC (gồm cả phiên bù), không chỉ theo phiên.
+                        repo.checkStudentAttendedShift(studentId, session.getShiftId(), alreadyDone -> {
                             if (alreadyDone) {
                                 showError("Bạn đã điểm danh buổi học này rồi");
                                 return;

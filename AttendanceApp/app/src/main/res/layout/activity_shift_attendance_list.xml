@@ -203,4 +203,18 @@
         android:textSize="13sp"
         android:textColor="@color/text_secondary"
         android:visibility="gone" />
+
+    <!-- Chỉ hiện khi buổi học đã kết thúc: mở thêm phiên điểm danh bù cho SV đi muộn -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_makeup_attendance"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_margin="16dp"
+        android:text="MỞ ĐIỂM DANH BÙ"
+        android:textStyle="bold"
+        app:icon="@drawable/ic_event"
+        app:iconGravity="textStart"
+        app:backgroundTint="@color/primary_blue"
+        app:cornerRadius="8dp"
+        android:visibility="gone" />
 </LinearLayout>

@@ -99,6 +99,63 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Allowed late minutes -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_late_minutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Thời gian cho phép vào muộn"
+                        android:textSize="16sp" android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Sinh viên điểm danh sau số phút này (tính từ lúc mở phiên) sẽ bị tính muộn. Tối đa 30 phút."
+                        android:textSize="12sp" android:textColor="@color/text_secondary" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/til_late_minutes"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:suffixText="phút"
+                            android:hint="Số phút">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_late_minutes"
+                                android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:maxLength="2" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_apply_late"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Áp dụng"
+                            android:visibility="gone"
+                            app:backgroundTint="@color/primary_blue"
+                            app:cornerRadius="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Realtime Attendance List -->
             <LinearLayout
                 android:layout_width="match_parent"

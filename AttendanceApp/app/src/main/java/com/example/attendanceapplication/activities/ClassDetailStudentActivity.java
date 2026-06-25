@@ -81,8 +81,7 @@ public class ClassDetailStudentActivity extends AppCompatActivity {
         repo.getClassById(classId,
                 cls -> runOnUiThread(() -> {
                     tvClassName.setText(cls.getClassName());
-                    tvSchedule.setText(cls.getScheduleDisplay() + "  " +
-                            cls.getStartAt() + "-" + cls.getEndAt());
+                    tvSchedule.setText(cls.getScheduleTimeDisplay());
                     tvRoom.setText(cls.getRoom() != null && !cls.getRoom().isEmpty()
                             ? cls.getRoom() : "Chưa có phòng");
                     // Tên giáo viên: ưu tiên dữ liệu sẵn có, nếu thiếu thì lấy từ users.

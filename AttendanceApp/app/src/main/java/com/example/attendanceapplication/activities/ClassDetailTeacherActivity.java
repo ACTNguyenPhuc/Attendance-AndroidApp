@@ -1,5 +1,7 @@
 package com.example.attendanceapplication.activities;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +11,10 @@ import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 import android.widget.TextView;
 
+import java.util.Calendar;
+import java.util.Locale;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -71,6 +77,10 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
             ClassQRDialog.show(this, classId, className);
             return true;
         }
+        if (item.getItemId() == R.id.action_add_shift) {
+            showAddMakeupShiftDialog();
+            return true;
+        }
         if (item.getItemId() == R.id.action_add_student) {
             openAddStudent();
             return true;
@@ -116,8 +126,7 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                 classModel -> runOnUiThread(() -> {
                     tvClassName.setText(classModel.getClassName());
                     tvClassId.setText(classModel.getClassId());
-                    tvSchedule.setText(classModel.getScheduleDisplay() +
-                            "  " + classModel.getStartAt() + "-" + classModel.getEndAt());
+                    tvSchedule.setText(classModel.getScheduleTimeDisplay());
                 }),
                 e -> {}
         );
@@ -155,6 +164,85 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                     updateClassInfo(newName, newRoom);
                 })
                 .show();
+    }
+
+    /** Dialog tạo ca học bù: nhập ngày, giờ bắt đầu/kết thúc, phòng và tiêu đề (tùy chọn). */
+    private void showAddMakeupShiftDialog() {
+        View content = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_add_makeup_shift, null, false);
+        TextView tvDate  = content.findViewById(R.id.tv_date);
+        TextView tvStart = content.findViewById(R.id.tv_start_time);
+        TextView tvEnd   = content.findViewById(R.id.tv_end_time);
+        TextInputEditText etRoom  = content.findViewById(R.id.et_room);
+        TextInputEditText etTitle = content.findViewById(R.id.et_title);
+
+        // picked = { date, startAt, endAt }
+        final String[] picked = {"", "", ""};
+
+        tvDate.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(this, (dp, y, m, d) -> {
+                picked[0] = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d);
+                tvDate.setText(picked[0]);
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        tvStart.setOnClickListener(v -> pickTime(picked, 1, tvStart));
+        tvEnd.setOnClickListener(v -> pickTime(picked, 2, tvEnd));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Thêm ca học bù")
+                .setView(content)
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Tạo", null)
+                .create();
+        dialog.show();
+
+        // Override để validate mà không tự đóng dialog khi dữ liệu chưa hợp lệ.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String date = picked[0], start = picked[1], end = picked[2];
+            if (date.isEmpty() || start.isEmpty() || end.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn ngày và giờ học", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (toMinutes(end) <= toMinutes(start)) {
+                Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String room  = etRoom.getText()  == null ? "" : etRoom.getText().toString().trim();
+            String title = etTitle.getText() == null ? "" : etTitle.getText().toString().trim();
+
+            repo.createMakeupShift(classId, date, start, end, room, title,
+                    id -> runOnUiThread(() -> {
+                        Toast.makeText(this, "Đã thêm ca học bù", Toast.LENGTH_SHORT).show();
+                        viewPager.setCurrentItem(0, true); // chuyển sang tab "Buổi học"
+                        dialog.dismiss();
+                    }),
+                    e -> runOnUiThread(() -> {
+                        String msg = (e instanceof FirebaseRepository.ShiftConflictException)
+                                ? e.getMessage()
+                                : "Lỗi: " + e.getMessage();
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                    })
+            );
+        });
+    }
+
+    private void pickTime(String[] picked, int idx, TextView target) {
+        Calendar c = Calendar.getInstance();
+        new TimePickerDialog(this, (tp, h, m) -> {
+            String t = String.format(Locale.US, "%02d:%02d", h, m);
+            picked[idx] = t;
+            target.setText(t);
+        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
+    }
+
+    private int toMinutes(String time) {
+        try {
+            String[] p = time.split(":");
+            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     private void updateClassInfo(String name, String room) {

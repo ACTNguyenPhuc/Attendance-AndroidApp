@@ -113,22 +113,9 @@ public class StudentClassCardAdapter
         }
     }
 
-    /** "Thứ 2, Thứ 4, 18:00-20:00" theo quy ước VN (2=T2 … 8=CN). */
+    /** Lịch học kèm giờ theo từng ngày, vd "T2 07:00-09:30 · T4 13:00-15:00". */
     private String scheduleDisplay(ClassModel c) {
-        StringBuilder sb = new StringBuilder();
-        List<Integer> schedule = c.getSchedule();
-        if (schedule != null && !schedule.isEmpty()) {
-            for (int i = 0; i < schedule.size(); i++) {
-                if (i > 0) sb.append(", ");
-                int d = schedule.get(i);
-                sb.append(d == 8 ? "Chủ nhật" : "Thứ " + d);
-            }
-        }
-        if (c.getStartAt() != null && c.getEndAt() != null) {
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(c.getStartAt()).append("-").append(c.getEndAt());
-        }
-        return sb.toString();
+        return c.getScheduleTimeDisplay();
     }
 
     private int accentColor(android.content.Context ctx, int position) {
