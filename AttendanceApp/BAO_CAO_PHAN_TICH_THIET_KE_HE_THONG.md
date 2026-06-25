@@ -1,8 +1,9 @@
 # Bao cao phan tich thiet ke he thong QR Attendance
 
 Ngay phan tich: 25/06/2026  
-Pham vi: doc source chinh trong `app/src/main`, `firestore.rules`, `firestore.indexes.json`, Gradle/Firebase config va resource XML. Khong tinh cac file sinh tu `build/`, `.gradle/`, `.idea/`.
+Pham vi: doc source chinh trong `app/src/main`, `firestore.rules`, `firestore.indexes.json`, Gradle/Firebase config va resource XML. Khong tinh cac file sinh tu `build/`, `.gradle/`, `.idea/`
 
+Link apk file: https://drive.google.com/drive/folders/1TDuyT3UZgG0aXtNaU6RXvYAy8FeokZ3R?usp=sharing
 ## 1. Tong quan he thong
 
 QR Attendance la ung dung Android Java/XML dung de quan ly lop hoc va diem danh sinh vien bang QR code ket hop xac minh GPS. He thong co 2 vai tro chinh:
@@ -448,7 +449,7 @@ He qua:
 - Callback long nested.
 - UI thread va async state de gay loi khi fragment detach.
 
-### 13.3 Refresh QR token chua ghi len Firestore
+### 13.3 Refresh QR token chua ghi len Firestore //Đã fix
 
 Trong `SessionManagementActivity.refreshQrCode()`, code chi cap nhat `currentSession.setToken(...)` va ve QR moi tren man hinh, nhung khong update token moi vao document `sessions/{sessionId}`. Sinh vien scan QR moi se lay session tu Firestore va so token voi token cu, co the bi bao QR khong hop le.
 
@@ -469,7 +470,7 @@ Huong sua:
 - Rules chi allow create khi `attendanceId == studentId + '_' + shiftId` va document chua ton tai.
 - Neu can anti-cheat nghiem tuc, dua len Cloud Functions/transaction server-side.
 
-### 13.5 Query `whereIn` chua chunk o tat ca noi
+### 13.5 Query `whereIn` chua chunk o tat ca noi //đã fix
 
 Firestore `whereIn` co gioi han so phan tu moi query. Code da chunk trong `getShiftsForClasses`, nhung mot so noi chua chunk:
 
