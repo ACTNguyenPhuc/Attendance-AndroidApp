@@ -109,6 +109,11 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         if (position != RecyclerView.NO_POSITION) notifyItemChanged(position);
     }
 
+    private boolean areActionsOpened(Shift shift) {
+        return shift != null && shift.getShiftId() != null
+                && shift.getShiftId().equals(openedActionShiftId);
+    }
+
     private int findPositionById(String shiftId) {
         for (int i = 0; i < shiftList.size(); i++) {
             if (shiftId.equals(shiftList.get(i).getShiftId())) return i;
@@ -131,12 +136,13 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
 
         holder.tvDate.setText(formatDateVN(shift.getDate()));
         holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
+        String room = shift.getRoom() == null ? "" : shift.getRoom().trim();
+        holder.tvRoom.setText("Phòng: " + (room.isEmpty() ? "Chưa cập nhật" : room));
         holder.tvMakeupBadge.setVisibility(shift.isMakeup() ? View.VISIBLE : View.GONE);
 
         holder.foreground.animate().cancel();
         holder.foreground.setTranslationX(0f);
-        boolean actionsOpened = shift.getShiftId() != null
-                && shift.getShiftId().equals(openedActionShiftId);
+        boolean actionsOpened = areActionsOpened(shift);
         if (actionsOpened) {
             holder.actionPanel.post(() -> {
                 int boundPosition = holder.getBindingAdapterPosition();
@@ -149,17 +155,21 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         }
 
         boolean deletable = isDeletable(shift);
-        holder.actionDelete.setEnabled(deletable);
+        holder.actionDelete.setEnabled(actionsOpened && deletable);
+        holder.actionDelete.setClickable(actionsOpened && deletable);
         holder.actionDelete.setAlpha(deletable ? 1f : 0.45f);
         holder.actionDelete.setOnClickListener(v -> {
-            if (!isDeletable(shift) || deleteListener == null) return;
+            if (!areActionsOpened(shift) || !isDeletable(shift) || deleteListener == null) return;
             closeActions(shift);
             deleteListener.onDelete(shift);
         });
-        holder.actionReschedule.setEnabled(isReschedulable(shift));
-        holder.actionReschedule.setAlpha(isReschedulable(shift) ? 1f : 0.45f);
+        boolean reschedulable = isReschedulable(shift);
+        holder.actionReschedule.setEnabled(actionsOpened && reschedulable);
+        holder.actionReschedule.setClickable(actionsOpened && reschedulable);
+        holder.actionReschedule.setAlpha(reschedulable ? 1f : 0.45f);
         holder.actionReschedule.setOnClickListener(v -> {
-            if (!isReschedulable(shift) || rescheduleListener == null) return;
+            if (!areActionsOpened(shift) || !isReschedulable(shift)
+                    || rescheduleListener == null) return;
             closeActions(shift);
             rescheduleListener.onReschedule(shift);
         });
@@ -248,7 +258,7 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
     public int getItemCount() { return shiftList.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvTime, tvStatus, tvAttInfo, tvMakeupBadge;
+        TextView tvDate, tvTime, tvRoom, tvStatus, tvAttInfo, tvMakeupBadge;
         ImageView ivAttIcon;
         MaterialButton btnOpenAtt;
         // Lớp foreground được dịch chuyển khi vuốt để lộ hai hành động phía sau.
@@ -262,6 +272,7 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
             actionReschedule = itemView.findViewById(R.id.action_reschedule);
             tvDate     = itemView.findViewById(R.id.tv_date);
             tvTime     = itemView.findViewById(R.id.tv_time);
+            tvRoom     = itemView.findViewById(R.id.tv_room);
             tvStatus   = itemView.findViewById(R.id.tv_status);
             tvMakeupBadge = itemView.findViewById(R.id.tv_makeup_badge);
             tvAttInfo  = itemView.findViewById(R.id.tv_att_info);

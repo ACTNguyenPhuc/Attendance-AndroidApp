@@ -1,13 +1,13 @@
 package com.example.attendanceapplication.activities;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.graphics.drawable.Drawable;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -25,11 +25,15 @@ import com.example.attendanceapplication.models.ClassModel;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import android.view.Menu;
 import com.example.attendanceapplication.utils.ClassQRDialog;
+import com.example.attendanceapplication.utils.RequiredFieldUtils;
+import com.example.attendanceapplication.utils.StudyShiftOptions;
 import com.example.attendanceapplication.fragments.teacher.StudentsTabFragment;
 
 public class ClassDetailTeacherActivity extends AppCompatActivity {
@@ -156,28 +160,42 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                 .setNegativeButton("Hủy", null)
                 .setPositiveButton("Lưu", (d, which) -> {
                     String newName = etName.getText() == null ? "" : etName.getText().toString().trim();
-                    String newRoom = etRoom.getText() == null ? "" : etRoom.getText().toString().trim();
+
                     if (newName.isEmpty()) {
                         Toast.makeText(this, "Tên lớp không được rỗng", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    updateClassInfo(newName, newRoom);
+                    updateClassInfo(newName);
                 })
                 .show();
     }
 
-    /** Dialog tạo ca học bù: nhập ngày, giờ bắt đầu/kết thúc, phòng và tiêu đề (tùy chọn). */
+    /** Dialog tạo ca học bù: chọn ngày, ca học cố định, phòng bắt buộc và tiêu đề (tùy chọn). */
     private void showAddMakeupShiftDialog() {
         View content = LayoutInflater.from(this)
                 .inflate(R.layout.dialog_add_makeup_shift, null, false);
         TextView tvDate  = content.findViewById(R.id.tv_date);
-        TextView tvStart = content.findViewById(R.id.tv_start_time);
-        TextView tvEnd   = content.findViewById(R.id.tv_end_time);
+        MaterialAutoCompleteTextView shiftDropdown = content.findViewById(R.id.dropdown_shift);
         TextInputEditText etRoom  = content.findViewById(R.id.et_room);
         TextInputEditText etTitle = content.findViewById(R.id.et_title);
+        TextInputLayout tilShift = content.findViewById(R.id.til_shift);
+        TextInputLayout tilRoom = content.findViewById(R.id.til_room);
+
+        RequiredFieldUtils.markRequired(this,
+                (TextView) content.findViewById(R.id.tv_date_label));
+        RequiredFieldUtils.markRequired(this, tilShift);
+        RequiredFieldUtils.markRequired(this, tilRoom);
 
         // picked = { date, startAt, endAt }
         final String[] picked = {"", "", ""};
+
+        shiftDropdown.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, StudyShiftOptions.getLabels()));
+        shiftDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            StudyShiftOptions.Option option = StudyShiftOptions.get(position);
+            picked[1] = option.getStartAt();
+            picked[2] = option.getEndAt();
+        });
 
         tvDate.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
@@ -186,9 +204,6 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                 tvDate.setText(picked[0]);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
-        tvStart.setOnClickListener(v -> pickTime(picked, 1, tvStart));
-        tvEnd.setOnClickListener(v -> pickTime(picked, 2, tvEnd));
-
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Thêm ca học bù")
                 .setView(content)
@@ -200,16 +215,18 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
         // Override để validate mà không tự đóng dialog khi dữ liệu chưa hợp lệ.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String date = picked[0], start = picked[1], end = picked[2];
-            if (date.isEmpty() || start.isEmpty() || end.isEmpty()) {
-                Toast.makeText(this, "Vui lòng chọn ngày và giờ học", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (toMinutes(end) <= toMinutes(start)) {
-                Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+            if (date.isEmpty() || !StudyShiftOptions.isValid(start, end)) {
+                Toast.makeText(this, "Vui lòng chọn ngày và ca học", Toast.LENGTH_SHORT).show();
                 return;
             }
             String room  = etRoom.getText()  == null ? "" : etRoom.getText().toString().trim();
             String title = etTitle.getText() == null ? "" : etTitle.getText().toString().trim();
+            tilRoom.setError(null);
+            if (room.isEmpty()) {
+                tilRoom.setError("Vui lòng nhập phòng học");
+                etRoom.requestFocus();
+                return;
+            }
 
             repo.createMakeupShift(classId, date, start, end, room, title,
                     id -> runOnUiThread(() -> {
@@ -218,6 +235,22 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }),
                     e -> runOnUiThread(() -> {
+                        if (e instanceof FirebaseRepository.TeacherScheduleConflictException) {
+                            new MaterialAlertDialogBuilder(this)
+                                    .setTitle("Xung đột lịch giảng")
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton("Đã hiểu", null)
+                                    .show();
+                            return;
+                        }
+                        if (e instanceof FirebaseRepository.RoomConflictException) {
+                            new MaterialAlertDialogBuilder(this)
+                                    .setTitle("Xung đột phòng học")
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton("Đã hiểu", null)
+                                    .show();
+                            return;
+                        }
                         String msg = (e instanceof FirebaseRepository.ShiftConflictException)
                                 ? e.getMessage()
                                 : "Lỗi: " + e.getMessage();
@@ -227,26 +260,8 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
         });
     }
 
-    private void pickTime(String[] picked, int idx, TextView target) {
-        Calendar c = Calendar.getInstance();
-        new TimePickerDialog(this, (tp, h, m) -> {
-            String t = String.format(Locale.US, "%02d:%02d", h, m);
-            picked[idx] = t;
-            target.setText(t);
-        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
-    }
-
-    private int toMinutes(String time) {
-        try {
-            String[] p = time.split(":");
-            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
-        } catch (Exception e) {
-            return -1;
-        }
-    }
-
-    private void updateClassInfo(String name, String room) {
-        repo.updateClassInfo(classId, name, room,
+    private void updateClassInfo(String name) {
+        repo.updateClassInfo(classId, name,
                 r -> runOnUiThread(() -> {
                     className = name;
                     tvClassName.setText(name);

@@ -1,0 +1,8 @@
+
+ // đóng phiên tự động
+  code: /*Đóng phiên điểm danh nếu đã quá thời gian kết thúc.*/
+  filerules: //  request.time < sessionData(request.resource.data.sessionId).scheduledEndTime &&
+
+  /tồn đọng
+  //set chỉ cho mở ca trong ca/ngày đó
+  //fix sắp diễn ra -> mở phiên

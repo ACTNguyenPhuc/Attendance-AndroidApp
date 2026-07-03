@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.attendanceapplication.models.*;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.RoomConflictChecker;
+import com.example.attendanceapplication.utils.TeacherScheduleConflictChecker;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -115,21 +117,231 @@ public class FirebaseRepository {
 
     // ==================== CLASSES ====================
 
+    /** Báo mã lớp đã tồn tại để màn hình tạo lớp hiển thị thông báo riêng. */
+    public static class DuplicateClassIdException extends Exception {
+        public DuplicateClassIdException(String classId) {
+            super("Mã lớp " + classId + " đã tồn tại");
+        }
+    }
+
+    /** Báo một ca của lớp mới đang chiếm phòng đã được lớp khác sử dụng. */
+    public static class RoomConflictException extends Exception {
+        public RoomConflictException(RoomConflictChecker.Conflict conflict) {
+            super(buildRoomConflictMessage(conflict));
+        }
+
+        private static String buildRoomConflictMessage(RoomConflictChecker.Conflict conflict) {
+            Shift requested = conflict.getNewShift();
+            Shift existing = conflict.getExistingShift();
+            String existingClassName = existing.getClassName();
+            if (existingClassName == null || existingClassName.trim().isEmpty()) {
+                existingClassName = existing.getClassId() == null
+                        ? "Không xác định"
+                        : existing.getClassId();
+            } else if (existing.getClassId() != null && !existing.getClassId().trim().isEmpty()) {
+                existingClassName += " (" + existing.getClassId() + ")";
+            }
+
+            return "Ngày: " + requested.getDate()
+                    + "\nCa yêu cầu: " + requested.getStartAt() + " - " + requested.getEndAt()
+                    + "\nCa đang sử dụng: " + existing.getStartAt() + " - " + existing.getEndAt()
+                    + "\nPhòng: " + requested.getRoom()
+                    + "\nLớp đang sử dụng: " + existingClassName;
+        }
+    }
+
+    /** Báo giảng viên của lớp mới đã có ca giảng giao với một ca được tạo sẵn. */
+    public static class TeacherScheduleConflictException extends Exception {
+        public TeacherScheduleConflictException(TeacherScheduleConflictChecker.Conflict conflict,
+                                                String teacherDisplayName) {
+            super(buildTeacherScheduleConflictMessage(conflict, teacherDisplayName));
+        }
+
+        private static String buildTeacherScheduleConflictMessage(
+                TeacherScheduleConflictChecker.Conflict conflict,
+                String teacherDisplayName) {
+            Shift requested = conflict.getNewShift();
+            Shift existing = conflict.getExistingShift();
+            String displayName = teacherDisplayName == null || teacherDisplayName.trim().isEmpty()
+                    ? requested.getTeacherName()
+                    : teacherDisplayName.trim();
+
+            return "Giảng viên: " + displayName
+                    + "\nNgày: " + requested.getDate()
+                    + "\nCa muốn tạo: " + requested.getStartAt() + " - " + requested.getEndAt()
+                    + "\nCa đang giảng: " + existing.getStartAt() + " - " + existing.getEndAt()
+                    + "\nLớp đang phụ trách: " + getShiftClassDisplay(existing)
+                    + "\nPhòng: " + safeDisplayValue(existing.getRoom());
+        }
+    }
+
+    private static String getShiftClassDisplay(Shift shift) {
+        String className = shift.getClassName();
+        String classId = shift.getClassId();
+        if (className == null || className.trim().isEmpty()) {
+            return safeDisplayValue(classId);
+        }
+        if (classId == null || classId.trim().isEmpty()) return className.trim();
+        return className.trim() + " (" + classId.trim() + ")";
+    }
+
+    private static String safeDisplayValue(String value) {
+        return value == null || value.trim().isEmpty() ? "Không xác định" : value.trim();
+    }
+
     public void createClass(ClassModel classModel,
                             OnSuccessListener<String> onSuccess,
                             OnFailureListener onFailure) {
+        if (classModel.getRoom() == null || classModel.getRoom().trim().isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Phòng học không được để trống"));
+            return;
+        }
+        classModel.setRoom(classModel.getRoom().trim());
         classModel.setCreatedAt(Timestamp.now());
-        db.collection(COL_CLASSES).document(classModel.getClassId()).set(classModel)
-                .addOnSuccessListener(aVoid -> {
-                    // Auto-generate shifts after class creation
-                    generateShifts(classModel,
-                            () -> onSuccess.onSuccess(classModel.getClassId()),
-                            onFailure);
+        String classId = classModel.getClassId();
+        DocumentReference classRef = db.collection(COL_CLASSES).document(classId);
+
+        final List<Shift> newShifts;
+        try {
+            newShifts = buildShifts(classModel);
+        } catch (Exception e) {
+            onFailure.onFailure(e);
+            return;
+        }
+
+        // Giữ thông báo mã lớp trùng rõ ràng trước khi kiểm tra lịch. Transaction
+        // phía dưới vẫn kiểm tra lại để xử lý trường hợp hai thiết bị tạo đồng thời.
+        classRef.get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        onFailure.onFailure(new DuplicateClassIdException(classId));
+                        return;
+                    }
+                    checkNewClassConflictsThenPersist(
+                            classModel, classRef, newShifts, onSuccess, onFailure);
                 })
                 .addOnFailureListener(onFailure::onFailure);
     }
 
-    public void updateClassInfo(String classId, String className, String room,
+    private void checkNewClassConflictsThenPersist(ClassModel classModel,
+                                                   DocumentReference classRef,
+                                                   List<Shift> newShifts,
+                                                   OnSuccessListener<String> onSuccess,
+                                                   OnFailureListener onFailure) {
+        checkTeacherAndRoomConflicts(newShifts, null, classModel.getTeacherName(),
+                () -> persistClassAndShifts(
+                        classModel, classRef, newShifts, onSuccess, onFailure),
+                onFailure);
+    }
+
+    /**
+     * Đọc toàn bộ ca một lần, ưu tiên báo trùng lịch giảng rồi mới kiểm tra phòng.
+     * Khi dời lịch, {@code excludedShiftId} loại chính ca đang cập nhật.
+     */
+    private void checkTeacherAndRoomConflicts(List<Shift> requestedShifts,
+                                              String excludedShiftId,
+                                              String teacherDisplayName,
+                                              Runnable onNoConflict,
+                                              OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS).get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Shift> existingShifts = new ArrayList<>();
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        if (excludedShiftId != null && excludedShiftId.equals(document.getId())) {
+                            continue;
+                        }
+                        Shift shift = document.toObject(Shift.class);
+                        if (shift != null) existingShifts.add(shift);
+                    }
+
+                    TeacherScheduleConflictChecker.Conflict teacherConflict =
+                            TeacherScheduleConflictChecker.findFirstConflict(
+                                    requestedShifts, existingShifts);
+                    if (teacherConflict != null) {
+                        onFailure.onFailure(new TeacherScheduleConflictException(
+                                teacherConflict, teacherDisplayName));
+                        return;
+                    }
+
+                    RoomConflictChecker.Conflict roomConflict =
+                            RoomConflictChecker.findFirstConflict(requestedShifts, existingShifts);
+                    if (roomConflict != null) {
+                        onFailure.onFailure(new RoomConflictException(roomConflict));
+                        return;
+                    }
+
+                    onNoConflict.run();
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /** Giữ quy tắc cũ: một lớp không được có hai ca chồng giờ trong cùng ngày. */
+    private void checkClassScheduleConflict(Shift requestedShift, String excludedShiftId,
+                                            Runnable onNoConflict,
+                                            OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS)
+                .whereEqualTo("classId", requestedShift.getClassId())
+                .whereEqualTo("date", requestedShift.getDate())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        if (excludedShiftId != null && excludedShiftId.equals(document.getId())) {
+                            continue;
+                        }
+                        Shift existing = document.toObject(Shift.class);
+                        if (existing == null
+                                || Shift.STATUS_CANCELLED.equals(existing.getStatus())) {
+                            continue;
+                        }
+                        if (RoomConflictChecker.timesOverlap(
+                                requestedShift.getStartAt(), requestedShift.getEndAt(),
+                                existing.getStartAt(), existing.getEndAt())) {
+                            onFailure.onFailure(new ShiftConflictException(
+                                    "Đã tồn tại ca học trùng thời gian trong ngày này"));
+                            return;
+                        }
+                    }
+                    onNoConflict.run();
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    private void persistClassAndShifts(ClassModel classModel, DocumentReference classRef,
+                                       List<Shift> newShifts,
+                                       OnSuccessListener<String> onSuccess,
+                                       OnFailureListener onFailure) {
+        String classId = classModel.getClassId();
+
+        // Transaction giúp thao tác kiểm tra và tạo là nguyên tử: hai thiết bị
+        // cùng tạo một mã lớp cũng không thể ghi đè document của nhau.
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot existingClass = transaction.get(classRef);
+                    if (existingClass.exists()) {
+                        throw new FirebaseFirestoreException(
+                                "Class ID already exists",
+                                FirebaseFirestoreException.Code.ALREADY_EXISTS);
+                    }
+                    transaction.set(classRef, classModel);
+                    return null;
+                })
+                .addOnSuccessListener(aVoid -> {
+                    // Auto-generate shifts after class creation
+                    generateShifts(newShifts,
+                            () -> onSuccess.onSuccess(classId),
+                            onFailure);
+                })
+                .addOnFailureListener(error -> {
+                    if (error instanceof FirebaseFirestoreException
+                            && ((FirebaseFirestoreException) error).getCode()
+                            == FirebaseFirestoreException.Code.ALREADY_EXISTS) {
+                        onFailure.onFailure(new DuplicateClassIdException(classId));
+                        return;
+                    }
+                    onFailure.onFailure(error);
+                });
+    }
+
+    public void updateClassInfo(String classId, String className,
                                 OnSuccessListener<Void> onSuccess,
                                 OnFailureListener onFailure) {
         if (classId == null || classId.isEmpty()) {
@@ -138,7 +350,7 @@ public class FirebaseRepository {
         }
         Map<String, Object> updates = new HashMap<>();
         updates.put("className", className);
-        updates.put("room", room);
+
 
         db.collection(COL_CLASSES).document(classId).update(updates)
                 .addOnSuccessListener(aVoid -> updateShiftsForClass(classId, updates, onSuccess, onFailure))
@@ -187,69 +399,65 @@ public class FirebaseRepository {
     /**
      * Auto-generate shift documents for every scheduled day in the semester.
      */
-    private void generateShifts(ClassModel classModel,
-                                 Runnable onComplete,
-                                 OnFailureListener onFailure) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(sdf.parse(classModel.getStartDate()));
-            Date endDate = sdf.parse(classModel.getEndDate());
+    private List<Shift> buildShifts(ClassModel classModel) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Objects.requireNonNull(sdf.parse(classModel.getStartDate())));
+        Date endDate = Objects.requireNonNull(sdf.parse(classModel.getEndDate()));
+        List<Shift> shifts = new ArrayList<>();
 
-            WriteBatch batch = db.batch();
-            int batchCount = 0;
-            List<List<Object>> batchGroups = new ArrayList<>();
-            List<Object> currentGroup = new ArrayList<>();
+        while (!cal.getTime().after(endDate)) {
+            int vnDow = AttendanceUtils.getDayOfWeekVN(cal.get(Calendar.DAY_OF_WEEK));
+            if (classModel.getSchedule() != null && classModel.getSchedule().contains(vnDow)) {
+                String dateStr = sdf.format(cal.getTime());
+                DaySchedule daySchedule = classModel.getDayScheduleFor(vnDow);
 
-            while (!cal.getTime().after(endDate)) {
-                // Calendar: 1=Sun,2=Mon,...,7=Sat → VN: 2=Mon,...,8=Sun
-                int calDow = cal.get(Calendar.DAY_OF_WEEK);
-                int vnDow = AttendanceUtils.getDayOfWeekVN(calDow);
-
-                if (classModel.getSchedule() != null &&
-                        classModel.getSchedule().contains(vnDow)) {
-                    String dateStr = sdf.format(cal.getTime());
-                    String shiftId = classModel.getClassId() + "_" + dateStr;
-
-                    // Giờ học theo từng thứ; fallback giờ chung cho lớp dữ liệu cũ.
-                    DaySchedule daySchedule = classModel.getDayScheduleFor(vnDow);
-                    String shiftStartAt = daySchedule != null ? daySchedule.getStartAt() : classModel.getStartAt();
-                    String shiftEndAt = daySchedule != null ? daySchedule.getEndAt() : classModel.getEndAt();
-
-                    Shift shift = new Shift();
-                    shift.setShiftId(shiftId);
-                    shift.setClassId(classModel.getClassId());
-                    shift.setClassName(classModel.getClassName());
-                    shift.setTitle("Buổi học ngày " + dateStr);
-                    shift.setDate(dateStr);
-                    shift.setDayOfWeek(vnDow);
-                    shift.setStartAt(shiftStartAt);
-                    shift.setEndAt(shiftEndAt);
-                    shift.setRoom(classModel.getRoom() != null ? classModel.getRoom() : "");
-                    shift.setStatus(Shift.STATUS_UPCOMING);
-                    shift.setAttendanceOpened(false);
-                    shift.setCreatedAt(Timestamp.now());
-
-                    DocumentReference docRef = db.collection(COL_SHIFTS).document(shiftId);
-                    batch.set(docRef, shift);
-                    batchCount++;
-
-                    // Firestore batch limit is 500
-                    if (batchCount == 499) {
-                        batch.commit();
-                        batch = db.batch();
-                        batchCount = 0;
-                    }
-                }
-                cal.add(Calendar.DAY_OF_MONTH, 1);
+                Shift shift = new Shift();
+                shift.setShiftId(classModel.getClassId() + "_" + dateStr);
+                shift.setClassId(classModel.getClassId());
+                shift.setClassName(classModel.getClassName());
+                // Theo schema Shift hiện tại, teacherName lưu UID của giáo viên.
+                shift.setTeacherName(classModel.getTeacherId());
+                shift.setTitle("Buổi học ngày " + dateStr);
+                shift.setDate(dateStr);
+                shift.setDayOfWeek(vnDow);
+                shift.setStartAt(daySchedule != null
+                        ? daySchedule.getStartAt() : classModel.getStartAt());
+                shift.setEndAt(daySchedule != null
+                        ? daySchedule.getEndAt() : classModel.getEndAt());
+                shift.setRoom(classModel.getRoom() != null ? classModel.getRoom().trim() : "");
+                shift.setStatus(Shift.STATUS_UPCOMING);
+                shift.setAttendanceOpened(false);
+                shift.setCreatedAt(Timestamp.now());
+                shifts.add(shift);
             }
-
-            batch.commit()
-                    .addOnSuccessListener(aVoid -> onComplete.run())
-                    .addOnFailureListener(onFailure::onFailure);
-        } catch (Exception e) {
-            onFailure.onFailure(e);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
         }
+        return shifts;
+    }
+
+    private void generateShifts(List<Shift> shifts, Runnable onComplete,
+                                OnFailureListener onFailure) {
+        writeShiftBatch(shifts, 0, onComplete, onFailure);
+    }
+
+    private void writeShiftBatch(List<Shift> shifts, int start, Runnable onComplete,
+                                 OnFailureListener onFailure) {
+        if (start >= shifts.size()) {
+            onComplete.run();
+            return;
+        }
+
+        int end = Math.min(start + 499, shifts.size());
+        WriteBatch batch = db.batch();
+        for (int i = start; i < end; i++) {
+            Shift shift = shifts.get(i);
+            batch.set(db.collection(COL_SHIFTS).document(shift.getShiftId()), shift);
+        }
+        batch.commit()
+                .addOnSuccessListener(unused ->
+                        writeShiftBatch(shifts, end, onComplete, onFailure))
+                .addOnFailureListener(onFailure::onFailure);
     }
 
     /** Lỗi nghiệp vụ: ca học mới trùng/chồng thời gian với một ca đã có cùng ngày. */
@@ -259,101 +467,74 @@ public class FirebaseRepository {
 
     /**
      * Tạo một ca học bù (phát sinh ngoài lịch gốc) cho lớp. Thông tin lớp
-     * (tên lớp, giáo viên, phòng mặc định) được lấy từ document lớp tương ứng.
+     * (tên lớp, giáo viên) được lấy từ document lớp tương ứng.
      *
-     * <p>Trước khi tạo sẽ kiểm tra trùng lịch: nếu cùng ngày đã có một ca học mà
-     * khoảng giờ chồng lên nhau (trừ ca đã hủy) thì báo lỗi
-     * {@link ShiftConflictException} và KHÔNG tạo.
+     * <p>Trước khi tạo sẽ kiểm tra xung đột phòng với toàn bộ ca đã tồn tại:
+     * cùng ngày, cùng phòng và khoảng giờ giao nhau thì báo
+     * {@link RoomConflictException} và KHÔNG tạo.
      *
      * @param date   ngày học "yyyy-MM-dd"
-     * @param room   phòng học; để rỗng sẽ dùng phòng mặc định của lớp
+     * @param room   phòng học bắt buộc
      * @param title  tiêu đề; để rỗng sẽ tự đặt "Ca học bù ngày ..."
      */
     public void createMakeupShift(String classId, String date, String startAt, String endAt,
                                   String room, String title,
                                   OnSuccessListener<String> onSuccess,
                                   OnFailureListener onFailure) {
-        // Kiểm tra trùng lịch với các ca đã có cùng ngày của lớp.
-        db.collection(COL_SHIFTS)
-                .whereEqualTo("classId", classId)
-                .whereEqualTo("date", date)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    for (DocumentSnapshot doc : snap.getDocuments()) {
-                        Shift existing = doc.toObject(Shift.class);
-                        if (existing == null) continue;
-                        if (Shift.STATUS_CANCELLED.equals(existing.getStatus())) continue;
-                        if (shiftTimesOverlap(startAt, endAt, existing.getStartAt(), existing.getEndAt())) {
-                            onFailure.onFailure(new ShiftConflictException(
-                                    "Đã tồn tại ca học trùng thời gian trong ngày này"));
-                            return;
-                        }
-                    }
-                    writeMakeupShift(classId, date, startAt, endAt, room, title, onSuccess, onFailure);
-                })
-                .addOnFailureListener(onFailure::onFailure);
-    }
-
-    private void writeMakeupShift(String classId, String date, String startAt, String endAt,
-                                  String room, String title,
-                                  OnSuccessListener<String> onSuccess,
-                                  OnFailureListener onFailure) {
+        if (room == null || room.trim().isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Phòng học không được để trống"));
+            return;
+        }
         getClassById(classId, classModel -> {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(sdf.parse(date));
-                int vnDow = AttendanceUtils.getDayOfWeekVN(cal.get(Calendar.DAY_OF_WEEK));
-
-                // ID duy nhất để không đè lên ca chính cùng ngày (nếu có).
-                String shiftId = classId + "_" + date + "_m" + System.currentTimeMillis();
-
-                Shift shift = new Shift();
-                shift.setShiftId(shiftId);
-                shift.setClassId(classId);
-                shift.setClassName(classModel.getClassName());
-                shift.setTeacherName(classModel.getTeacherName());
-                shift.setTitle(title != null && !title.isEmpty() ? title : "Ca học bù ngày " + date);
-                shift.setDate(date);
-                shift.setDayOfWeek(vnDow);
-                shift.setStartAt(startAt);
-                shift.setEndAt(endAt);
-                shift.setRoom(room != null && !room.isEmpty()
-                        ? room
-                        : (classModel.getRoom() != null ? classModel.getRoom() : ""));
-                shift.setStatus(Shift.STATUS_UPCOMING);
-                shift.setAttendanceOpened(false);
-                shift.setMakeup(true);
-                shift.setCreatedAt(Timestamp.now());
-
-                db.collection(COL_SHIFTS).document(shiftId).set(shift)
-                        .addOnSuccessListener(aVoid -> onSuccess.onSuccess(shiftId))
-                        .addOnFailureListener(onFailure::onFailure);
+                Shift newShift = buildMakeupShift(
+                        classModel, date, startAt, endAt, room, title);
+                checkTeacherAndRoomConflicts(
+                        Collections.singletonList(newShift), null, classModel.getTeacherName(),
+                        () -> checkClassScheduleConflict(newShift, null,
+                                () -> writeMakeupShift(newShift, onSuccess, onFailure),
+                                onFailure),
+                        onFailure);
             } catch (Exception e) {
                 onFailure.onFailure(e);
             }
         }, onFailure);
     }
 
-    /**
-     * Hai khoảng giờ "HH:mm" có chồng nhau không (nửa mở: [start, end)).
-     * Trả về {@code false} nếu dữ liệu giờ không hợp lệ để tránh chặn nhầm.
-     */
-    private boolean shiftTimesOverlap(String start1, String end1, String start2, String end2) {
-        int s1 = parseMinutes(start1), e1 = parseMinutes(end1);
-        int s2 = parseMinutes(start2), e2 = parseMinutes(end2);
-        if (s1 < 0 || e1 < 0 || s2 < 0 || e2 < 0) return false;
-        return s1 < e2 && s2 < e1;
+    private Shift buildMakeupShift(ClassModel classModel, String date,
+                                   String startAt, String endAt,
+                                   String room, String title) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Objects.requireNonNull(sdf.parse(date)));
+        int vnDow = AttendanceUtils.getDayOfWeekVN(cal.get(Calendar.DAY_OF_WEEK));
+        String shiftId = classModel.getClassId() + "_" + date + "_m" + System.currentTimeMillis();
+
+        Shift shift = new Shift();
+        shift.setShiftId(shiftId);
+        shift.setClassId(classModel.getClassId());
+        shift.setClassName(classModel.getClassName());
+        // Giữ cùng cách lưu với các ca được sinh tự động từ lớp.
+        shift.setTeacherName(classModel.getTeacherId());
+        shift.setTitle(title != null && !title.isEmpty() ? title : "Ca học bù ngày " + date);
+        shift.setDate(date);
+        shift.setDayOfWeek(vnDow);
+        shift.setStartAt(startAt);
+        shift.setEndAt(endAt);
+        shift.setRoom(room.trim());
+        shift.setStatus(Shift.STATUS_UPCOMING);
+        shift.setAttendanceOpened(false);
+        shift.setMakeup(true);
+        shift.setCreatedAt(Timestamp.now());
+        return shift;
     }
 
-    private int parseMinutes(String time) {
-        if (time == null) return -1;
-        try {
-            String[] p = time.split(":");
-            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
-        } catch (Exception e) {
-            return -1;
-        }
+    private void writeMakeupShift(Shift shift,
+                                  OnSuccessListener<String> onSuccess,
+                                  OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS).document(shift.getShiftId()).set(shift)
+                .addOnSuccessListener(aVoid -> onSuccess.onSuccess(shift.getShiftId()))
+                .addOnFailureListener(onFailure::onFailure);
     }
 
     public LiveData<List<ClassModel>> getTeacherClasses(String teacherId) {
@@ -774,16 +955,20 @@ public class FirebaseRepository {
      *
      * <p>Điều kiện: ca học CHƯA mở điểm danh và chưa kết thúc/hủy — được kiểm tra
      * lại ở phía server (đọc bản mới nhất) để tránh tình huống ca vừa được mở điểm
-     * danh ngay trước khi dời. Đồng thời kiểm tra trùng lịch với các ca khác cùng
-     * ngày (trừ chính nó và các ca đã hủy). {@code dayOfWeek} được tính lại từ ngày
-     * mới để {@code getDayOfWeekDisplay()} hiển thị đúng thứ.
+     * danh ngay trước khi dời. Đồng thời kiểm tra xung đột lịch giảng và phòng học
+     * với toàn bộ ca khác, trừ chính ca đang dời. {@code dayOfWeek} được tính lại
+     * từ ngày mới để {@code getDayOfWeekDisplay()} hiển thị đúng thứ.
      *
-     * @param newRoom phòng mới; để rỗng/null sẽ giữ nguyên phòng hiện tại
+     * @param newRoom phòng học mới bắt buộc
      */
     public void rescheduleShift(String shiftId, String classId, String newDate,
                                 String newStartAt, String newEndAt, String newRoom,
                                 OnSuccessListener<Void> onSuccess,
                                 OnFailureListener onFailure) {
+        if (newRoom == null || newRoom.trim().isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Phòng học không được để trống"));
+            return;
+        }
         db.collection(COL_SHIFTS).document(shiftId).get()
                 .addOnSuccessListener(doc -> {
                     Shift current = doc.exists() ? doc.toObject(Shift.class) : null;
@@ -798,28 +983,33 @@ public class FirebaseRepository {
                                 "Ca học đã mở điểm danh hoặc đã kết thúc, không thể dời"));
                         return;
                     }
-                    // Kiểm tra trùng lịch với các ca khác cùng ngày của lớp.
-                    db.collection(COL_SHIFTS)
-                            .whereEqualTo("classId", classId)
-                            .whereEqualTo("date", newDate)
-                            .get()
-                            .addOnSuccessListener(snap -> {
-                                for (DocumentSnapshot other : snap.getDocuments()) {
-                                    if (shiftId.equals(other.getId())) continue;
-                                    Shift existing = other.toObject(Shift.class);
-                                    if (existing == null) continue;
-                                    if (Shift.STATUS_CANCELLED.equals(existing.getStatus())) continue;
-                                    if (shiftTimesOverlap(newStartAt, newEndAt,
-                                            existing.getStartAt(), existing.getEndAt())) {
-                                        onFailure.onFailure(new ShiftConflictException(
-                                                "Đã tồn tại ca học trùng thời gian trong ngày này"));
-                                        return;
-                                    }
-                                }
-                                writeReschedule(shiftId, newDate, newStartAt, newEndAt, newRoom,
-                                        onSuccess, onFailure);
-                            })
-                            .addOnFailureListener(onFailure::onFailure);
+                    getClassById(classId, classModel -> {
+                        String effectiveRoom = newRoom.trim();
+                        String teacherId = current.getTeacherName();
+                        if (teacherId == null || teacherId.trim().isEmpty()) {
+                            teacherId = classModel.getTeacherId();
+                        }
+
+                        Shift requestedShift = new Shift();
+                        requestedShift.setShiftId(shiftId);
+                        requestedShift.setClassId(classId);
+                        requestedShift.setClassName(current.getClassName());
+                        requestedShift.setTeacherName(teacherId);
+                        requestedShift.setDate(newDate);
+                        requestedShift.setStartAt(newStartAt);
+                        requestedShift.setEndAt(newEndAt);
+                        requestedShift.setRoom(effectiveRoom);
+
+                        checkTeacherAndRoomConflicts(
+                                Collections.singletonList(requestedShift), shiftId,
+                                classModel.getTeacherName(),
+                                () -> checkClassScheduleConflict(requestedShift, shiftId,
+                                        () -> writeReschedule(shiftId, newDate,
+                                                newStartAt, newEndAt, effectiveRoom,
+                                                onSuccess, onFailure),
+                                        onFailure),
+                                onFailure);
+                    }, onFailure);
                 })
                 .addOnFailureListener(onFailure::onFailure);
     }
@@ -839,10 +1029,7 @@ public class FirebaseRepository {
             updates.put("dayOfWeek", vnDow);
             updates.put("startAt", newStartAt);
             updates.put("endAt", newEndAt);
-            // Phòng tùy chọn: chỉ ghi đè khi giáo viên nhập phòng mới.
-            if (newRoom != null && !newRoom.trim().isEmpty()) {
-                updates.put("room", newRoom.trim());
-            }
+            updates.put("room", newRoom.trim());
             // Dời lịch luôn đưa ca về trạng thái sắp diễn ra.
             updates.put("status", Shift.STATUS_UPCOMING);
 
@@ -1064,19 +1251,20 @@ public class FirebaseRepository {
                         throw new IllegalStateException("Không xác định được giờ kết thúc ca học");
                     }
 
-                    Timestamp now = Timestamp.now();
-                    if (now.compareTo(session.getScheduledEndTime()) >= 0) {
-                        Map<String, Object> sessionUpdates = new HashMap<>();
-                        sessionUpdates.put(Session.FIELD_ACTIVE, false);
-                        sessionUpdates.put("endTime", FieldValue.serverTimestamp());
-                        transaction.update(sessionRef, sessionUpdates);
-
-                        Map<String, Object> shiftUpdates = new HashMap<>();
-                        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
-                        shiftUpdates.put("attendanceOpened", false);
-                        transaction.update(shiftRef, shiftUpdates);
-                        return AttendanceWriteResult.SHIFT_ENDED;
-                    }
+                   Timestamp now = Timestamp.now();
+                    /*Đóng phiên điểm danh nếu đã quá thời gian kết thúc.*/
+//                    if (now.compareTo(session.getScheduledEndTime()) >= 0) {
+//                        Map<String, Object> sessionUpdates = new HashMap<>();
+//                        sessionUpdates.put(Session.FIELD_ACTIVE, false);
+//                        sessionUpdates.put("endTime", FieldValue.serverTimestamp());
+//                        transaction.update(sessionRef, sessionUpdates);
+//
+//                        Map<String, Object> shiftUpdates = new HashMap<>();
+//                        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
+//                        shiftUpdates.put("attendanceOpened", false);
+//                        transaction.update(shiftRef, shiftUpdates);
+//                        return AttendanceWriteResult.SHIFT_ENDED;
+//                    }
 
                     attendance.setCheckinTime(now);
                     transaction.set(attendanceRef, attendance);

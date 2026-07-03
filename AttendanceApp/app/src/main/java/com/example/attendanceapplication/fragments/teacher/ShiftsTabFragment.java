@@ -1,10 +1,10 @@
 package com.example.attendanceapplication.fragments.teacher;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +21,13 @@ import com.example.attendanceapplication.adapters.ShiftListAdapter;
 import com.example.attendanceapplication.adapters.ShiftSwipeCallback;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
+import com.example.attendanceapplication.utils.RequiredFieldUtils;
+import com.example.attendanceapplication.utils.StudyShiftOptions;
 import com.example.attendanceapplication.activities.ShiftAttendanceListActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.*;
 
@@ -153,7 +158,7 @@ public class ShiftsTabFragment extends Fragment {
     }
 
     /**
-     * Dialog dời ca học: nhập ngày/giờ mới và phòng (tùy chọn) rồi cập nhật ca.
+     * Dialog dời ca học: chọn ngày/ca mới và phòng học bắt buộc rồi cập nhật ca.
      * Sau khi dời, danh sách tự cập nhật nhờ snapshot listener của getClassShifts().
      */
     private void showRescheduleDialog(Shift shift) {
@@ -170,17 +175,35 @@ public class ShiftsTabFragment extends Fragment {
         TextView tvCurrent = content.findViewById(R.id.tv_current_info);
         TextView tvDate    = content.findViewById(R.id.tv_date);
         TextView tvDay     = content.findViewById(R.id.tv_day_of_week);
-        TextView tvStart   = content.findViewById(R.id.tv_start_time);
-        TextView tvEnd     = content.findViewById(R.id.tv_end_time);
+        MaterialAutoCompleteTextView shiftDropdown = content.findViewById(R.id.dropdown_shift);
         TextInputEditText etRoom = content.findViewById(R.id.et_room);
+        TextInputLayout tilShift = content.findViewById(R.id.til_shift);
+        TextInputLayout tilRoom = content.findViewById(R.id.til_room);
+
+        RequiredFieldUtils.markRequired(requireContext(),
+                (TextView) content.findViewById(R.id.tv_date_label));
+        RequiredFieldUtils.markRequired(requireContext(), tilShift);
+        RequiredFieldUtils.markRequired(requireContext(), tilRoom);
 
         tvCurrent.setText("Ca hiện tại: " + shift.getDayOfWeekDisplay() + " " + shift.getDate()
                 + "  " + shift.getStartAt() + " - " + shift.getEndAt());
 
-        // picked = { date, startAt, endAt }; giờ mặc định lấy theo ca hiện tại.
-        final String[] picked = {"", shift.getStartAt(), shift.getEndAt()};
-        tvStart.setText(shift.getStartAt());
-        tvEnd.setText(shift.getEndAt());
+        // picked = { date, startAt, endAt }. Chỉ giữ giờ hiện tại nếu thuộc 5 ca cố định.
+        final String[] picked = {"", "", ""};
+        shiftDropdown.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, StudyShiftOptions.getLabels()));
+        StudyShiftOptions.Option currentOption = StudyShiftOptions.findByTimes(
+                shift.getStartAt(), shift.getEndAt());
+        if (currentOption != null) {
+            picked[1] = currentOption.getStartAt();
+            picked[2] = currentOption.getEndAt();
+            shiftDropdown.setText(currentOption.getLabel(), false);
+        }
+        shiftDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            StudyShiftOptions.Option option = StudyShiftOptions.get(position);
+            picked[1] = option.getStartAt();
+            picked[2] = option.getEndAt();
+        });
         if (shift.getRoom() != null) etRoom.setText(shift.getRoom());
 
         tvDate.setOnClickListener(v -> {
@@ -200,9 +223,6 @@ public class ShiftsTabFragment extends Fragment {
             dp.getDatePicker().setMinDate(min.getTimeInMillis());
             dp.show();
         });
-        tvStart.setOnClickListener(v -> pickTime(picked, 1, tvStart));
-        tvEnd.setOnClickListener(v -> pickTime(picked, 2, tvEnd));
-
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Dời ca học")
                 .setView(content)
@@ -214,19 +234,21 @@ public class ShiftsTabFragment extends Fragment {
         // Validate trước khi đóng dialog (không tự dismiss nếu dữ liệu chưa hợp lệ).
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String date = picked[0], start = picked[1], end = picked[2];
-            if (date.isEmpty() || start == null || start.isEmpty() || end == null || end.isEmpty()) {
-                Toast.makeText(requireContext(), "Vui lòng chọn ngày và giờ học", Toast.LENGTH_SHORT).show();
+            if (date.isEmpty() || !StudyShiftOptions.isValid(start, end)) {
+                Toast.makeText(requireContext(), "Vui lòng chọn ngày và ca học", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (date.compareTo(todayString()) <= 0) {
                 Toast.makeText(requireContext(), "Ngày dời phải lớn hơn ngày hiện tại", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (toMinutes(end) <= toMinutes(start)) {
-                Toast.makeText(requireContext(), "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+            String room = etRoom.getText() == null ? "" : etRoom.getText().toString().trim();
+            tilRoom.setError(null);
+            if (room.isEmpty()) {
+                tilRoom.setError("Vui lòng nhập phòng học");
+                etRoom.requestFocus();
                 return;
             }
-            String room = etRoom.getText() == null ? "" : etRoom.getText().toString().trim();
 
             repo.rescheduleShift(shift.getShiftId(), classId, date, start, end, room,
                     r -> {
@@ -236,33 +258,27 @@ public class ShiftsTabFragment extends Fragment {
                     },
                     e -> {
                         if (!isAdded()) return;
+                        if (e instanceof FirebaseRepository.TeacherScheduleConflictException) {
+                            new MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle("Xung đột lịch giảng")
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton("Đã hiểu", null)
+                                    .show();
+                            return;
+                        }
+                        if (e instanceof FirebaseRepository.RoomConflictException) {
+                            new MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle("Xung đột phòng học")
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton("Đã hiểu", null)
+                                    .show();
+                            return;
+                        }
                         String msg = (e instanceof FirebaseRepository.ShiftConflictException)
                                 ? e.getMessage() : "Lỗi: " + e.getMessage();
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
                     });
         });
-    }
-
-    private void pickTime(String[] picked, int idx, TextView target) {
-        Calendar c = Calendar.getInstance();
-        int h = c.get(Calendar.HOUR_OF_DAY), mi = c.get(Calendar.MINUTE);
-        int parsed = toMinutes(picked[idx]);   // mở picker tại giờ hiện có nếu hợp lệ
-        if (parsed >= 0) { h = parsed / 60; mi = parsed % 60; }
-        new TimePickerDialog(requireContext(), (tp, hh, mm) -> {
-            String t = String.format(Locale.US, "%02d:%02d", hh, mm);
-            picked[idx] = t;
-            target.setText(t);
-        }, h, mi, true).show();
-    }
-
-    private int toMinutes(String time) {
-        if (time == null) return -1;
-        try {
-            String[] p = time.split(":");
-            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
-        } catch (Exception e) {
-            return -1;
-        }
     }
 
     private String todayString() {

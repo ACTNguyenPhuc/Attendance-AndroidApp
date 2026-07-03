@@ -1,13 +1,13 @@
 package com.example.attendanceapplication.activities;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,10 +21,15 @@ import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.ClassModel;
 import com.example.attendanceapplication.models.DaySchedule;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
+import com.example.attendanceapplication.utils.RequiredFieldUtils;
+import com.example.attendanceapplication.utils.StudyShiftOptions;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
@@ -42,7 +47,7 @@ public class CreateClassActivity extends AppCompatActivity {
     private View loadingOverlay;
 
     private String startDate = "", endDate = "";
-    // Giờ học theo từng thứ (2=T2 … 8=CN). LinkedHashMap để giữ thứ tự ngày được chọn.
+    // Ca học theo từng thứ (2=T2 … 8=CN). Firestore vẫn lưu cặp startAt/endAt.
     private final Map<Integer, String> startByDay = new LinkedHashMap<>();
     private final Map<Integer, String> endByDay = new LinkedHashMap<>();
 
@@ -65,6 +70,7 @@ public class CreateClassActivity extends AppCompatActivity {
             navIcon.setTint(ContextCompat.getColor(this, R.color.white));
         }
         initViews();
+        markRequiredFields();
         setupListeners();
     }
 
@@ -96,6 +102,19 @@ public class CreateClassActivity extends AppCompatActivity {
             updateShiftPreview();
         });
         btnCreate.setOnClickListener(v -> createClass());
+    }
+
+    private void markRequiredFields() {
+        RequiredFieldUtils.markRequired(this,
+                (TextInputLayout) findViewById(R.id.til_class_name));
+        RequiredFieldUtils.markRequired(this,
+                (TextInputLayout) findViewById(R.id.til_class_id));
+        RequiredFieldUtils.markRequired(this,
+                (TextInputLayout) findViewById(R.id.til_room));
+        RequiredFieldUtils.markRequired(this, (TextView) findViewById(R.id.tv_start_date_label));
+        RequiredFieldUtils.markRequired(this, (TextView) findViewById(R.id.tv_end_date_label));
+        RequiredFieldUtils.markRequired(this, (TextView) findViewById(R.id.tv_schedule_label));
+        RequiredFieldUtils.markRequired(this, (TextView) findViewById(R.id.tv_day_times_label));
     }
 
     private void showDatePicker(boolean isStart) {
@@ -130,37 +149,31 @@ public class CreateClassActivity extends AppCompatActivity {
         for (int day : selected) {
             View row = inflater.inflate(R.layout.item_day_time_picker, llDayTimes, false);
             TextView tvLabel = row.findViewById(R.id.tv_day_label);
-            TextView tvStart = row.findViewById(R.id.tv_start_time);
-            TextView tvEnd   = row.findViewById(R.id.tv_end_time);
+            TextInputLayout tilShift = row.findViewById(R.id.til_shift);
+            MaterialAutoCompleteTextView shiftDropdown = row.findViewById(R.id.dropdown_shift);
 
             tvLabel.setText(dayLabel(day));
-            if (startByDay.containsKey(day)) tvStart.setText(startByDay.get(day));
-            if (endByDay.containsKey(day))   tvEnd.setText(endByDay.get(day));
+            RequiredFieldUtils.markRequired(this, tilShift);
+            shiftDropdown.setAdapter(createShiftAdapter());
 
-            tvStart.setOnClickListener(v -> showDayTimePicker(day, true, tvStart));
-            tvEnd.setOnClickListener(v -> showDayTimePicker(day, false, tvEnd));
+            StudyShiftOptions.Option selectedOption = StudyShiftOptions.findByTimes(
+                    startByDay.get(day), endByDay.get(day));
+            if (selectedOption != null) {
+                shiftDropdown.setText(selectedOption.getLabel(), false);
+            }
+            shiftDropdown.setOnItemClickListener((parent, view, position, id) -> {
+                StudyShiftOptions.Option option = StudyShiftOptions.get(position);
+                startByDay.put(day, option.getStartAt());
+                endByDay.put(day, option.getEndAt());
+            });
 
             llDayTimes.addView(row);
         }
     }
 
-    private void showDayTimePicker(int day, boolean isStart, TextView target) {
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY), minute = cal.get(Calendar.MINUTE);
-        String existing = isStart ? startByDay.get(day) : endByDay.get(day);
-        if (existing != null) {
-            String[] p = existing.split(":");
-            try {
-                hour = Integer.parseInt(p[0]);
-                minute = Integer.parseInt(p[1]);
-            } catch (Exception ignored) {}
-        }
-        TimePickerDialog dialog = new TimePickerDialog(this, (view, h, m) -> {
-            String time = String.format(Locale.US, "%02d:%02d", h, m);
-            if (isStart) startByDay.put(day, time); else endByDay.put(day, time);
-            target.setText(time);
-        }, hour, minute, true);
-        dialog.show();
+    private ArrayAdapter<String> createShiftAdapter() {
+        return new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+                StudyShiftOptions.getLabels());
     }
 
     private List<Integer> getSelectedSchedule() {
@@ -220,10 +233,18 @@ public class CreateClassActivity extends AppCompatActivity {
     }
 
     private void createClass() {
+        etClassId.setError(null);
         String className = etClassName.getText().toString().trim();
         String classId   = etClassId.getText().toString().trim();
+        String room      = etRoom.getText().toString().trim();
+        TextInputLayout tilRoom = findViewById(R.id.til_room);
+        tilRoom.setError(null);
 
-        if (className.isEmpty() || classId.isEmpty() || startDate.isEmpty() || endDate.isEmpty()) {
+        if (className.isEmpty() || classId.isEmpty() || room.isEmpty()
+                || startDate.isEmpty() || endDate.isEmpty()) {
+            if (room.isEmpty()) {
+                tilRoom.setError("Vui lòng nhập phòng học");
+            }
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -236,15 +257,11 @@ public class CreateClassActivity extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng chọn ngày học trong tuần", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Mỗi ngày phải có đủ giờ bắt đầu/kết thúc và giờ kết thúc sau giờ bắt đầu.
+        // Mỗi ngày bắt buộc chọn một trong các ca học cố định.
         for (int day : schedule) {
             String s = startByDay.get(day), e = endByDay.get(day);
-            if (s == null || s.isEmpty() || e == null || e.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập giờ học cho " + dayLabel(day), Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (toMinutes(e) <= toMinutes(s)) {
-                Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu (" + dayLabel(day) + ")", Toast.LENGTH_SHORT).show();
+            if (!StudyShiftOptions.isValid(s, e)) {
+                Toast.makeText(this, "Vui lòng chọn ca học cho " + dayLabel(day), Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -292,7 +309,29 @@ public class CreateClassActivity extends AppCompatActivity {
                 err -> {
                     loadingOverlay.setVisibility(View.GONE);
                     btnCreate.setEnabled(true);
-                    Snackbar.make(btnCreate, "Lỗi: " + err.getMessage(), Snackbar.LENGTH_LONG).show();
+                    if (err instanceof FirebaseRepository.TeacherScheduleConflictException) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle("Xung đột lịch giảng")
+                                .setMessage(err.getMessage())
+                                .setPositiveButton("Đã hiểu", null)
+                                .show();
+                        return;
+                    }
+                    if (err instanceof FirebaseRepository.RoomConflictException) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle("Xung đột phòng học")
+                                .setMessage(err.getMessage())
+                                .setPositiveButton("Đã hiểu", null)
+                                .show();
+                        return;
+                    }
+                    boolean duplicateClassId = err instanceof FirebaseRepository.DuplicateClassIdException;
+                    String message = duplicateClassId ? err.getMessage() : "Lỗi: " + err.getMessage();
+                    if (duplicateClassId) {
+                        etClassId.setError("Mã lớp đã tồn tại");
+                        etClassId.requestFocus();
+                    }
+                    Snackbar.make(btnCreate, message, Snackbar.LENGTH_LONG).show();
                 }
         );
     }
@@ -305,15 +344,6 @@ public class CreateClassActivity extends AppCompatActivity {
             return start != null && end != null && end.after(start);
         } catch (Exception e) {
             return false;
-        }
-    }
-
-    private int toMinutes(String time) {
-        try {
-            String[] p = time.split(":");
-            return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
-        } catch (Exception e) {
-            return -1;
         }
     }
 
