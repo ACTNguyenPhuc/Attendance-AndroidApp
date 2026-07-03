@@ -2,10 +2,16 @@ package com.example.attendanceapplication.utils;
 
 import android.graphics.Bitmap;
 
+import com.example.attendanceapplication.models.Shift;
+import com.google.firebase.Timestamp;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class AttendanceUtils {
 
@@ -65,6 +71,22 @@ public class AttendanceUtils {
      */
     public static boolean isWithinRadius(double distance, double radius) {
         return distance <= radius;
+    }
+
+    /**
+     * Chuyển ngày và giờ kết thúc của ca học thành một mốc thời gian tuyệt đối.
+     * Dữ liệu ca học dùng định dạng {@code yyyy-MM-dd} và {@code HH:mm}.
+     */
+    public static Timestamp getShiftEndTimestamp(Shift shift) {
+        if (shift == null || shift.getDate() == null || shift.getEndAt() == null) return null;
+        try {
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+            parser.setLenient(false);
+            Date end = parser.parse(shift.getDate() + " " + shift.getEndAt());
+            return end == null ? null : new Timestamp(end);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     /**

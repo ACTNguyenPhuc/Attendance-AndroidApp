@@ -12,9 +12,8 @@ import com.example.attendanceapplication.models.Shift;
  * Swipe action cho danh sách ca học của giáo viên.
  *
  * <p>Vuốt thẻ ca học sang trái sẽ dịch chuyển phần foreground (thẻ) để lộ ra
- * panel "Dời ca" nằm phía sau; vuốt qua ngưỡng sẽ kích hoạt dialog dời ca.
- * Chỉ những ca {@link ShiftListAdapter#isReschedulable(Shift)} mới cho phép vuốt;
- * các ca đã mở điểm danh / đã kết thúc / đã hủy bị khóa (không vuốt được).
+ * panel "Xóa / Dời ca" nằm phía sau; vuốt qua ngưỡng sẽ giữ panel mở để giáo viên
+ * chọn hành động mong muốn. Nút xóa chỉ khả dụng với ca đang ở trạng thái upcoming.
  *
  * <p>Việc dịch chuyển dùng {@link #getDefaultUIUtil()} trên view foreground nên
  * panel phía sau được giữ nguyên (lộ dần) thay vì kéo cả hàng đi.
@@ -32,8 +31,7 @@ public class ShiftSwipeCallback extends ItemTouchHelper.SimpleCallback {
     public int getMovementFlags(@NonNull RecyclerView recyclerView,
                                 @NonNull RecyclerView.ViewHolder viewHolder) {
         Shift shift = adapter.getShiftAt(viewHolder.getBindingAdapterPosition());
-        // Khóa vuốt với ca không được phép dời.
-        if (!ShiftListAdapter.isReschedulable(shift)) return 0;
+        if (!ShiftListAdapter.hasSwipeActions(shift)) return 0;
         return super.getMovementFlags(recyclerView, viewHolder);
     }
 
@@ -44,19 +42,16 @@ public class ShiftSwipeCallback extends ItemTouchHelper.SimpleCallback {
         return false; // không hỗ trợ kéo sắp xếp
     }
 
-    // Cần vuốt rõ ràng (~40% bề rộng) mới kích hoạt, tránh chạm nhầm.
+    // Vuốt khoảng 25% bề rộng để mở panel hai hành động.
     @Override
     public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
-        return 0.4f;
+        return 0.25f;
     }
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         int pos = viewHolder.getBindingAdapterPosition();
-        Shift shift = adapter.getShiftAt(pos);
-        // Trả thẻ về vị trí cũ (mở dialog thay vì xóa hàng).
-        if (pos != RecyclerView.NO_POSITION) adapter.notifyItemChanged(pos);
-        adapter.notifyReschedule(shift);
+        if (pos != RecyclerView.NO_POSITION) adapter.openActions(pos);
     }
 
     @Override
@@ -79,10 +74,11 @@ public class ShiftSwipeCallback extends ItemTouchHelper.SimpleCallback {
                             @NonNull RecyclerView.ViewHolder viewHolder,
                             float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (viewHolder instanceof ShiftListAdapter.ViewHolder) {
-            // Chỉ cho lộ panel (vuốt trái); chặn vuốt phải để panel không bị che lệch.
-            float clampedX = Math.min(0f, dX);
+            ShiftListAdapter.ViewHolder holder = (ShiftListAdapter.ViewHolder) viewHolder;
+            float panelWidth = holder.actionPanel.getWidth();
+            float clampedX = Math.max(-panelWidth, Math.min(0f, dX));
             getDefaultUIUtil().onDraw(c, recyclerView,
-                    ((ShiftListAdapter.ViewHolder) viewHolder).foreground,
+                    holder.foreground,
                     clampedX, dY, actionState, isCurrentlyActive);
         }
     }
@@ -92,9 +88,11 @@ public class ShiftSwipeCallback extends ItemTouchHelper.SimpleCallback {
                                 RecyclerView.ViewHolder viewHolder,
                                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (viewHolder instanceof ShiftListAdapter.ViewHolder) {
-            float clampedX = Math.min(0f, dX);
+            ShiftListAdapter.ViewHolder holder = (ShiftListAdapter.ViewHolder) viewHolder;
+            float panelWidth = holder.actionPanel.getWidth();
+            float clampedX = Math.max(-panelWidth, Math.min(0f, dX));
             getDefaultUIUtil().onDrawOver(c, recyclerView,
-                    ((ShiftListAdapter.ViewHolder) viewHolder).foreground,
+                    holder.foreground,
                     clampedX, dY, actionState, isCurrentlyActive);
         }
     }

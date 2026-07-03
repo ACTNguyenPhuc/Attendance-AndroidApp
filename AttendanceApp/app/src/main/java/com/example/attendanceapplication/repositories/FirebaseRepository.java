@@ -741,6 +741,35 @@ public class FirebaseRepository {
     }
 
     /**
+     * Xóa một ca học nếu bản mới nhất trên Firestore vẫn đang ở trạng thái upcoming.
+     * Transaction tránh xóa nhầm khi ca vừa được mở điểm danh trong lúc hộp thoại xác nhận đang mở.
+     */
+    public void deleteUpcomingShift(String shiftId,
+                                    OnSuccessListener<Void> onSuccess,
+                                    OnFailureListener onFailure) {
+        DocumentReference shiftRef = db.collection(COL_SHIFTS).document(shiftId);
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(shiftRef);
+                    Shift current = snapshot.exists() ? snapshot.toObject(Shift.class) : null;
+                    if (current == null) {
+                        throw new FirebaseFirestoreException(
+                                "Không tìm thấy ca học",
+                                FirebaseFirestoreException.Code.NOT_FOUND);
+                    }
+                    if (!Shift.STATUS_UPCOMING.equals(current.getStatus())
+                            || current.isAttendanceOpened()) {
+                        throw new FirebaseFirestoreException(
+                                "Chỉ có thể xóa ca học đang ở trạng thái sắp diễn ra",
+                                FirebaseFirestoreException.Code.ABORTED);
+                    }
+                    transaction.delete(shiftRef);
+                    return null;
+                })
+                .addOnSuccessListener(unused -> onSuccess.onSuccess(null))
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /**
      * Dời (cập nhật lịch) một ca học sang ngày/giờ/phòng mới.
      *
      * <p>Điều kiện: ca học CHƯA mở điểm danh và chưa kết thúc/hủy — được kiểm tra
@@ -860,6 +889,26 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+    /** Cập nhật bán kính cho phép điểm danh của một phiên (đơn vị mét). */
+    public void updateSessionRadius(String sessionId, double radius,
+                                    OnSuccessListener<Void> onSuccess,
+                                    OnFailureListener onFailure) {
+        db.collection(COL_SESSIONS).document(sessionId)
+                .update("radius", radius)
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /** Bổ sung mốc kết thúc theo lịch cho các phiên cũ chưa có trường này. */
+    public void updateSessionScheduledEndTime(String sessionId, Timestamp scheduledEndTime,
+                                              OnSuccessListener<Void> onSuccess,
+                                              OnFailureListener onFailure) {
+        db.collection(COL_SESSIONS).document(sessionId)
+                .update("scheduledEndTime", scheduledEndTime)
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     public void updateSessionToken(String sessionId, String token,
                                    OnSuccessListener<Void> onSuccess,
                                    OnFailureListener onFailure) {
@@ -910,7 +959,7 @@ public class FirebaseRepository {
                              OnSuccessListener<Void> onSuccess,
                              OnFailureListener onFailure) {
         Map<String, Object> sessionUpdates = new HashMap<>();
-        sessionUpdates.put("isActive", false);
+        sessionUpdates.put(Session.FIELD_ACTIVE, false);
         sessionUpdates.put("endTime", Timestamp.now());
         if (content != null) sessionUpdates.put("content", content);
 
@@ -930,16 +979,109 @@ public class FirebaseRepository {
 
     // ==================== ATTENDANCE ====================
 
-    public void saveAttendance(Attendance attendance,
-                               OnSuccessListener<Void> onSuccess,
-                               OnFailureListener onFailure) {
-        attendance.setCheckinTime(Timestamp.now());
+    public enum AttendanceWriteResult {
+        SAVED,
+        SESSION_CLOSED,
+        SHIFT_ENDED
+    }
+
+    public enum ExpiredSessionResult {
+        CLOSED,
+        ALREADY_CLOSED,
+        NOT_EXPIRED
+    }
+
+    /**
+     * Đóng phiên và ca học trong một transaction nếu thời gian hiện tại đã chạm
+     * {@code endAt}. Nhiều thiết bị gọi đồng thời sẽ tự retry và chỉ một lần đóng thắng.
+     */
+    public void closeSessionIfExpired(String sessionId, String shiftId,
+                                      OnSuccessListener<ExpiredSessionResult> onSuccess,
+                                      OnFailureListener onFailure) {
+        DocumentReference sessionRef = db.collection(COL_SESSIONS).document(sessionId);
+        DocumentReference shiftRef = db.collection(COL_SHIFTS).document(shiftId);
+
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot sessionDoc = transaction.get(sessionRef);
+                    Session session = sessionDoc.exists() ? sessionDoc.toObject(Session.class) : null;
+                    if (session == null) throw new IllegalStateException("Không tìm thấy phiên điểm danh");
+                    if (!session.isActive()) return ExpiredSessionResult.ALREADY_CLOSED;
+
+                    DocumentSnapshot shiftDoc = transaction.get(shiftRef);
+                    Shift shift = shiftDoc.exists() ? shiftDoc.toObject(Shift.class) : null;
+                    Timestamp shiftEnd = AttendanceUtils.getShiftEndTimestamp(shift);
+                    if (shiftEnd == null || session.getScheduledEndTime() == null) {
+                        throw new IllegalStateException("Không xác định được giờ kết thúc ca học");
+                    }
+                    // scheduledEndTime được chốt từ endAt lúc mở phiên và là cùng
+                    // mốc mà Firestore Rules sử dụng với thời gian máy chủ.
+                    if (Timestamp.now().compareTo(session.getScheduledEndTime()) < 0) {
+                        return ExpiredSessionResult.NOT_EXPIRED;
+                    }
+
+                    Map<String, Object> sessionUpdates = new HashMap<>();
+                    sessionUpdates.put(Session.FIELD_ACTIVE, false);
+                    sessionUpdates.put("endTime", FieldValue.serverTimestamp());
+                    transaction.update(sessionRef, sessionUpdates);
+
+                    Map<String, Object> shiftUpdates = new HashMap<>();
+                    shiftUpdates.put("status", Shift.STATUS_COMPLETED);
+                    shiftUpdates.put("attendanceOpened", false);
+                    transaction.update(shiftRef, shiftUpdates);
+                    return ExpiredSessionResult.CLOSED;
+                })
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /**
+     * Kiểm tra lại phiên + ca học ngay trong transaction cuối cùng trước khi ghi.
+     * Nếu ca đã hết giờ, transaction chỉ đóng phiên/ca và tuyệt đối không tạo attendance.
+     */
+    public void saveAttendanceIfShiftOpen(Attendance attendance,
+                                          OnSuccessListener<AttendanceWriteResult> onSuccess,
+                                          OnFailureListener onFailure) {
         if (attendance.getAttendanceId() == null || attendance.getAttendanceId().isEmpty()) {
             attendance.setAttendanceId(db.collection(COL_ATTENDANCES).document().getId());
         }
-        db.collection(COL_ATTENDANCES)
-                .document(attendance.getAttendanceId())
-                .set(attendance)
+        DocumentReference sessionRef = db.collection(COL_SESSIONS)
+                .document(attendance.getSessionId());
+        DocumentReference shiftRef = db.collection(COL_SHIFTS)
+                .document(attendance.getShiftId());
+        DocumentReference attendanceRef = db.collection(COL_ATTENDANCES)
+                .document(attendance.getAttendanceId());
+
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot sessionDoc = transaction.get(sessionRef);
+                    Session session = sessionDoc.exists() ? sessionDoc.toObject(Session.class) : null;
+                    if (session == null) throw new IllegalStateException("Không tìm thấy phiên điểm danh");
+                    if (!session.isActive()) return AttendanceWriteResult.SESSION_CLOSED;
+
+                    DocumentSnapshot shiftDoc = transaction.get(shiftRef);
+                    Shift shift = shiftDoc.exists() ? shiftDoc.toObject(Shift.class) : null;
+                    Timestamp shiftEnd = AttendanceUtils.getShiftEndTimestamp(shift);
+                    if (shiftEnd == null || session.getScheduledEndTime() == null) {
+                        throw new IllegalStateException("Không xác định được giờ kết thúc ca học");
+                    }
+
+                    Timestamp now = Timestamp.now();
+                    if (now.compareTo(session.getScheduledEndTime()) >= 0) {
+                        Map<String, Object> sessionUpdates = new HashMap<>();
+                        sessionUpdates.put(Session.FIELD_ACTIVE, false);
+                        sessionUpdates.put("endTime", FieldValue.serverTimestamp());
+                        transaction.update(sessionRef, sessionUpdates);
+
+                        Map<String, Object> shiftUpdates = new HashMap<>();
+                        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
+                        shiftUpdates.put("attendanceOpened", false);
+                        transaction.update(shiftRef, shiftUpdates);
+                        return AttendanceWriteResult.SHIFT_ENDED;
+                    }
+
+                    attendance.setCheckinTime(now);
+                    transaction.set(attendanceRef, attendance);
+                    return AttendanceWriteResult.SAVED;
+                })
                 .addOnSuccessListener(onSuccess::onSuccess)
                 .addOnFailureListener(onFailure::onFailure);
     }

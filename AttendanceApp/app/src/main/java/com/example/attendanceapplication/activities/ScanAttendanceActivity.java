@@ -19,12 +19,14 @@ import androidx.core.content.ContextCompat;
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.Attendance;
 import com.example.attendanceapplication.models.Session;
+import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -36,6 +38,8 @@ public class ScanAttendanceActivity extends AppCompatActivity {
 
     private static final int PERM_CAMERA   = 100;
     private static final int PERM_LOCATION = 101;
+    private static final String SHIFT_ENDED_MESSAGE =
+            "Ca học đã kết thúc. Phiên điểm danh đã được đóng.";
 
     private DecoratedBarcodeView barcodeView;
     private TextView tvGpsStatus, tvStep1, tvStep2, tvStep3;
@@ -147,7 +151,7 @@ public class ScanAttendanceActivity extends AppCompatActivity {
             repo.getSession(sessionId,
                     session -> {
                         if (!session.isActive()) {
-                            showError("Mã QR đã hết hiệu lực, liên hệ giảng viên");
+                            showError(SHIFT_ENDED_MESSAGE);
                             return;
                         }
                         if (!token.equals(session.getToken())) {
@@ -155,34 +159,59 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                             return;
                         }
 
-                        String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        // Chặn điểm danh trùng theo BUỔI HỌC (gồm cả phiên bù), không chỉ theo phiên.
-                        repo.checkStudentAttendedShift(studentId, session.getShiftId(), alreadyDone -> {
-                            if (alreadyDone) {
-                                showError("Bạn đã điểm danh buổi học này rồi");
-                                return;
-                            }
-                            // Anti-cheat: mỗi thiết bị chỉ điểm danh được 1 lần trong mỗi buổi học,
-                            // chống việc dùng chung 1 máy để điểm danh hộ nhiều người.
-                            String deviceId = Settings.Secure.getString(getContentResolver(),
-                                    Settings.Secure.ANDROID_ID);
-                            repo.checkDeviceUsedInShift(session.getShiftId(), deviceId, studentId,
-                                    deviceUsed -> {
-                                        if (deviceUsed) {
-                                            showError("Thiết bị này đã được dùng để điểm danh "
-                                                    + "cho buổi học này");
-                                            return;
-                                        }
-                                        // Step 2: Get GPS
-                                        getLocationAndVerify(session, studentId);
-                                    });
-                        });
+                        // Luôn lấy ca học qua shiftId để đối chiếu endAt trước khi
+                        // thực hiện các bước GPS/anti-cheat tốn thời gian.
+                        repo.getShiftById(session.getShiftId(),
+                                shift -> validateShiftTimeAndContinue(session, shift),
+                                e -> showError("Không thể kiểm tra thời gian ca học"));
                     },
                     e -> showError("Không tìm thấy phiên điểm danh")
             );
         } catch (Exception e) {
             showError("Mã QR không đúng định dạng");
         }
+    }
+
+    private void validateShiftTimeAndContinue(Session session, Shift shift) {
+        Timestamp shiftEnd = AttendanceUtils.getShiftEndTimestamp(shift);
+        if (shiftEnd == null) {
+            showError("Không thể xác định thời gian kết thúc ca học");
+            return;
+        }
+        if (session.getScheduledEndTime() == null) {
+            showError("Phiên điểm danh chưa có giờ kết thúc. "
+                    + "Giảng viên vui lòng mở lại màn hình quản lý phiên.");
+            return;
+        }
+        if (Timestamp.now().compareTo(session.getScheduledEndTime()) >= 0) {
+            repo.closeSessionIfExpired(session.getSessionId(), session.getShiftId(),
+                    result -> showError(SHIFT_ENDED_MESSAGE),
+                    e -> showError(SHIFT_ENDED_MESSAGE));
+            return;
+        }
+
+        String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Chặn điểm danh trùng theo BUỔI HỌC (gồm cả phiên bù), không chỉ theo phiên.
+        repo.checkStudentAttendedShift(studentId, session.getShiftId(), alreadyDone -> {
+            if (alreadyDone) {
+                showError("Bạn đã điểm danh buổi học này rồi");
+                return;
+            }
+            // Anti-cheat: mỗi thiết bị chỉ điểm danh được 1 lần trong mỗi buổi học,
+            // chống việc dùng chung 1 máy để điểm danh hộ nhiều người.
+            String deviceId = Settings.Secure.getString(getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+            repo.checkDeviceUsedInShift(session.getShiftId(), deviceId, studentId,
+                    deviceUsed -> {
+                        if (deviceUsed) {
+                            showError("Thiết bị này đã được dùng để điểm danh "
+                                    + "cho buổi học này");
+                            return;
+                        }
+                        // Step 2: Get GPS
+                        getLocationAndVerify(session, studentId);
+                    });
+        });
     }
 
     private void getLocationAndVerify(Session session, String studentId) {
@@ -258,8 +287,12 @@ public class ScanAttendanceActivity extends AppCompatActivity {
     }
 
     private void persistAttendance(Attendance attendance, double distance, boolean isLate) {
-        repo.saveAttendance(attendance,
-                aVoid -> {
+        repo.saveAttendanceIfShiftOpen(attendance,
+                result -> {
+                    if (result != FirebaseRepository.AttendanceWriteResult.SAVED) {
+                        showError(SHIFT_ENDED_MESSAGE);
+                        return;
+                    }
                     // Navigate to success screen
                     Intent intent = new Intent(this, AttendanceResultActivity.class);
                     intent.putExtra(AttendanceResultActivity.EXTRA_SUCCESS, true);
@@ -268,8 +301,25 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 },
-                e -> showError("Lỗi lưu điểm danh: " + e.getMessage())
+                e -> handleAttendanceWriteFailure(attendance, e)
         );
+    }
+
+    /**
+     * Rules dùng thời gian máy chủ nên một request bắt đầu sát endAt có thể bị từ
+     * chối dù kiểm tra cục bộ vừa qua. Đọc lại ca để trả đúng thông báo nghiệp vụ.
+     */
+    private void handleAttendanceWriteFailure(Attendance attendance, Exception error) {
+        repo.getShiftById(attendance.getShiftId(),
+                shift -> {
+                    Timestamp shiftEnd = AttendanceUtils.getShiftEndTimestamp(shift);
+                    if (shiftEnd != null && Timestamp.now().compareTo(shiftEnd) >= 0) {
+                        showError(SHIFT_ENDED_MESSAGE);
+                    } else {
+                        showError("Lỗi lưu điểm danh: " + error.getMessage());
+                    }
+                },
+                e -> showError("Lỗi lưu điểm danh: " + error.getMessage()));
     }
 
     private void showProcessingStep(int step, String text, boolean done) {

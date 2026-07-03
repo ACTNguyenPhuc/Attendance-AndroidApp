@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Root là FrameLayout để hỗ trợ "swipe actions": vuốt thẻ (foreground) sang trái
-  sẽ lộ ra panel "Dời ca" (swipe_action_panel) nằm phía sau, bên phải.
+  sẽ lộ ra panel "Xóa / Dời ca" (swipe_action_panel) nằm phía sau, bên phải.
   Việc dịch chuyển thẻ do ShiftSwipeCallback (ItemTouchHelper) xử lý.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -10,31 +10,72 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp">
 
-    <!-- Panel hành động lộ ra khi vuốt: nút "Dời ca" -->
+    <!-- Panel hành động lộ ra khi vuốt: "Xóa" và "Dời ca" -->
     <LinearLayout
         android:id="@+id/swipe_action_panel"
-        android:layout_width="96dp"
+        android:layout_width="184dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="@drawable/bg_swipe_reschedule"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_reschedule"
-            app:tint="@color/white"
-            android:contentDescription="Dời ca học" />
+        <LinearLayout
+            android:id="@+id/action_delete"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/error_red"
+            android:clickable="true"
+            android:contentDescription="Xóa ca học"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Dời ca"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Xóa"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/action_reschedule"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="Dời ca học"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_reschedule"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Dời ca"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Foreground: nội dung thẻ ca học (phần được vuốt) -->

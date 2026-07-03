@@ -38,6 +38,7 @@ import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.LocationService;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import org.json.JSONException;
@@ -62,9 +63,9 @@ public class SessionManagementActivity extends AppCompatActivity {
 
     private ImageView ivQrCode;
     private TextView tvShiftInfo, tvAttendanceCount, tvSessionStatus;
-    private Button btnRefreshQr, btnCloseSession, btnApplyLate;
-    private TextInputLayout tilLateMinutes;
-    private TextInputEditText etLateMinutes;
+    private Button btnRefreshQr, btnCloseSession, btnApplyLate, btnApplyRadius;
+    private TextInputLayout tilLateMinutes, tilRadius;
+    private TextInputEditText etLateMinutes, etRadius;
     private RecyclerView rvAttendance;
 
     private String shiftId, classId, className;
@@ -140,6 +141,9 @@ public class SessionManagementActivity extends AppCompatActivity {
         tilLateMinutes    = findViewById(R.id.til_late_minutes);
         etLateMinutes     = findViewById(R.id.et_late_minutes);
         btnApplyLate      = findViewById(R.id.btn_apply_late);
+        tilRadius         = findViewById(R.id.til_radius);
+        etRadius          = findViewById(R.id.et_radius);
+        btnApplyRadius    = findViewById(R.id.btn_apply_radius);
         rvAttendance      = findViewById(R.id.rv_attendance);
 
         btnRefreshQr.setOnClickListener(v -> refreshQrCode());
@@ -147,6 +151,7 @@ public class SessionManagementActivity extends AppCompatActivity {
             if (makeupMode) confirmCloseMakeup(); else confirmClose();
         });
         btnApplyLate.setOnClickListener(v -> applyLateMinutes());
+        btnApplyRadius.setOnClickListener(v -> applyRadius());
 
         // Phiên bù cố định mốc muộn theo phiên gốc → ẩn ô chỉnh "cho phép muộn"
         // để tránh giáo viên đổi giá trị làm sai mục đích "tất cả đều muộn".
@@ -165,12 +170,63 @@ public class SessionManagementActivity extends AppCompatActivity {
                         s.toString().trim().isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
+
+        etRadius.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+            @Override public void afterTextChanged(Editable s) {
+                tilRadius.setError(null);
+                btnApplyRadius.setVisibility(
+                        s.toString().trim().isEmpty() ? View.GONE : View.VISIBLE);
+            }
+        });
     }
 
     /** Đổ giá trị "cho phép muộn" hiện tại của phiên vào ô nhập. */
     private void bindLateMinutes() {
         if (currentSession == null) return;
         etLateMinutes.setText(String.valueOf(currentSession.getLateAfterMinutes()));
+    }
+
+    /** Đổ bán kính hiện tại của phiên vào ô nhập. */
+    private void bindRadius() {
+        if (currentSession == null) return;
+        etRadius.setText(String.valueOf((int) Math.round(currentSession.getRadius())));
+    }
+
+    /** Lưu bán kính cho phép điểm danh của phiên hiện tại (đơn vị mét). */
+    private void applyRadius() {
+        if (currentSession == null) return;
+        String value = etRadius.getText() == null ? "" : etRadius.getText().toString().trim();
+        if (value.isEmpty()) return;
+
+        int radius;
+        try {
+            radius = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            tilRadius.setError("Khoảng cách không hợp lệ");
+            return;
+        }
+        if (radius <= 0) {
+            tilRadius.setError("Khoảng cách phải lớn hơn 0");
+            return;
+        }
+
+        tilRadius.setError(null);
+        btnApplyRadius.setEnabled(false);
+        repo.updateSessionRadius(currentSession.getSessionId(), radius,
+                unused -> runOnUiThread(() -> {
+                    currentSession.setRadius(radius);
+                    btnApplyRadius.setEnabled(true);
+                    displayLocation(currentSession.getLatitude(), currentSession.getLongitude());
+                    Toast.makeText(this, "Đã lưu khoảng cách cho phép: " + radius + "m",
+                            Toast.LENGTH_SHORT).show();
+                }),
+                e -> runOnUiThread(() -> {
+                    btnApplyRadius.setEnabled(true);
+                    Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                })
+        );
     }
 
     /** Lưu số phút cho phép vào muộn cho phiên hiện tại (0 < phút ≤ 30). */
@@ -272,15 +328,49 @@ public class SessionManagementActivity extends AppCompatActivity {
         repo.getSession(sessionId,
                 session -> {
                     currentSession = session;
-                    displayQrCode(session);
-                    startRealtimeListener(session.getSessionId());
-                    tvSessionStatus.setText("ĐANG MỞ ĐIỂM DANH");
-                    displayLocation(session.getLatitude(), session.getLongitude());
-                    bindLateMinutes();
+                    if (session.getScheduledEndTime() != null) {
+                        showExistingSession(session);
+                        return;
+                    }
+
+                    // Phiên cũ chưa có scheduledEndTime: không hiển thị QR trước
+                    // khi Firestore cập nhật xong, nếu không sinh viên sẽ bị rules
+                    // từ chối khi lưu attendance.
+                    Timestamp scheduledEndTime = AttendanceUtils.getShiftEndTimestamp(currentShift);
+                    if (scheduledEndTime == null) {
+                        tvSessionStatus.setText("KHÔNG THỂ XÁC ĐỊNH GIỜ KẾT THÚC CA HỌC");
+                        Toast.makeText(this, "Ca học thiếu ngày hoặc giờ kết thúc hợp lệ",
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    btnRefreshQr.setEnabled(false);
+                    tvSessionStatus.setText("ĐANG CẬP NHẬT GIỜ KẾT THÚC PHIÊN...");
+                    repo.updateSessionScheduledEndTime(session.getSessionId(), scheduledEndTime,
+                            unused -> runOnUiThread(() -> {
+                                session.setScheduledEndTime(scheduledEndTime);
+                                btnRefreshQr.setEnabled(true);
+                                showExistingSession(session);
+                            }),
+                            e -> runOnUiThread(() -> {
+                                btnRefreshQr.setEnabled(false);
+                                tvSessionStatus.setText("KHÔNG THỂ CHUẨN BỊ PHIÊN ĐIỂM DANH");
+                                Toast.makeText(this, "Không thể cập nhật giờ kết thúc phiên: "
+                                        + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }));
                 },
                 // Phiên cũ không đọc được → tạo phiên mới
                 e -> startNewSession()
         );
+    }
+
+    private void showExistingSession(Session session) {
+        displayQrCode(session);
+        startRealtimeListener(session.getSessionId());
+        tvSessionStatus.setText("ĐANG MỞ ĐIỂM DANH");
+        displayLocation(session.getLatitude(), session.getLongitude());
+        bindLateMinutes();
+        bindRadius();
     }
 
     private void startNewSession() {
@@ -382,7 +472,15 @@ public class SessionManagementActivity extends AppCompatActivity {
         session.setToken(token);
         session.setLatitude(lat);
         session.setLongitude(lng);
-        session.setRadius(100); // 100 metres
+        session.setRadius(getConfiguredRadius());
+        Timestamp scheduledEndTime = AttendanceUtils.getShiftEndTimestamp(currentShift);
+        if (scheduledEndTime == null) {
+            tvSessionStatus.setText("KHÔNG THỂ XÁC ĐỊNH GIỜ KẾT THÚC CA HỌC");
+            Toast.makeText(this, "Ca học thiếu ngày hoặc giờ kết thúc hợp lệ",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        session.setScheduledEndTime(scheduledEndTime);
 
         FirebaseRepository.OnSuccessListener<String> onCreated = id -> {
             currentSession = session;
@@ -392,6 +490,7 @@ public class SessionManagementActivity extends AppCompatActivity {
             tvSessionStatus.setText(makeupMode ? "ĐANG MỞ ĐIỂM DANH BÙ" : "ĐANG MỞ ĐIỂM DANH");
             displayLocation(lat, lng);
             bindLateMinutes();
+            bindRadius();
         };
         FirebaseRepository.OnFailureListener onError = e ->
                 Toast.makeText(this, "Lỗi tạo phiên: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -405,10 +504,21 @@ public class SessionManagementActivity extends AppCompatActivity {
         }
     }
 
+    /** Dùng 100m như trước nếu giảng viên chưa nhập khoảng cách. */
+    private double getConfiguredRadius() {
+        String value = etRadius.getText() == null ? "" : etRadius.getText().toString().trim();
+        if (value.isEmpty()) return Session.DEFAULT_RADIUS_METERS;
+        try {
+            int radius = Integer.parseInt(value);
+            return radius > 0 ? radius : Session.DEFAULT_RADIUS_METERS;
+        } catch (NumberFormatException ignored) {
+            return Session.DEFAULT_RADIUS_METERS;
+        }
+    }
+
     @SuppressWarnings("deprecation")
     private void displayLocation(double latitude, double longitude) {
-        String coordinates = String.format(Locale.getDefault(),
-                "Vị trí: %.5f, %.5f  (bán kính 100m)", latitude, longitude);
+        String coordinates = formatLocation(latitude, longitude, null);
         tvShiftInfo.setText(coordinates);
 
         // A fallback GPS location (0,0) cannot be meaningfully reverse-geocoded.
@@ -434,13 +544,21 @@ public class SessionManagementActivity extends AppCompatActivity {
                         : city + ", " + country;
                 runOnUiThread(() -> {
                     if (!isFinishing() && !isDestroyed()) {
-                        tvShiftInfo.setText(coordinates + "\n" + place);
+                        tvShiftInfo.setText(formatLocation(latitude, longitude, place));
                     }
                 });
             } catch (IOException ignored) {
                 // Keep showing coordinates when the device has no geocoding service or network.
             }
         });
+    }
+
+    private String formatLocation(double latitude, double longitude, String place) {
+        double radius = currentSession == null
+                ? Session.DEFAULT_RADIUS_METERS : currentSession.getRadius();
+        String coordinates = String.format(Locale.getDefault(),
+                "Vị trí: %.5f, %.5f  (bán kính %.0fm)", latitude, longitude, radius);
+        return place == null || place.isEmpty() ? coordinates : coordinates + "\n" + place;
     }
 
     private void displayQrCode(Session session) {

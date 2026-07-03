@@ -36,23 +36,31 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         void onReschedule(Shift shift);
     }
 
+    public interface OnDeleteListener {
+        void onDelete(Shift shift);
+    }
+
     private final List<Shift> shiftList;
     private final String classId;
     private final String className;
     private final OnOpenAttendanceListener listener;
     private final OnShiftClickListener shiftClickListener;
     private final OnRescheduleListener rescheduleListener;
+    private final OnDeleteListener deleteListener;
+    private String openedActionShiftId;
 
     public ShiftListAdapter(List<Shift> shiftList, String classId, String className,
                             OnOpenAttendanceListener listener,
                             OnShiftClickListener shiftClickListener,
-                            OnRescheduleListener rescheduleListener) {
+                            OnRescheduleListener rescheduleListener,
+                            OnDeleteListener deleteListener) {
         this.shiftList = shiftList;
         this.classId   = classId;
         this.className = className;
         this.listener  = listener;
         this.shiftClickListener = shiftClickListener;
         this.rescheduleListener = rescheduleListener;
+        this.deleteListener = deleteListener;
     }
 
     /** Ca học chỉ được dời khi chưa mở điểm danh và chưa kết thúc/hủy. */
@@ -64,13 +72,48 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
                 && !Shift.STATUS_CANCELLED.equals(status);
     }
 
+    /** Chỉ ca sắp diễn ra và chưa mở điểm danh mới được phép xóa. */
+    public static boolean isDeletable(Shift shift) {
+        return shift != null
+                && Shift.STATUS_UPCOMING.equals(shift.getStatus())
+                && !shift.isAttendanceOpened();
+    }
+
+    public static boolean hasSwipeActions(Shift shift) {
+        return isReschedulable(shift) || isDeletable(shift);
+    }
+
     public Shift getShiftAt(int position) {
         if (position < 0 || position >= shiftList.size()) return null;
         return shiftList.get(position);
     }
 
-    public void notifyReschedule(Shift shift) {
-        if (rescheduleListener != null && shift != null) rescheduleListener.onReschedule(shift);
+    public void openActions(int position) {
+        Shift shift = getShiftAt(position);
+        if (shift == null) return;
+
+        String previousId = openedActionShiftId;
+        openedActionShiftId = shift.getShiftId();
+        if (previousId != null && !previousId.equals(openedActionShiftId)) {
+            int previousPosition = findPositionById(previousId);
+            if (previousPosition != RecyclerView.NO_POSITION) notifyItemChanged(previousPosition);
+        }
+        notifyItemChanged(position);
+    }
+
+    private void closeActions(Shift shift) {
+        if (shift == null || shift.getShiftId() == null
+                || !shift.getShiftId().equals(openedActionShiftId)) return;
+        openedActionShiftId = null;
+        int position = findPositionById(shift.getShiftId());
+        if (position != RecyclerView.NO_POSITION) notifyItemChanged(position);
+    }
+
+    private int findPositionById(String shiftId) {
+        for (int i = 0; i < shiftList.size(); i++) {
+            if (shiftId.equals(shiftList.get(i).getShiftId())) return i;
+        }
+        return RecyclerView.NO_POSITION;
     }
 
     @NonNull
@@ -89,6 +132,37 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         holder.tvDate.setText(formatDateVN(shift.getDate()));
         holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
         holder.tvMakeupBadge.setVisibility(shift.isMakeup() ? View.VISIBLE : View.GONE);
+
+        holder.foreground.animate().cancel();
+        holder.foreground.setTranslationX(0f);
+        boolean actionsOpened = shift.getShiftId() != null
+                && shift.getShiftId().equals(openedActionShiftId);
+        if (actionsOpened) {
+            holder.actionPanel.post(() -> {
+                int boundPosition = holder.getBindingAdapterPosition();
+                Shift boundShift = getShiftAt(boundPosition);
+                if (boundShift != null && openedActionShiftId != null
+                        && openedActionShiftId.equals(boundShift.getShiftId())) {
+                    holder.foreground.setTranslationX(-holder.actionPanel.getWidth());
+                }
+            });
+        }
+
+        boolean deletable = isDeletable(shift);
+        holder.actionDelete.setEnabled(deletable);
+        holder.actionDelete.setAlpha(deletable ? 1f : 0.45f);
+        holder.actionDelete.setOnClickListener(v -> {
+            if (!isDeletable(shift) || deleteListener == null) return;
+            closeActions(shift);
+            deleteListener.onDelete(shift);
+        });
+        holder.actionReschedule.setEnabled(isReschedulable(shift));
+        holder.actionReschedule.setAlpha(isReschedulable(shift) ? 1f : 0.45f);
+        holder.actionReschedule.setOnClickListener(v -> {
+            if (!isReschedulable(shift) || rescheduleListener == null) return;
+            closeActions(shift);
+            rescheduleListener.onReschedule(shift);
+        });
 
         // Status badge. "Sắp diễn ra" only shows when the shift is within 1 day.
         String status = shift.getStatus();
@@ -124,6 +198,10 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         }
 
         holder.itemView.setOnClickListener(v -> {
+            if (shift.getShiftId() != null && shift.getShiftId().equals(openedActionShiftId)) {
+                closeActions(shift);
+                return;
+            }
             if (shiftClickListener != null) shiftClickListener.onClick(shift);
         });
     }
@@ -173,12 +251,15 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         TextView tvDate, tvTime, tvStatus, tvAttInfo, tvMakeupBadge;
         ImageView ivAttIcon;
         MaterialButton btnOpenAtt;
-        // Lớp foreground được dịch chuyển khi vuốt để lộ panel "Dời ca" phía sau.
-        View foreground;
+        // Lớp foreground được dịch chuyển khi vuốt để lộ hai hành động phía sau.
+        View foreground, actionPanel, actionDelete, actionReschedule;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             foreground = itemView.findViewById(R.id.foreground);
+            actionPanel = itemView.findViewById(R.id.swipe_action_panel);
+            actionDelete = itemView.findViewById(R.id.action_delete);
+            actionReschedule = itemView.findViewById(R.id.action_reschedule);
             tvDate     = itemView.findViewById(R.id.tv_date);
             tvTime     = itemView.findViewById(R.id.tv_time);
             tvStatus   = itemView.findViewById(R.id.tv_status);

@@ -85,12 +85,13 @@ public class ShiftsTabFragment extends Fragment {
                         startActivity(intent);
                     }
                 },
-                this::showRescheduleDialog);
+                this::showRescheduleDialog,
+                this::showDeleteConfirmation);
 
         rvShifts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvShifts.setAdapter(adapter);
 
-        // Swipe sang trái trên thẻ ca học để lộ nút "Dời ca".
+        // Swipe sang trái trên thẻ ca học để lộ hai lựa chọn "Xóa" và "Dời ca".
         new ItemTouchHelper(new ShiftSwipeCallback(adapter)).attachToRecyclerView(rvShifts);
 
         loadShifts();
@@ -115,6 +116,40 @@ public class ShiftsTabFragment extends Fragment {
             adapter.notifyDataSetChanged();
             tvEmpty.setVisibility(shifts.isEmpty() ? View.VISIBLE : View.GONE);
         });
+    }
+
+    private void showDeleteConfirmation(Shift shift) {
+        if (shift == null) return;
+        if (!ShiftListAdapter.isDeletable(shift)) {
+            Toast.makeText(requireContext(),
+                    "Chỉ có thể xóa ca học đang ở trạng thái sắp diễn ra",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String shiftTime = shift.getDate() + "  " + shift.getStartAt() + " - " + shift.getEndAt();
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa ca học?")
+                .setMessage("Ca " + shiftTime + " sẽ bị xóa vĩnh viễn.")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Xóa", (dialog, which) -> deleteShift(shift))
+                .show();
+    }
+
+    private void deleteShift(Shift shift) {
+        repo.deleteUpcomingShift(shift.getShiftId(),
+                unused -> {
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Đã xóa ca học", Toast.LENGTH_SHORT).show();
+                },
+                error -> {
+                    if (!isAdded()) return;
+                    String message = error.getMessage();
+                    if (message == null || message.trim().isEmpty()) {
+                        message = "Không thể xóa ca học";
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**
