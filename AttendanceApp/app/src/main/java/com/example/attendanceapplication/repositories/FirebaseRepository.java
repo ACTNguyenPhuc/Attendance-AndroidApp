@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.attendanceapplication.models.*;
 import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
@@ -89,6 +91,27 @@ public class FirebaseRepository {
     }
 
     public void signOut() { mAuth.signOut(); }
+
+    /**
+     * Đổi mật khẩu người dùng hiện tại. Xác thực lại (reauthenticate) bằng mật khẩu
+     * cũ trước khi cập nhật vì Firebase yêu cầu phiên đăng nhập "gần đây" cho thao
+     * tác nhạy cảm này.
+     */
+    public void changePassword(String oldPassword, String newPassword,
+                               OnSuccessListener<Void> onSuccess,
+                               OnFailureListener onFailure) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null || user.getEmail() == null) {
+            onFailure.onFailure(new Exception("Chưa đăng nhập"));
+            return;
+        }
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
+        user.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> user.updatePassword(newPassword)
+                        .addOnSuccessListener(onSuccess::onSuccess)
+                        .addOnFailureListener(onFailure::onFailure))
+                .addOnFailureListener(onFailure::onFailure);
+    }
 
     // ==================== CLASSES ====================
 

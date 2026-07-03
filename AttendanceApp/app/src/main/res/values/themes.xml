@@ -76,6 +76,17 @@
         <item name="textAllCaps">true</item>
     </style>
 
+    <!-- Bottom navigation label: đậm khi active, thường khi inactive -->
+    <style name="TextAppearance.AttendanceApp.BottomNav.Active" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.AttendanceApp.BottomNav.Inactive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
     <!-- Status badge styles -->
     <style name="StatusBadge">
         <item name="android:textSize">11sp</item>

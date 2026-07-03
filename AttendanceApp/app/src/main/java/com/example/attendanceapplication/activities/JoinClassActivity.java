@@ -1,10 +1,12 @@
 package com.example.attendanceapplication.activities;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
@@ -39,7 +41,10 @@ public class JoinClassActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Tham gia lớp học");
         }
-
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         barcodeView = findViewById(R.id.barcode_view);
         startScanner();
     }

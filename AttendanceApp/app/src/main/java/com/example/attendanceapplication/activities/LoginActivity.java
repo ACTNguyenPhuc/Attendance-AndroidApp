@@ -21,12 +21,16 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
+import java.util.Locale;
+
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String ALLOWED_EMAIL_DOMAIN = "@actvn.edu.vn";
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
     private Button btnLogin, btnRegister;
-    private TextView tvForgotPassword;
+
     private ProgressBar progressBar;
     private View overlay;
 
@@ -48,8 +52,8 @@ public class LoginActivity extends AppCompatActivity {
         etEmail        = findViewById(R.id.et_email);
         etPassword     = findViewById(R.id.et_password);
         btnLogin       = findViewById(R.id.btn_login);
-        btnRegister    = findViewById(R.id.btn_register);
-        tvForgotPassword = findViewById(R.id.tv_forgot_password);
+
+
         progressBar    = findViewById(R.id.progress_bar);
         overlay        = findViewById(R.id.loading_overlay);
 
@@ -76,23 +80,20 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnLogin.setOnClickListener(v -> attemptLogin());
-        btnRegister.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
-        });
-        tvForgotPassword.setOnClickListener(v ->
-                Toast.makeText(this, "Vui lòng liên hệ quản trị viên", Toast.LENGTH_SHORT).show()
-        );
+
+
     }
 
-    private void attemptLogin() {
+    private void  attemptLogin() {
         String email    = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
         tilEmail.setError(null);
         tilPassword.setError(null);
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Địa chỉ email không hợp lệ");
+        if (!isAllowedInstitutionalEmail(email)) {
+            tilEmail.setError("Email không hợp lệ");
+            etEmail.requestFocus();
             return;
         }
 
@@ -120,6 +121,11 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    private boolean isAllowedInstitutionalEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                && email.toLowerCase(Locale.ROOT).endsWith(ALLOWED_EMAIL_DOMAIN);
     }
 
     private void redirectByRole(User user) {

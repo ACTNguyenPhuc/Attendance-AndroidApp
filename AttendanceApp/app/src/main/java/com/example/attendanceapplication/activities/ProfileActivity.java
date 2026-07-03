@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView tvName, tvEmail, tvCode, tvRole;
+    private TextView tvName, tvRole;
     private Button btnLogout;
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
 
@@ -34,8 +34,6 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         tvName   = findViewById(R.id.tv_name);
-        tvEmail  = findViewById(R.id.tv_email);
-        tvCode   = findViewById(R.id.tv_code);
         tvRole   = findViewById(R.id.tv_role);
         btnLogout = findViewById(R.id.btn_logout);
 
@@ -59,8 +57,6 @@ public class ProfileActivity extends AppCompatActivity {
         repo.getUserProfile(uid,
                 user -> runOnUiThread(() -> {
                     if (tvName  != null) tvName.setText(user.getName());
-                    if (tvEmail != null) tvEmail.setText(user.getEmail());
-                    if (tvCode  != null) tvCode.setText(user.getStudentCode());
                     if (tvRole  != null) tvRole.setText("teacher".equals(user.getRole()) ? "GIẢNG VIÊN" : "SINH VIÊN");
                 }),
                 e -> {}

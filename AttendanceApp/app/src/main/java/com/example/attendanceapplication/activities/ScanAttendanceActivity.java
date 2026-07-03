@@ -3,6 +3,7 @@ package com.example.attendanceapplication.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -53,7 +54,10 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         locationClient = LocationServices.getFusedLocationProviderClient(this);
         initViews();
         checkPermissions();

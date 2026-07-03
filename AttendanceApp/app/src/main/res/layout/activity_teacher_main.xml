@@ -16,8 +16,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        app:itemIconTint="@color/primary_blue"
-        app:itemTextColor="@color/primary_blue"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:itemTextAppearanceActive="@style/TextAppearance.AttendanceApp.BottomNav.Active"
+        app:itemTextAppearanceInactive="@style/TextAppearance.AttendanceApp.BottomNav.Inactive"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_teacher_bottom_nav" />
 

@@ -13,7 +13,7 @@ public class AttendanceUtils {
      * Haversine formula to calculate distance (meters) between two GPS coordinates.
      */
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int EARTH_RADIUS = 6371000; // meters
+        final int EARTH_RADIUS = 6371000; // bán kính Trái Đất (m)
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
