@@ -210,8 +210,33 @@
                         android:id="@+id/switch_notification"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:checked="true"
-                        app:thumbTint="@color/white"
-                        app:trackTint="@color/primary_blue" />
+                        app:thumbTint="@color/switch_thumb_tint"
+                        app:trackTint="@color/switch_track_tint" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/divider" android:layout_marginStart="64dp" />
+
+                <LinearLayout android:id="@+id/row_reminder_time"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:clickable="true" android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp">
+                    <ImageView android:layout_width="40dp" android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_square_blue" android:padding="8dp"
+                        android:src="@drawable/ic_clock" app:tint="@color/primary_blue"
+                        android:contentDescription="Nhắc trước ca học" />
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Nhắc trước ca học" android:textSize="15sp" android:textColor="@color/text_primary" />
+                        <TextView android:id="@+id/tv_reminder_value"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Trước 15 phút" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="›" android:textSize="20sp" android:textColor="@color/text_secondary" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp"

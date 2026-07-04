@@ -117,6 +117,22 @@ public class AttendanceUtils {
     }
 
     /**
+     * Chuyển ngày và giờ BẮT ĐẦU của ca học thành một mốc thời gian tuyệt đối.
+     * Dùng để tính thời điểm nhắc trước ca học cho thông báo cục bộ.
+     */
+    public static Timestamp getShiftStartTimestamp(Shift shift) {
+        if (shift == null || shift.getDate() == null || shift.getStartAt() == null) return null;
+        try {
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+            parser.setLenient(false);
+            Date start = parser.parse(shift.getDate() + " " + shift.getStartAt());
+            return start == null ? null : new Timestamp(start);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
      * Chuyển ngày và giờ kết thúc của ca học thành một mốc thời gian tuyệt đối.
      * Dữ liệu ca học dùng định dạng {@code yyyy-MM-dd} và {@code HH:mm}.
      */

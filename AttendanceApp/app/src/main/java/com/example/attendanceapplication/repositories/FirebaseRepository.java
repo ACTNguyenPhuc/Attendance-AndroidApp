@@ -922,6 +922,53 @@ public class FirebaseRepository {
                 });
     }
 
+    /**
+     * Lấy các ca học của SINH VIÊN (dựa trên các lớp đang ghi danh active), dùng để lên
+     * lịch thông báo cục bộ nhắc trước ca học. Trả về toàn bộ ca của các lớp; việc lọc
+     * "ca chưa kết thúc / thời điểm nhắc còn trong tương lai" do bên gọi
+     * ({@code NotificationScheduler}) đảm nhiệm để giữ repository đơn giản.
+     */
+    public void getUpcomingShiftsForStudent(String studentId,
+                                            OnSuccessListener<List<Shift>> onSuccess,
+                                            OnFailureListener onFailure) {
+        db.collection(COL_ENROLLMENTS)
+                .whereEqualTo("studentId", studentId)
+                .whereEqualTo("status", "active")
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    List<String> classIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        Enrollment e = doc.toObject(Enrollment.class);
+                        if (e != null && e.getClassId() != null) classIds.add(e.getClassId());
+                    }
+                    if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
+                    getShiftsForClasses(classIds, onSuccess::onSuccess);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
+    /**
+     * Lấy các ca học của các lớp mà GIẢNG VIÊN đang phụ trách (teacherId trùng), dùng để
+     * lên lịch thông báo nhắc trước ca dạy. Đáp ứng yêu cầu "chỉ lên lịch cho ca mà
+     * giảng viên đang phụ trách".
+     */
+    public void getUpcomingShiftsForTeacher(String teacherId,
+                                            OnSuccessListener<List<Shift>> onSuccess,
+                                            OnFailureListener onFailure) {
+        db.collection(COL_CLASSES)
+                .whereEqualTo("teacherId", teacherId)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    List<String> classIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        classIds.add(doc.getId());
+                    }
+                    if (classIds.isEmpty()) { onSuccess.onSuccess(new ArrayList<>()); return; }
+                    getShiftsForClasses(classIds, onSuccess::onSuccess);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     /** Tạo một truy vấn {@code whereIn} cho một đoạn id (≤ {@link #WHERE_IN_CHUNK_SIZE} phần tử). */
     private interface ChunkQueryBuilder {
         Query build(List<String> chunk);

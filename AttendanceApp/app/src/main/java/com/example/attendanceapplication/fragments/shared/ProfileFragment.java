@@ -17,6 +17,10 @@ import com.example.attendanceapplication.activities.LoginActivity;
 import com.example.attendanceapplication.models.User;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.NotificationPrefs;
+import com.example.attendanceapplication.utils.NotificationScheduler;
+import com.example.attendanceapplication.utils.NotificationSupport;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileFragment extends Fragment {
@@ -24,6 +28,13 @@ public class ProfileFragment extends Fragment {
     private TextView tvName, tvRole;
     private Button btnLogout;
     private User currentUser;
+
+    // Các mốc "nhắc trước ca học" cho người dùng chọn (phút).
+    private static final int[] REMINDER_OPTIONS = {5, 10, 15, 30, 60};
+
+    private SwitchMaterial switchNotification;
+    private TextView tvReminderValue;
+    private NotificationPrefs notiPrefs;
 
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
 
@@ -48,7 +59,71 @@ public class ProfileFragment extends Fragment {
         view.findViewById(R.id.row_personal_qr).setOnClickListener(v -> showPersonalQrDialog());
         view.findViewById(R.id.row_help).setOnClickListener(v -> showHelpDialog());
         view.findViewById(R.id.row_about).setOnClickListener(v -> showAboutDialog());
+
+        setupNotificationSettings(view);
         loadProfile();
+    }
+
+    /**
+     * Gắn công tắc bật/tắt thông báo và mục chọn thời gian nhắc trước ca học vào
+     * {@link NotificationPrefs} và {@link NotificationScheduler}.
+     */
+    private void setupNotificationSettings(@NonNull View view) {
+        notiPrefs = new NotificationPrefs(requireContext());
+        switchNotification = view.findViewById(R.id.switch_notification);
+        tvReminderValue = view.findViewById(R.id.tv_reminder_value);
+
+        // Đặt trạng thái ban đầu TRƯỚC khi gắn listener để không kích hoạt lên lịch lúc khởi tạo.
+        switchNotification.setChecked(notiPrefs.isEnabled());
+        updateReminderValueLabel();
+
+        switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            notiPrefs.setEnabled(isChecked);
+            if (isChecked) {
+                // Bật lại: xin quyền (Android 13+) rồi tự lên lịch lại các ca sắp tới.
+                NotificationSupport.requestPostPermissionIfNeeded(requireActivity());
+                NotificationScheduler.rescheduleAll(requireContext());
+                Toast.makeText(requireContext(),
+                        "Đã bật thông báo nhắc lịch học", Toast.LENGTH_SHORT).show();
+            } else {
+                // Tắt: hủy toàn bộ thông báo đã lên lịch và không tạo thêm.
+                NotificationScheduler.cancelAll(requireContext());
+                Toast.makeText(requireContext(),
+                        "Đã tắt thông báo nhắc lịch học", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        view.findViewById(R.id.row_reminder_time).setOnClickListener(v -> showReminderTimeDialog());
+    }
+
+    private void showReminderTimeDialog() {
+        if (!isAdded()) return;
+        String[] labels = new String[REMINDER_OPTIONS.length];
+        int checked = -1;
+        int current = notiPrefs.getReminderMinutes();
+        for (int i = 0; i < REMINDER_OPTIONS.length; i++) {
+            labels[i] = "Trước " + REMINDER_OPTIONS[i] + " phút";
+            if (REMINDER_OPTIONS[i] == current) checked = i;
+        }
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Nhắc trước ca học")
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    notiPrefs.setReminderMinutes(REMINDER_OPTIONS[which]);
+                    updateReminderValueLabel();
+                    // Lịch thay đổi thời điểm nhắc -> đặt lại (chỉ khi đang bật).
+                    if (notiPrefs.isEnabled()) {
+                        NotificationScheduler.rescheduleAll(requireContext());
+                    }
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Đóng", null)
+                .show();
+    }
+
+    private void updateReminderValueLabel() {
+        if (tvReminderValue != null) {
+            tvReminderValue.setText("Trước " + notiPrefs.getReminderMinutes() + " phút");
+        }
     }
 
     private void loadProfile() {

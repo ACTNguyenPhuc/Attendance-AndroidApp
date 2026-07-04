@@ -11,6 +11,8 @@ import com.example.attendanceapplication.fragments.teacher.TeacherDashboardFragm
 import com.example.attendanceapplication.fragments.teacher.TeacherClassListFragment;
 import com.example.attendanceapplication.fragments.teacher.TeacherCalendarFragment;
 import com.example.attendanceapplication.fragments.shared.ProfileFragment;
+import com.example.attendanceapplication.utils.NotificationSupport;
+import com.example.attendanceapplication.utils.NotificationScheduler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class TeacherMainActivity extends AppCompatActivity {
@@ -27,6 +29,16 @@ public class TeacherMainActivity extends AppCompatActivity {
 
         // Show dashboard by default
         loadFragment(new TeacherDashboardFragment());
+
+        // Xin quyền hiển thị thông báo (Android 13+) khi tính năng đang bật.
+        NotificationSupport.requestPostPermissionIfNeeded(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Đồng bộ lại lịch nhắc ca dạy mỗi khi vào app / quay lại app.
+        NotificationScheduler.rescheduleAll(this);
     }
 
     private void setupBottomNavigation() {

@@ -40,7 +40,7 @@ public final class StudyShiftOptions {
             new Option("Ca 2: 09h35 - 12h00", "09:35", "12:00"),
             new Option("Ca 3: 13h30 - 15h55", "12:30", "14:55"),
             new Option("Ca 4: 16h05 - 18h30", "15:05", "17:30"),
-            new Option("Ca 5 (Tối): 19h00 - 21h25", "18:00", "23:55")
+            new Option("Ca 5 (Tối): 18h00 - 21h25", "22:05:", "23:55")
     ));
 
     private static final List<String> LABELS;

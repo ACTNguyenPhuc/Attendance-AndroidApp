@@ -11,6 +11,8 @@ import com.example.attendanceapplication.fragments.student.StudentClassListFragm
 import com.example.attendanceapplication.fragments.student.StudentCalendarFragment;
 import com.example.attendanceapplication.fragments.student.AttendanceHistoryFragment;
 import com.example.attendanceapplication.fragments.shared.ProfileFragment;
+import com.example.attendanceapplication.utils.NotificationSupport;
+import com.example.attendanceapplication.utils.NotificationScheduler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class StudentMainActivity extends AppCompatActivity {
@@ -25,6 +27,16 @@ public class StudentMainActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottom_navigation);
         setupBottomNavigation();
         loadFragment(new StudentDashboardFragment());
+
+        // Xin quyền hiển thị thông báo (Android 13+) khi tính năng đang bật.
+        NotificationSupport.requestPostPermissionIfNeeded(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Đồng bộ lại lịch nhắc mỗi khi vào app / quay lại app (bao gồm sau khi lịch học đổi).
+        NotificationScheduler.rescheduleAll(this);
     }
 
     private void setupBottomNavigation() {
