@@ -41,7 +41,10 @@ public class ProfileFragment extends Fragment {
         btnLogout = view.findViewById(R.id.btn_logout);
 
         btnLogout.setOnClickListener(v -> showLogoutDialog());
+        view.findViewById(R.id.btn_header_logout).setOnClickListener(v -> showLogoutDialog());
         view.findViewById(R.id.row_personal_info).setOnClickListener(v -> showPersonalInfoDialog());
+        view.findViewById(R.id.row_change_password).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ChangePasswordActivity.class)));
         view.findViewById(R.id.row_personal_qr).setOnClickListener(v -> showPersonalQrDialog());
         view.findViewById(R.id.row_help).setOnClickListener(v -> showHelpDialog());
         view.findViewById(R.id.row_about).setOnClickListener(v -> showAboutDialog());

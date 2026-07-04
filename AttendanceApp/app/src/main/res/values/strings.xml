@@ -61,6 +61,7 @@
     <string name="role_teacher">GIẢNG VIÊN</string>
     <string name="role_student">SINH VIÊN</string>
     <string name="change_password">Đổi mật khẩu</string>
+    <string name="change_password_description">Cập nhật mật khẩu đăng nhập</string>
     <string name="about_app">Về ứng dụng</string>
     <string name="app_version">Version 1.0.0</string>
 

@@ -1,6 +1,7 @@
 package com.example.attendanceapplication.activities;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import com.google.android.material.button.MaterialButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -77,12 +79,16 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         String shiftContent = getIntent().getStringExtra(EXTRA_SHIFT_CONTENT);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Điểm danh - " + (className != null ? className : ""));
         }
-
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         tvShiftTitle = findViewById(R.id.tv_shift_title);
         tvShiftTime = findViewById(R.id.tv_shift_time);
         tvShiftContent = findViewById(R.id.tv_shift_content);

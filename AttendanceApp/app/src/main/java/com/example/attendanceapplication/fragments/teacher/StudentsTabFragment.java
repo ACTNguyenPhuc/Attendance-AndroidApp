@@ -588,9 +588,7 @@ public class StudentsTabFragment extends Fragment {
             if (u.getName() != null && !u.getName().isEmpty()) {
                 holder.tvAvatar.setText(String.valueOf(u.getName().charAt(0)).toUpperCase());
             }
-            holder.btnRemove.setOnClickListener(v -> {
-                if (onRemoveClickListener != null) onRemoveClickListener.onRemove(u);
-            });
+
             holder.itemView.setOnClickListener(v -> {
                 if (onStudentClickListener != null) onStudentClickListener.onClick(u);
             });
@@ -609,7 +607,7 @@ public class StudentsTabFragment extends Fragment {
                 tvAvatar = v.findViewById(R.id.tv_avatar);
                 tvAttendanceSummary = v.findViewById(R.id.tv_attendance_summary);
                 progressAttendance = v.findViewById(R.id.progress_attendance);
-                btnRemove = v.findViewById(R.id.btn_remove);
+
             }
         }
     }

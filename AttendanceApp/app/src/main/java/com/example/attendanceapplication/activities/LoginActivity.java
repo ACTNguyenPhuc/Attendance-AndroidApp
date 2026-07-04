@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         etEmail        = findViewById(R.id.et_email);
         etPassword     = findViewById(R.id.et_password);
         btnLogin       = findViewById(R.id.btn_login);
-
+       // btnRegister    = findViewById(R.id.btn_register);
 
         progressBar    = findViewById(R.id.progress_bar);
         overlay        = findViewById(R.id.loading_overlay);
@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnLogin.setOnClickListener(v -> attemptLogin());
-
+       // btnRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
 
     }
 

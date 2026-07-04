@@ -1,7 +1,12 @@
 package com.example.attendanceapplication.activities;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,13 +74,28 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
         className   = getIntent().getStringExtra(EXTRA_CLASS_NAME);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Chi tiết điểm danh");
+
             if (className != null && !className.isEmpty()) {
-                getSupportActionBar().setSubtitle(className);
+                SpannableString subtitle = new SpannableString(className);
+                subtitle.setSpan(
+                        new ForegroundColorSpan(Color.WHITE),
+                        0,
+                        subtitle.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+
+                getSupportActionBar().setSubtitle(subtitle);
             }
+        }
+        Drawable navIcon = toolbar.getNavigationIcon();
+        if (navIcon != null) {
+            navIcon.setTint(ContextCompat.getColor(this, R.color.white));
         }
 
         tvAvatar  = findViewById(R.id.tv_avatar);

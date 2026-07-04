@@ -53,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+
             app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
             app:cardElevation="4dp">
 
@@ -60,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+
                 android:padding="24dp">
 
                 <!-- Email -->
@@ -75,8 +77,8 @@
                         android:id="@+id/et_email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"
                         android:imeOptions="actionNext"
+                        android:inputType="textEmailAddress"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -88,18 +90,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Mật khẩu"
-                    app:startIconDrawable="@android:drawable/ic_lock_lock"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:startIconDrawable="@android:drawable/ic_lock_lock">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
                         android:imeOptions="actionDone"
+                        android:inputType="textPassword"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
-
 
 
                 <!-- Login Button -->
@@ -123,20 +124,20 @@
                       android:textColor="@color/text_secondary"
                       android:textSize="13sp" /> -->
 
-                  <!-- Register Button -->
-            <!--   <com.google.android.material.button.MaterialButton
-                  android:id="@+id/btn_register"
-                  style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                  android:layout_width="match_parent"
-                  android:layout_height="52dp"
-                  android:layout_marginTop="12dp"
-                  android:text="Đăng ký tài khoản mới"
-                  android:textColor="@color/primary_blue"
-                  app:strokeColor="@color/primary_blue"
-                  app:cornerRadius="8dp" />-->
+                <!-- Register Button -->
+                <!--   <com.google.android.material.button.MaterialButton
+             android:id="@+id/btn_register"
+             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+             android:layout_width="match_parent"
+             android:layout_height="52dp"
+             android:layout_marginTop="12dp"
+             android:text="Đăng ký tài khoản mới"
+             android:textColor="@color/primary_blue"
+             app:strokeColor="@color/primary_blue"
+             app:cornerRadius="8dp" />-->
 
-  </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
 </ScrollView>

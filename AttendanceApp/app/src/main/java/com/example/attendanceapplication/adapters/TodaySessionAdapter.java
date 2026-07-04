@@ -62,8 +62,9 @@ public class TodaySessionAdapter extends RecyclerView.Adapter<TodaySessionAdapte
         String room = s.getRoom() != null && !s.getRoom().isEmpty() ? "    📍 " + s.getRoom() : "";
         h.tvTimeRoom.setText("⏰ " + time + room);
 
-        if (s.getTeacherName() != null && !s.getTeacherName().isEmpty()) {
-            h.tvTeacher.setText("👤 " + s.getTeacherName());
+        String teacher = s.getTeacherDisplayName();
+        if (teacher != null && !teacher.isEmpty()) {
+            h.tvTeacher.setText("👤 " + teacher);
             h.tvTeacher.setVisibility(View.VISIBLE);
         } else {
             h.tvTeacher.setVisibility(View.GONE);

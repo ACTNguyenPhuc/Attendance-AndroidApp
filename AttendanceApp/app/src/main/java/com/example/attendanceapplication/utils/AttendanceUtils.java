@@ -10,7 +10,9 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AttendanceUtils {
@@ -71,6 +73,47 @@ public class AttendanceUtils {
      */
     public static boolean isWithinRadius(double distance, double radius) {
         return distance <= radius;
+    }
+
+    /** Chỉ cho mở điểm danh đúng ngày và trong khung giờ [startAt, endAt) của ca. */
+    public static boolean canOpenAttendanceAt(Shift shift, Date now) {
+        if (shift == null || now == null || shift.isAttendanceOpened()) return false;
+        if (Shift.STATUS_COMPLETED.equals(shift.getStatus())
+                || Shift.STATUS_CANCELLED.equals(shift.getStatus())) return false;
+        if (shift.getDate() == null || shift.getStartAt() == null || shift.getEndAt() == null) {
+            return false;
+        }
+
+        try {
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+            parser.setLenient(false);
+            Date start = parser.parse(shift.getDate() + " " + shift.getStartAt());
+            Date end = parser.parse(shift.getDate() + " " + shift.getEndAt());
+            return start != null && end != null && !now.before(start) && now.before(end);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /** Ca đang có phiên điểm danh mở, dùng để ưu tiên và highlight trong danh sách. */
+    public static boolean isAttendanceInProgress(Shift shift) {
+        return shift != null
+                && shift.isAttendanceOpened()
+                && Shift.STATUS_ONGOING.equals(shift.getStatus());
+    }
+
+    /** Đưa ca đang điểm danh lên đầu; các ca còn lại giữ thứ tự ngày + giờ tăng dần. */
+    public static void sortShiftsActiveFirst(List<Shift> shifts) {
+        if (shifts == null) return;
+        shifts.sort(Comparator
+                .comparing((Shift shift) -> !isAttendanceInProgress(shift))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getDate()))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getStartAt()))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getShiftId())));
+    }
+
+    private static String safeSortValue(String value) {
+        return value == null ? "\uffff" : value;
     }
 
     /**

@@ -58,7 +58,7 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(className);
+            getSupportActionBar().setTitle("");
         }
         Drawable navIcon = toolbar.getNavigationIcon();
         if (navIcon != null) {

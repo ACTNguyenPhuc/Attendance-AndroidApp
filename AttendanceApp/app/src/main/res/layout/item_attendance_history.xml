@@ -22,13 +22,14 @@
             android:orientation="horizontal"
             android:padding="14dp">
 
-            <TextView
-                android:id="@+id/tv_status_icon"
+            <ImageView
+                android:id="@+id/iv_status_icon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:gravity="center"
-                android:text="✅"
-                android:textSize="20sp" />
+                android:contentDescription="@null"
+                android:padding="4dp"
+                android:src="@drawable/ic_check_circle"
+                app:tint="@color/accent_green" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -101,27 +102,36 @@
                 android:id="@+id/tv_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📍 Khoảng cách: --"
+                android:drawablePadding="8dp"
+                android:text="Khoảng cách: --"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                app:drawableStartCompat="@drawable/ic_location"
+                app:drawableTint="@color/primary_blue" />
 
             <TextView
                 android:id="@+id/tv_exact_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="🕐 Thời gian chính xác: --"
+                android:drawablePadding="8dp"
+                android:text="Thời gian chính xác: --"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                app:drawableStartCompat="@drawable/ic_clock"
+                app:drawableTint="@color/primary_blue" />
 
             <TextView
                 android:id="@+id/tv_coords"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="🌐 Tọa độ: --"
+                android:drawablePadding="8dp"
+                android:text="Tọa độ: --"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                app:drawableStartCompat="@drawable/ic_language"
+                app:drawableTint="@color/primary_blue" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

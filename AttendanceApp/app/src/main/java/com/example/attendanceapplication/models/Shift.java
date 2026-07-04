@@ -1,6 +1,7 @@
 package com.example.attendanceapplication.models;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
 
 public class Shift {
     public static final String STATUS_UPCOMING = "upcoming";
@@ -11,6 +12,9 @@ public class Shift {
     private String shiftId;
     private String classId;
     private String className;
+    // Tên hiển thị của giảng viên, được lưu vào Firestore với key "teacher".
+    private String teacher;
+    // Trường tương thích cũ; hiện được dùng như teacherId khi kiểm tra trùng lịch giảng.
     private String teacherName;
     private String title;
     private String date;        // YYYY-MM-DD
@@ -42,8 +46,17 @@ public class Shift {
     public String getClassName() { return className; }
     public void setClassName(String className) { this.className = className; }
 
+    public String getTeacher() { return teacher; }
+    public void setTeacher(String teacher) { this.teacher = teacher; }
+
     public String getTeacherName() { return teacherName; }
     public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
+
+    /** Ưu tiên schema mới, nhưng vẫn hiển thị được dữ liệu cũ chỉ có teacherName. */
+    @Exclude
+    public String getTeacherDisplayName() {
+        return teacher != null && !teacher.trim().isEmpty() ? teacher : teacherName;
+    }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

@@ -21,6 +21,7 @@ import com.example.attendanceapplication.adapters.ShiftListAdapter;
 import com.example.attendanceapplication.adapters.ShiftSwipeCallback;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
+import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.RequiredFieldUtils;
 import com.example.attendanceapplication.utils.StudyShiftOptions;
 import com.example.attendanceapplication.activities.ShiftAttendanceListActivity;
@@ -116,10 +117,12 @@ public class ShiftsTabFragment extends Fragment {
     private void loadShifts() {
         if (classId == null) return;
         repo.getClassShifts(classId).observe(getViewLifecycleOwner(), shifts -> {
+            List<Shift> sortedShifts = new ArrayList<>(shifts);
+            AttendanceUtils.sortShiftsActiveFirst(sortedShifts);
             shiftList.clear();
-            shiftList.addAll(shifts);
+            shiftList.addAll(sortedShifts);
             adapter.notifyDataSetChanged();
-            tvEmpty.setVisibility(shifts.isEmpty() ? View.VISIBLE : View.GONE);
+            tvEmpty.setVisibility(sortedShifts.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 

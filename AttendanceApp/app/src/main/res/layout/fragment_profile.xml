@@ -11,47 +11,64 @@
         android:orientation="vertical">
 
         <!-- Profile header -->
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:background="@color/primary_blue"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:background="@color/primary_blue">
 
-            <TextView
-                android:id="@+id/tv_avatar_initial"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="A"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/bg_circle_white_border" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                <TextView
+                    android:id="@+id/tv_avatar_initial"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:gravity="center"
+                    android:text="A"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_circle_white_border" />
 
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tv_role"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="SINH VIÊN"
-                android:textColor="#CCFFFFFF"
-                android:textSize="12sp"
-                android:letterSpacing="0.1"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="3dp"
-                android:background="@drawable/bg_badge_white_outline" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_role"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="SINH VIÊN"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="3dp"
+                    android:background="@drawable/bg_badge_white_outline" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btn_header_logout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/logout"
+                android:padding="12dp"
+                android:src="@drawable/ic_logout"
+                app:tint="@color/white" />
+        </FrameLayout>
 
         <!-- TÀI KHOẢN -->
         <TextView
@@ -94,6 +111,30 @@
                             android:text="Thông tin cá nhân" android:textSize="15sp" android:textColor="@color/text_primary" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="Xem và chỉnh sửa thông tin" android:textSize="12sp" android:textColor="@color/text_secondary" />
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="›" android:textSize="20sp" android:textColor="@color/text_secondary" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/divider" android:layout_marginStart="64dp" />
+
+                <LinearLayout android:id="@+id/row_change_password"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:clickable="true" android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp">
+                    <ImageView android:layout_width="40dp" android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_square_blue" android:padding="8dp"
+                        android:src="@drawable/ic_lock" app:tint="@color/primary_blue"
+                        android:contentDescription="@string/change_password" />
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/change_password" android:textSize="15sp" android:textColor="@color/text_primary" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/change_password_description" android:textSize="12sp" android:textColor="@color/text_secondary" />
                     </LinearLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="›" android:textSize="20sp" android:textColor="@color/text_secondary" />

@@ -163,7 +163,7 @@ public class FirebaseRepository {
             Shift requested = conflict.getNewShift();
             Shift existing = conflict.getExistingShift();
             String displayName = teacherDisplayName == null || teacherDisplayName.trim().isEmpty()
-                    ? requested.getTeacherName()
+                    ? requested.getTeacherDisplayName()
                     : teacherDisplayName.trim();
 
             return "Giảng viên: " + displayName
@@ -189,6 +189,38 @@ public class FirebaseRepository {
         return value == null || value.trim().isEmpty() ? "Không xác định" : value.trim();
     }
 
+    /**
+     * Lấy tên giảng viên đã lưu trong lớp; với dữ liệu lớp cũ, đọc lại hồ sơ theo teacherId.
+     * Mọi ca mới/được dời vì thế đều có trường Firestore {@code teacher} là tên hiển thị.
+     */
+    private void resolveTeacherDisplayName(ClassModel classModel, String fallbackName,
+                                           OnSuccessListener<String> onSuccess,
+                                           OnFailureListener onFailure) {
+        String classTeacherName = classModel == null ? null : classModel.getTeacherName();
+        if (classTeacherName != null && !classTeacherName.trim().isEmpty()) {
+            onSuccess.onSuccess(classTeacherName.trim());
+            return;
+        }
+        if (fallbackName != null && !fallbackName.trim().isEmpty()) {
+            onSuccess.onSuccess(fallbackName.trim());
+            return;
+        }
+
+        String teacherId = classModel == null ? null : classModel.getTeacherId();
+        if (teacherId == null || teacherId.trim().isEmpty()) {
+            onFailure.onFailure(new IllegalArgumentException("Không xác định được giảng viên của lớp"));
+            return;
+        }
+        getUserProfile(teacherId, teacher -> {
+            String name = teacher == null ? null : teacher.getName();
+            if (name == null || name.trim().isEmpty()) {
+                onFailure.onFailure(new IllegalArgumentException("Hồ sơ giảng viên chưa có tên"));
+                return;
+            }
+            onSuccess.onSuccess(name.trim());
+        }, onFailure);
+    }
+
     public void createClass(ClassModel classModel,
                             OnSuccessListener<String> onSuccess,
                             OnFailureListener onFailure) {
@@ -197,6 +229,15 @@ public class FirebaseRepository {
             return;
         }
         classModel.setRoom(classModel.getRoom().trim());
+        resolveTeacherDisplayName(classModel, null, teacherName -> {
+            classModel.setTeacherName(teacherName);
+            createClassWithTeacher(classModel, onSuccess, onFailure);
+        }, onFailure);
+    }
+
+    private void createClassWithTeacher(ClassModel classModel,
+                                        OnSuccessListener<String> onSuccess,
+                                        OnFailureListener onFailure) {
         classModel.setCreatedAt(Timestamp.now());
         String classId = classModel.getClassId();
         DocumentReference classRef = db.collection(COL_CLASSES).document(classId);
@@ -416,6 +457,7 @@ public class FirebaseRepository {
                 shift.setShiftId(classModel.getClassId() + "_" + dateStr);
                 shift.setClassId(classModel.getClassId());
                 shift.setClassName(classModel.getClassName());
+                shift.setTeacher(classModel.getTeacherName());
                 // Theo schema Shift hiện tại, teacherName lưu UID của giáo viên.
                 shift.setTeacherName(classModel.getTeacherId());
                 shift.setTitle("Buổi học ngày " + dateStr);
@@ -486,18 +528,21 @@ public class FirebaseRepository {
             return;
         }
         getClassById(classId, classModel -> {
-            try {
-                Shift newShift = buildMakeupShift(
-                        classModel, date, startAt, endAt, room, title);
-                checkTeacherAndRoomConflicts(
-                        Collections.singletonList(newShift), null, classModel.getTeacherName(),
-                        () -> checkClassScheduleConflict(newShift, null,
-                                () -> writeMakeupShift(newShift, onSuccess, onFailure),
-                                onFailure),
-                        onFailure);
-            } catch (Exception e) {
-                onFailure.onFailure(e);
-            }
+            resolveTeacherDisplayName(classModel, null, teacherName -> {
+                classModel.setTeacherName(teacherName);
+                try {
+                    Shift newShift = buildMakeupShift(
+                            classModel, date, startAt, endAt, room, title);
+                    checkTeacherAndRoomConflicts(
+                            Collections.singletonList(newShift), null, teacherName,
+                            () -> checkClassScheduleConflict(newShift, null,
+                                    () -> writeMakeupShift(newShift, onSuccess, onFailure),
+                                    onFailure),
+                            onFailure);
+                } catch (Exception e) {
+                    onFailure.onFailure(e);
+                }
+            }, onFailure);
         }, onFailure);
     }
 
@@ -514,6 +559,7 @@ public class FirebaseRepository {
         shift.setShiftId(shiftId);
         shift.setClassId(classModel.getClassId());
         shift.setClassName(classModel.getClassName());
+        shift.setTeacher(classModel.getTeacherName());
         // Giữ cùng cách lưu với các ca được sinh tự động từ lớp.
         shift.setTeacherName(classModel.getTeacherId());
         shift.setTitle(title != null && !title.isEmpty() ? title : "Ca học bù ngày " + date);
@@ -984,38 +1030,41 @@ public class FirebaseRepository {
                         return;
                     }
                     getClassById(classId, classModel -> {
-                        String effectiveRoom = newRoom.trim();
-                        String teacherId = current.getTeacherName();
-                        if (teacherId == null || teacherId.trim().isEmpty()) {
-                            teacherId = classModel.getTeacherId();
-                        }
+                        resolveTeacherDisplayName(classModel, current.getTeacher(), teacherName -> {
+                            String effectiveRoom = newRoom.trim();
+                            String teacherId = current.getTeacherName();
+                            if (teacherId == null || teacherId.trim().isEmpty()) {
+                                teacherId = classModel.getTeacherId();
+                            }
 
-                        Shift requestedShift = new Shift();
-                        requestedShift.setShiftId(shiftId);
-                        requestedShift.setClassId(classId);
-                        requestedShift.setClassName(current.getClassName());
-                        requestedShift.setTeacherName(teacherId);
-                        requestedShift.setDate(newDate);
-                        requestedShift.setStartAt(newStartAt);
-                        requestedShift.setEndAt(newEndAt);
-                        requestedShift.setRoom(effectiveRoom);
+                            Shift requestedShift = new Shift();
+                            requestedShift.setShiftId(shiftId);
+                            requestedShift.setClassId(classId);
+                            requestedShift.setClassName(current.getClassName());
+                            requestedShift.setTeacher(teacherName);
+                            requestedShift.setTeacherName(teacherId);
+                            requestedShift.setDate(newDate);
+                            requestedShift.setStartAt(newStartAt);
+                            requestedShift.setEndAt(newEndAt);
+                            requestedShift.setRoom(effectiveRoom);
 
-                        checkTeacherAndRoomConflicts(
-                                Collections.singletonList(requestedShift), shiftId,
-                                classModel.getTeacherName(),
-                                () -> checkClassScheduleConflict(requestedShift, shiftId,
-                                        () -> writeReschedule(shiftId, newDate,
-                                                newStartAt, newEndAt, effectiveRoom,
-                                                onSuccess, onFailure),
-                                        onFailure),
-                                onFailure);
+                            checkTeacherAndRoomConflicts(
+                                    Collections.singletonList(requestedShift), shiftId,
+                                    teacherName,
+                                    () -> checkClassScheduleConflict(requestedShift, shiftId,
+                                            () -> writeReschedule(shiftId, newDate,
+                                                    newStartAt, newEndAt, effectiveRoom, teacherName,
+                                                    onSuccess, onFailure),
+                                            onFailure),
+                                    onFailure);
+                        }, onFailure);
                     }, onFailure);
                 })
                 .addOnFailureListener(onFailure::onFailure);
     }
 
     private void writeReschedule(String shiftId, String newDate, String newStartAt,
-                                 String newEndAt, String newRoom,
+                                 String newEndAt, String newRoom, String teacherName,
                                  OnSuccessListener<Void> onSuccess,
                                  OnFailureListener onFailure) {
         try {
@@ -1030,6 +1079,7 @@ public class FirebaseRepository {
             updates.put("startAt", newStartAt);
             updates.put("endAt", newEndAt);
             updates.put("room", newRoom.trim());
+            updates.put("teacher", teacherName);
             // Dời lịch luôn đưa ca về trạng thái sắp diễn ra.
             updates.put("status", Shift.STATUS_UPCOMING);
 
@@ -1253,18 +1303,18 @@ public class FirebaseRepository {
 
                    Timestamp now = Timestamp.now();
                     /*Đóng phiên điểm danh nếu đã quá thời gian kết thúc.*/
-//                    if (now.compareTo(session.getScheduledEndTime()) >= 0) {
-//                        Map<String, Object> sessionUpdates = new HashMap<>();
-//                        sessionUpdates.put(Session.FIELD_ACTIVE, false);
-//                        sessionUpdates.put("endTime", FieldValue.serverTimestamp());
-//                        transaction.update(sessionRef, sessionUpdates);
-//
-//                        Map<String, Object> shiftUpdates = new HashMap<>();
-//                        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
-//                        shiftUpdates.put("attendanceOpened", false);
-//                        transaction.update(shiftRef, shiftUpdates);
-//                        return AttendanceWriteResult.SHIFT_ENDED;
-//                    }
+                    if (now.compareTo(session.getScheduledEndTime()) >= 0) {
+                        Map<String, Object> sessionUpdates = new HashMap<>();
+                        sessionUpdates.put(Session.FIELD_ACTIVE, false);
+                        sessionUpdates.put("endTime", FieldValue.serverTimestamp());
+                        transaction.update(sessionRef, sessionUpdates);
+
+                        Map<String, Object> shiftUpdates = new HashMap<>();
+                        shiftUpdates.put("status", Shift.STATUS_COMPLETED);
+                        shiftUpdates.put("attendanceOpened", false);
+                        transaction.update(shiftRef, shiftUpdates);
+                        return AttendanceWriteResult.SHIFT_ENDED;
+                    }
 
                     attendance.setCheckinTime(now);
                     transaction.set(attendanceRef, attendance);

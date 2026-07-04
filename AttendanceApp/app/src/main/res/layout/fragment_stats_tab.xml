@@ -98,7 +98,7 @@
                         android:textColor="@color/warning_yellow" android:textStyle="bold" />
                     <TextView
                         android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:text="Tỷ lệ điểm danh" android:textSize="11sp" android:gravity="center"
+                        android:text="% điểm danh" android:textSize="11sp" android:gravity="center"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

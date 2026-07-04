@@ -1,5 +1,6 @@
 package com.example.attendanceapplication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -37,19 +38,27 @@ public class ProfileActivity extends AppCompatActivity {
         tvRole   = findViewById(R.id.tv_role);
         btnLogout = findViewById(R.id.btn_logout);
 
+        findViewById(R.id.row_change_password).setOnClickListener(v ->
+                startActivity(new Intent(this, ChangePasswordActivity.class)));
+        findViewById(R.id.btn_header_logout).setOnClickListener(v -> showLogoutDialog());
+
         if (btnLogout != null) {
-            btnLogout.setOnClickListener(v -> new AlertDialog.Builder(this)
-                    .setTitle("Đăng xuất")
-                    .setMessage("Bạn có chắc muốn đăng xuất?")
-                    .setPositiveButton("Đăng xuất", (d, w) -> {
-                        repo.signOut();
-                        finish();
-                    })
-                    .setNegativeButton("Hủy", null)
-                    .show());
+            btnLogout.setOnClickListener(v -> showLogoutDialog());
         }
 
         loadProfile();
+    }
+
+    private void showLogoutDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc muốn đăng xuất?")
+                .setPositiveButton("Đăng xuất", (d, w) -> {
+                    repo.signOut();
+                    finish();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 
     private void loadProfile() {

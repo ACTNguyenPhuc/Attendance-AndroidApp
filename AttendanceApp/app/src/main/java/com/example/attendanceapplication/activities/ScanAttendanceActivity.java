@@ -185,12 +185,12 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         }
 
         /*Đóng phiên điểm danh nếu đã quá thời gian kết thúc.*/
-//        if (Timestamp.now().compareTo(session.getScheduledEndTime()) >= 0) {
-//            repo.closeSessionIfExpired(session.getSessionId(), session.getShiftId(),
-//                    result -> showError(SHIFT_ENDED_MESSAGE),
-//                    e -> showError(SHIFT_ENDED_MESSAGE));
-//            return;
-//        }
+        if (Timestamp.now().compareTo(session.getScheduledEndTime()) >= 0) {
+            repo.closeSessionIfExpired(session.getSessionId(), session.getShiftId(),
+                    result -> showError(SHIFT_ENDED_MESSAGE),
+                    e -> showError(SHIFT_ENDED_MESSAGE));
+            return;
+        }
 
         String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         // Chặn điểm danh trùng theo BUỔI HỌC (gồm cả phiên bù), không chỉ theo phiên.

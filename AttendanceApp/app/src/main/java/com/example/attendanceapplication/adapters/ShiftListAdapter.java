@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.Shift;
+import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -83,6 +85,11 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         return isReschedulable(shift) || isDeletable(shift);
     }
 
+    /** Chỉ cho mở điểm danh đúng ngày và trong khung giờ [startAt, endAt) của ca. */
+    public static boolean canOpenAttendanceAt(Shift shift, Date now) {
+        return AttendanceUtils.canOpenAttendanceAt(shift, now);
+    }
+
     public Shift getShiftAt(int position) {
         if (position < 0 || position >= shiftList.size()) return null;
         return shiftList.get(position);
@@ -139,6 +146,13 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         String room = shift.getRoom() == null ? "" : shift.getRoom().trim();
         holder.tvRoom.setText("Phòng: " + (room.isEmpty() ? "Chưa cập nhật" : room));
         holder.tvMakeupBadge.setVisibility(shift.isMakeup() ? View.VISIBLE : View.GONE);
+
+        boolean attendanceInProgress = AttendanceUtils.isAttendanceInProgress(shift);
+        int activeStrokeWidth = Math.round(2 * ctx.getResources().getDisplayMetrics().density);
+        holder.foreground.setStrokeWidth(attendanceInProgress ? activeStrokeWidth : 0);
+        holder.foreground.setStrokeColor(ContextCompat.getColor(ctx, R.color.accent_green));
+        holder.foreground.setCardElevation(
+                attendanceInProgress ? activeStrokeWidth * 4f : activeStrokeWidth);
 
         holder.foreground.animate().cancel();
         holder.foreground.setTranslationX(0f);
@@ -200,11 +214,14 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
             holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.accent_green));
             holder.btnOpenAtt.setVisibility(View.GONE);
         } else {
-            holder.btnOpenAtt.setVisibility(View.VISIBLE);
+            boolean canOpenAttendance = canOpenAttendanceAt(shift, new Date());
+            holder.btnOpenAtt.setVisibility(canOpenAttendance ? View.VISIBLE : View.GONE);
             holder.ivAttIcon.setVisibility(View.GONE);
             holder.tvAttInfo.setText("Chưa mở điểm danh");
             holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary));
-            holder.btnOpenAtt.setOnClickListener(v -> listener.onOpen(shift));
+            if (canOpenAttendance && listener != null) {
+                holder.btnOpenAtt.setOnClickListener(v -> listener.onOpen(shift));
+            }
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -262,7 +279,8 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         ImageView ivAttIcon;
         MaterialButton btnOpenAtt;
         // Lớp foreground được dịch chuyển khi vuốt để lộ hai hành động phía sau.
-        View foreground, actionPanel, actionDelete, actionReschedule;
+        MaterialCardView foreground;
+        View actionPanel, actionDelete, actionReschedule;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);

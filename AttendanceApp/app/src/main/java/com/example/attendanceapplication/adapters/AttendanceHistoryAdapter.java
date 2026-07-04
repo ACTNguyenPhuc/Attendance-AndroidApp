@@ -1,6 +1,7 @@
 package com.example.attendanceapplication.adapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,24 +92,30 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
         if (Attendance.STATUS_PRESENT.equals(it.status)) {
             h.tvBadge.setText("ĐÃ ĐIỂM DANH");
             h.tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
-            h.tvIcon.setText("✅");
+            h.ivStatusIcon.setImageResource(R.drawable.ic_check_circle);
+            h.ivStatusIcon.setImageTintList(ColorStateList.valueOf(
+                    ctx.getColor(R.color.accent_green)));
         } else if (Attendance.STATUS_LATE.equals(it.status)) {
             h.tvBadge.setText("MUỘN");
             h.tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
-            h.tvIcon.setText("⏰");
+            h.ivStatusIcon.setImageResource(R.drawable.ic_clock);
+            h.ivStatusIcon.setImageTintList(ColorStateList.valueOf(
+                    ctx.getColor(R.color.warning_yellow)));
         } else {
             h.tvBadge.setText("VẮNG");
             h.tvBadge.setBackgroundResource(R.drawable.bg_badge_red);
-            h.tvIcon.setText("❌");
+            h.ivStatusIcon.setImageResource(R.drawable.ic_cancel);
+            h.ivStatusIcon.setImageTintList(ColorStateList.valueOf(
+                    ctx.getColor(R.color.error_red)));
         }
 
         // Chi tiết mở rộng.
         if (it.hasAttendance) {
-            h.tvDistance.setText("📍 Khoảng cách: " + AttendanceUtils.formatDistance(it.distance)
+            h.tvDistance.setText("Khoảng cách: " + AttendanceUtils.formatDistance(it.distance)
                     + " từ lớp học");
-            h.tvExactTime.setText("🕐 Thời gian chính xác: "
+            h.tvExactTime.setText("Thời gian chính xác: "
                     + (it.checkinTime != null ? timeFormat.format(it.checkinTime) : "--"));
-            h.tvCoords.setText("🌐 Tọa độ: " + formatCoords(it.latitude, it.longitude));
+            h.tvCoords.setText("Tọa độ: " + formatCoords(it.latitude, it.longitude));
             h.tvExactTime.setVisibility(View.VISIBLE);
             h.tvCoords.setVisibility(View.VISIBLE);
         } else {
@@ -147,8 +154,8 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
 
     static class ItemVH extends RecyclerView.ViewHolder {
         LinearLayout layoutHeader, layoutDetail;
-        TextView tvClassName, tvLabel, tvDateTime, tvBadge, tvIcon, tvDistance, tvExactTime, tvCoords;
-        ImageView ivExpand;
+        TextView tvClassName, tvLabel, tvDateTime, tvBadge, tvDistance, tvExactTime, tvCoords;
+        ImageView ivStatusIcon, ivExpand;
 
         ItemVH(@NonNull View v) {
             super(v);
@@ -158,7 +165,7 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
             tvLabel = v.findViewById(R.id.tv_label);
             tvDateTime = v.findViewById(R.id.tv_datetime);
             tvBadge = v.findViewById(R.id.tv_status_badge);
-            tvIcon = v.findViewById(R.id.tv_status_icon);
+            ivStatusIcon = v.findViewById(R.id.iv_status_icon);
             tvDistance = v.findViewById(R.id.tv_distance);
             tvExactTime = v.findViewById(R.id.tv_exact_time);
             tvCoords = v.findViewById(R.id.tv_coords);

@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.Shift;
+import com.example.attendanceapplication.utils.AttendanceUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class ShiftHomeAdapter extends RecyclerView.Adapter<ShiftHomeAdapter.ViewHolder> {
@@ -47,11 +49,23 @@ public class ShiftHomeAdapter extends RecyclerView.Adapter<ShiftHomeAdapter.View
         holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
         holder.tvRoom.setText(shift.getRoom() != null ? shift.getRoom() : "");
 
-        String statusText = getStatusText(shift.getStatus());
+        Date now = new Date();
+        boolean attendanceNow = AttendanceUtils.canOpenAttendanceAt(shift, now);
+        String statusText = attendanceNow ? "Điểm danh ngay" : getStatusText(shift.getStatus());
         holder.tvStatus.setText(statusText);
-        holder.tvStatus.setBackgroundColor(getStatusColor(ctx, shift.getStatus(), shift.isAttendanceOpened()));
+        holder.tvStatus.setBackgroundColor(attendanceNow
+                ? ContextCompat.getColor(ctx, R.color.accent_green)
+                : getStatusColor(ctx, shift.getStatus(), shift.isAttendanceOpened()));
 
-        holder.card.setOnClickListener(v -> listener.onClick(shift));
+        boolean canOpenCard = Shift.STATUS_COMPLETED.equals(shift.getStatus())
+                || shift.isAttendanceOpened()
+                || attendanceNow;
+        holder.card.setOnClickListener(null);
+        holder.card.setClickable(canOpenCard);
+        holder.card.setFocusable(canOpenCard);
+        if (canOpenCard && listener != null) {
+            holder.card.setOnClickListener(v -> listener.onClick(shift));
+        }
     }
 
     private String getStatusText(String status) {
@@ -101,4 +115,3 @@ public class ShiftHomeAdapter extends RecyclerView.Adapter<ShiftHomeAdapter.View
         }
     }
 }
-
