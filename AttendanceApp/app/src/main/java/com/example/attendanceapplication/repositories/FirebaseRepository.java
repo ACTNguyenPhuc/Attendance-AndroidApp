@@ -663,6 +663,26 @@ public class FirebaseRepository {
                 .addOnSuccessListener(doc -> onSuccess.onSuccess(doc.exists()));
     }
 
+    /**
+     * Kiểm tra sinh viên có enrollment đang hoạt động trong lớp hay không.
+     * Overload này trả lỗi cho caller để luồng điểm danh không đi tiếp khi chưa
+     * thể xác minh trạng thái thành viên từ Firestore.
+     */
+    public void checkEnrollment(String studentId, String classId,
+                                OnSuccessListener<Boolean> onSuccess,
+                                OnFailureListener onFailure) {
+        String docId = studentId + "_" + classId;
+        db.collection(COL_ENROLLMENTS).document(docId).get()
+                .addOnSuccessListener(doc -> {
+                    Enrollment enrollment = doc.exists()
+                            ? doc.toObject(Enrollment.class)
+                            : null;
+                    onSuccess.onSuccess(enrollment != null
+                            && "active".equals(enrollment.getStatus()));
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
         public void removeEnrollment(String studentId, String classId,
                      OnSuccessListener<Void> onSuccess,
                      OnFailureListener onFailure) {

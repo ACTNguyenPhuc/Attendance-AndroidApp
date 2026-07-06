@@ -193,6 +193,18 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         }
 
         String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Chỉ sinh viên có enrollment đang active trong đúng lớp của phiên mới
+        // được tiếp tục qua các bước chống điểm danh trùng, kiểm tra thiết bị và GPS.
+        repo.checkEnrollment(studentId, session.getClassId(), enrolled -> {
+            if (!enrolled) {
+                showError("Bạn chưa tham gia lớp học này");
+                return;
+            }
+            continueAttendanceChecks(session, studentId);
+        }, e -> showError("Không thể kiểm tra danh sách lớp học. Vui lòng thử lại"));
+    }
+
+    private void continueAttendanceChecks(Session session, String studentId) {
         // Chặn điểm danh trùng theo BUỔI HỌC (gồm cả phiên bù), không chỉ theo phiên.
         repo.checkStudentAttendedShift(studentId, session.getShiftId(), alreadyDone -> {
             if (alreadyDone) {
