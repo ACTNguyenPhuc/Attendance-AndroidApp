@@ -108,6 +108,7 @@ public class ShiftsTabFragment extends Fragment {
         intent.putExtra(SessionManagementActivity.EXTRA_SHIFT_ID, shift.getShiftId());
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, classId);
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_NAME, className);
+        SessionManagementActivity.putShiftExtras(intent, shift);
         sessionLauncher.launch(intent);
     }
 

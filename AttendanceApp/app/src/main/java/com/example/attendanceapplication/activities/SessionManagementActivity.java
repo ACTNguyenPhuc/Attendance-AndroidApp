@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -44,12 +42,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SessionManagementActivity extends AppCompatActivity {
 
@@ -58,11 +53,17 @@ public class SessionManagementActivity extends AppCompatActivity {
     public static final String EXTRA_CLASS_NAME = "className";
     /** Mở phiên điểm danh BÙ (cho sinh viên đi muộn) thay vì phiên thường. */
     public static final String EXTRA_MAKEUP = "makeup";
+    private static final String EXTRA_SHIFT_DATE = "shiftDate";
+    private static final String EXTRA_SHIFT_DAY_OF_WEEK = "shiftDayOfWeek";
+    private static final String EXTRA_SHIFT_START_AT = "shiftStartAt";
+    private static final String EXTRA_SHIFT_END_AT = "shiftEndAt";
+    private static final String EXTRA_SHIFT_ROOM = "shiftRoom";
+    private static final String EXTRA_SHIFT_TITLE = "shiftTitle";
 
     private static final int PERM_LOCATION = 201;
 
     private ImageView ivQrCode;
-    private TextView tvShiftInfo, tvAttendanceCount, tvSessionStatus;
+    private TextView tvShiftDate, tvShiftTime, tvShiftRoom, tvAttendanceCount, tvSessionStatus;
     private Button btnRefreshQr, btnCloseSession, btnApplyLate, btnApplyRadius;
     private TextInputLayout tilLateMinutes, tilRadius;
     private TextInputEditText etLateMinutes, etRadius;
@@ -81,7 +82,16 @@ public class SessionManagementActivity extends AppCompatActivity {
     private boolean awaitingLocationPermission = false;
 
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
-    private final ExecutorService geocodingExecutor = Executors.newSingleThreadExecutor();
+
+    public static void putShiftExtras(Intent intent, Shift shift) {
+        if (intent == null || shift == null) return;
+        intent.putExtra(EXTRA_SHIFT_DATE, shift.getDate());
+        intent.putExtra(EXTRA_SHIFT_DAY_OF_WEEK, shift.getDayOfWeek());
+        intent.putExtra(EXTRA_SHIFT_START_AT, shift.getStartAt());
+        intent.putExtra(EXTRA_SHIFT_END_AT, shift.getEndAt());
+        intent.putExtra(EXTRA_SHIFT_ROOM, shift.getRoom());
+        intent.putExtra(EXTRA_SHIFT_TITLE, shift.getTitle());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,18 +102,17 @@ public class SessionManagementActivity extends AppCompatActivity {
         classId    = getIntent().getStringExtra(EXTRA_CLASS_ID);
         className  = getIntent().getStringExtra(EXTRA_CLASS_NAME);
         makeupMode = getIntent().getBooleanExtra(EXTRA_MAKEUP, false);
+        currentShift = buildShiftFromIntent(getIntent());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle((makeupMode ? "Điểm danh bù - " : "Điểm danh - ") + className);
-        }
+        updateToolbarTitle();
         Drawable navIcon = toolbar.getNavigationIcon();
         if (navIcon != null) {
             navIcon.setTint(ContextCompat.getColor(this, R.color.white));
         }
         initViews();
+        bindShiftSummary();
         setupRecyclerView();
         loadTotalStudents();
         createOrLoadSession();
@@ -131,9 +140,42 @@ public class SessionManagementActivity extends AppCompatActivity {
         }
     }
 
+    private Shift buildShiftFromIntent(Intent intent) {
+        if (intent == null) return null;
+
+        boolean hasShiftInfo = !isBlank(shiftId)
+                || intent.hasExtra(EXTRA_SHIFT_DATE)
+                || intent.hasExtra(EXTRA_SHIFT_START_AT)
+                || intent.hasExtra(EXTRA_SHIFT_END_AT)
+                || intent.hasExtra(EXTRA_SHIFT_ROOM);
+        if (!hasShiftInfo) return null;
+
+        Shift shift = new Shift();
+        shift.setShiftId(shiftId);
+        shift.setClassId(classId);
+        shift.setClassName(className);
+        shift.setTitle(intent.getStringExtra(EXTRA_SHIFT_TITLE));
+        shift.setDate(intent.getStringExtra(EXTRA_SHIFT_DATE));
+        shift.setDayOfWeek(intent.getIntExtra(EXTRA_SHIFT_DAY_OF_WEEK, 0));
+        shift.setStartAt(intent.getStringExtra(EXTRA_SHIFT_START_AT));
+        shift.setEndAt(intent.getStringExtra(EXTRA_SHIFT_END_AT));
+        shift.setRoom(intent.getStringExtra(EXTRA_SHIFT_ROOM));
+        return shift;
+    }
+
+    private void updateToolbarTitle() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle((makeupMode ? "Điểm danh bù - " : "Điểm danh - ")
+                    + valueOrPlaceholder(className));
+        }
+    }
+
     private void initViews() {
         ivQrCode          = findViewById(R.id.iv_qr_code);
-        tvShiftInfo       = findViewById(R.id.tv_shift_info);
+        tvShiftDate       = findViewById(R.id.tv_shift_date);
+        tvShiftTime       = findViewById(R.id.tv_shift_time);
+        tvShiftRoom       = findViewById(R.id.tv_shift_room);
         tvAttendanceCount = findViewById(R.id.tv_attendance_count);
         tvSessionStatus   = findViewById(R.id.tv_session_status);
         btnRefreshQr      = findViewById(R.id.btn_refresh_qr);
@@ -218,7 +260,6 @@ public class SessionManagementActivity extends AppCompatActivity {
                 unused -> runOnUiThread(() -> {
                     currentSession.setRadius(radius);
                     btnApplyRadius.setEnabled(true);
-                    displayLocation(currentSession.getLatitude(), currentSession.getLongitude());
                     Toast.makeText(this, "Đã lưu khoảng cách cho phép: " + radius + "m",
                             Toast.LENGTH_SHORT).show();
                 }),
@@ -268,6 +309,11 @@ public class SessionManagementActivity extends AppCompatActivity {
     }
 
     private void loadTotalStudents() {
+        if (isBlank(classId)) {
+            totalStudents = 0;
+            updateAttendanceCount();
+            return;
+        }
         repo.getClassStudents(classId,
                 students -> {
                     totalStudents = students.size();
@@ -287,7 +333,7 @@ public class SessionManagementActivity extends AppCompatActivity {
         // đó để thấy danh sách sinh viên đã điểm danh — thay vì tạo phiên mới (rỗng).
         repo.getShiftById(shiftId,
                 shift -> {
-                    currentShift = shift;
+                    applyLoadedShift(shift, shiftId);
                     if (shift != null && shift.isAttendanceOpened()
                             && shift.getAttendanceSessionId() != null
                             && !shift.getAttendanceSessionId().isEmpty()) {
@@ -307,7 +353,7 @@ public class SessionManagementActivity extends AppCompatActivity {
     private void prepareMakeupSession() {
         repo.getShiftById(shiftId,
                 shift -> {
-                    currentShift = shift;
+                    applyLoadedShift(shift, shiftId);
                     String prevSid = shift != null ? shift.getAttendanceSessionId() : null;
                     if (prevSid != null && !prevSid.isEmpty()) {
                         repo.getSession(prevSid,
@@ -328,47 +374,108 @@ public class SessionManagementActivity extends AppCompatActivity {
         repo.getSession(sessionId,
                 session -> {
                     currentSession = session;
-                    if (session.getScheduledEndTime() != null) {
-                        showExistingSession(session);
-                        return;
-                    }
-
-                    // Phiên cũ chưa có scheduledEndTime: không hiển thị QR trước
-                    // khi Firestore cập nhật xong, nếu không sinh viên sẽ bị rules
-                    // từ chối khi lưu attendance.
-                    Timestamp scheduledEndTime = AttendanceUtils.getShiftEndTimestamp(currentShift);
-                    if (scheduledEndTime == null) {
-                        tvSessionStatus.setText("KHÔNG THỂ XÁC ĐỊNH GIỜ KẾT THÚC CA HỌC");
-                        Toast.makeText(this, "Ca học thiếu ngày hoặc giờ kết thúc hợp lệ",
-                                Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    btnRefreshQr.setEnabled(false);
-                    tvSessionStatus.setText("ĐANG CẬP NHẬT GIỜ KẾT THÚC PHIÊN...");
-                    repo.updateSessionScheduledEndTime(session.getSessionId(), scheduledEndTime,
-                            unused -> runOnUiThread(() -> {
-                                session.setScheduledEndTime(scheduledEndTime);
-                                btnRefreshQr.setEnabled(true);
-                                showExistingSession(session);
-                            }),
-                            e -> runOnUiThread(() -> {
-                                btnRefreshQr.setEnabled(false);
-                                tvSessionStatus.setText("KHÔNG THỂ CHUẨN BỊ PHIÊN ĐIỂM DANH");
-                                Toast.makeText(this, "Không thể cập nhật giờ kết thúc phiên: "
-                                        + e.getMessage(), Toast.LENGTH_LONG).show();
-                            }));
+                    syncContextFromSession(session);
+                    ensureShiftLoadedForSession(session, () -> prepareExistingSession(session));
                 },
                 // Phiên cũ không đọc được → tạo phiên mới
                 e -> startNewSession()
         );
     }
 
+    private void prepareExistingSession(Session session) {
+        if (session.getScheduledEndTime() != null) {
+            showExistingSession(session);
+            return;
+        }
+
+        // Phiên cũ chưa có scheduledEndTime: không hiển thị QR trước
+        // khi Firestore cập nhật xong, nếu không sinh viên sẽ bị rules
+        // từ chối khi lưu attendance.
+        Timestamp scheduledEndTime = AttendanceUtils.getShiftEndTimestamp(currentShift);
+        if (scheduledEndTime == null) {
+            tvSessionStatus.setText("KHÔNG THỂ XÁC ĐỊNH GIỜ KẾT THÚC CA HỌC");
+            Toast.makeText(this, "Ca học thiếu ngày hoặc giờ kết thúc hợp lệ",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        btnRefreshQr.setEnabled(false);
+        tvSessionStatus.setText("ĐANG CẬP NHẬT GIỜ KẾT THÚC PHIÊN...");
+        repo.updateSessionScheduledEndTime(session.getSessionId(), scheduledEndTime,
+                unused -> runOnUiThread(() -> {
+                    session.setScheduledEndTime(scheduledEndTime);
+                    btnRefreshQr.setEnabled(true);
+                    showExistingSession(session);
+                }),
+                e -> runOnUiThread(() -> {
+                    btnRefreshQr.setEnabled(false);
+                    tvSessionStatus.setText("KHÔNG THỂ CHUẨN BỊ PHIÊN ĐIỂM DANH");
+                    Toast.makeText(this, "Không thể cập nhật giờ kết thúc phiên: "
+                            + e.getMessage(), Toast.LENGTH_LONG).show();
+                }));
+    }
+
+    private void ensureShiftLoadedForSession(Session session, Runnable onReady) {
+        String targetShiftId = !isBlank(session == null ? null : session.getShiftId())
+                ? session.getShiftId() : shiftId;
+
+        if (isBlank(targetShiftId) || !shouldReloadShift(targetShiftId)) {
+            bindShiftSummary();
+            if (onReady != null) onReady.run();
+            return;
+        }
+
+        repo.getShiftById(targetShiftId,
+                shift -> {
+                    applyLoadedShift(shift, targetShiftId);
+                    if (onReady != null) onReady.run();
+                },
+                e -> {
+                    bindShiftSummary();
+                    if (onReady != null) onReady.run();
+                });
+    }
+
+    private boolean shouldReloadShift(String targetShiftId) {
+        if (currentShift == null) return true;
+        if (!isBlank(targetShiftId)
+                && !isBlank(currentShift.getShiftId())
+                && !targetShiftId.equals(currentShift.getShiftId())) {
+            return true;
+        }
+        return isBlank(currentShift.getDate())
+                || isBlank(currentShift.getStartAt())
+                || isBlank(currentShift.getEndAt())
+                || isBlank(currentShift.getRoom());
+    }
+
+    private void applyLoadedShift(Shift shift, String loadedShiftId) {
+        currentShift = shift;
+        if (currentShift != null) {
+            if (isBlank(currentShift.getShiftId())) currentShift.setShiftId(loadedShiftId);
+            if (!isBlank(currentShift.getShiftId())) shiftId = currentShift.getShiftId();
+            if (!isBlank(currentShift.getClassId())) classId = currentShift.getClassId();
+            if (!isBlank(currentShift.getClassName())) className = currentShift.getClassName();
+        }
+        updateToolbarTitle();
+        bindShiftSummary();
+    }
+
+    private void syncContextFromSession(Session session) {
+        if (session == null) return;
+
+        if (!isBlank(session.getShiftId())) shiftId = session.getShiftId();
+        if (!isBlank(session.getClassId()) && !session.getClassId().equals(classId)) {
+            classId = session.getClassId();
+            loadTotalStudents();
+        }
+    }
+
     private void showExistingSession(Session session) {
         displayQrCode(session);
         startRealtimeListener(session.getSessionId());
         tvSessionStatus.setText("ĐANG MỞ ĐIỂM DANH");
-        displayLocation(session.getLatitude(), session.getLongitude());
+        bindShiftSummary();
         bindLateMinutes();
         bindRadius();
     }
@@ -488,7 +595,7 @@ public class SessionManagementActivity extends AppCompatActivity {
             displayQrCode(session);
             startRealtimeListener(id);
             tvSessionStatus.setText(makeupMode ? "ĐANG MỞ ĐIỂM DANH BÙ" : "ĐANG MỞ ĐIỂM DANH");
-            displayLocation(lat, lng);
+            bindShiftSummary();
             bindLateMinutes();
             bindRadius();
         };
@@ -516,49 +623,39 @@ public class SessionManagementActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private void displayLocation(double latitude, double longitude) {
-        String coordinates = formatLocation(latitude, longitude, null);
-        tvShiftInfo.setText(coordinates);
+    private void bindShiftSummary() {
+        if (tvShiftDate == null || tvShiftTime == null || tvShiftRoom == null) return;
 
-        // A fallback GPS location (0,0) cannot be meaningfully reverse-geocoded.
-        if ((latitude == 0 && longitude == 0) || !Geocoder.isPresent()) return;
+        if (currentShift == null) {
+            tvShiftDate.setText("Chưa có");
+            tvShiftTime.setText("Chưa có lịch học");
+            tvShiftRoom.setText("Phòng: Chưa có");
+            return;
+        }
 
-        geocodingExecutor.execute(() -> {
-            try {
-                List<Address> addresses = new Geocoder(this, Locale.getDefault())
-                        .getFromLocation(latitude, longitude, 1);
-                if (addresses == null || addresses.isEmpty()) return;
-
-                Address address = addresses.get(0);
-                String city = address.getLocality();
-                if (city == null || city.isEmpty()) city = address.getSubAdminArea();
-                if (city == null || city.isEmpty()) city = address.getAdminArea();
-                String country = address.getCountryName();
-
-                if ((city == null || city.isEmpty()) && (country == null || country.isEmpty())) {
-                    return;
-                }
-                String place = city == null || city.isEmpty() ? country
-                        : country == null || country.isEmpty() ? city
-                        : city + ", " + country;
-                runOnUiThread(() -> {
-                    if (!isFinishing() && !isDestroyed()) {
-                        tvShiftInfo.setText(formatLocation(latitude, longitude, place));
-                    }
-                });
-            } catch (IOException ignored) {
-                // Keep showing coordinates when the device has no geocoding service or network.
-            }
-        });
+        tvShiftDate.setText(valueOrPlaceholder(currentShift.getDate()));
+        tvShiftTime.setText(formatShiftTimeText(currentShift));
+        tvShiftRoom.setText("Phòng: " + valueOrPlaceholder(currentShift.getRoom()));
     }
 
-    private String formatLocation(double latitude, double longitude, String place) {
-        double radius = currentSession == null
-                ? Session.DEFAULT_RADIUS_METERS : currentSession.getRadius();
-        String coordinates = String.format(Locale.getDefault(),
-                "Vị trí: %.5f, %.5f  (bán kính %.0fm)", latitude, longitude, radius);
-        return place == null || place.isEmpty() ? coordinates : coordinates + "\n" + place;
+    private String formatShiftTimeText(Shift shift) {
+        String day = formatCompactDayOfWeek(shift);
+        String startAt = valueOrPlaceholder(shift == null ? null : shift.getStartAt());
+        String endAt = valueOrPlaceholder(shift == null ? null : shift.getEndAt());
+        return day + "  " + startAt + " - " + endAt;
+    }
+
+    private String formatCompactDayOfWeek(Shift shift) {
+        if (shift == null || shift.getDayOfWeek() <= 0) return "Chưa có";
+        return valueOrPlaceholder(shift.getDayOfWeekDisplay());
+    }
+
+    private String valueOrPlaceholder(String value) {
+        return value == null || value.trim().isEmpty() ? "Chưa có" : value.trim();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     private void displayQrCode(Session session) {
@@ -716,6 +813,5 @@ public class SessionManagementActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (attendanceListener != null) attendanceListener.remove();
-        geocodingExecutor.shutdownNow();
     }
 }

@@ -64,6 +64,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
     private String classId;
     private String shiftId;
     private String className;
+    private Shift currentShift;
     private MaterialButton btnMakeup;
 
     @Override
@@ -170,6 +171,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         repo.getShiftById(shiftId,
                 shift -> {
                     if (shift == null) return;
+                    currentShift = shift;
                     boolean completed = Shift.STATUS_COMPLETED.equals(shift.getStatus());
                     btnMakeup.setVisibility(completed ? View.VISIBLE : View.GONE);
                     String sid = shift.getAttendanceSessionId();
@@ -188,6 +190,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, classId);
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_NAME, className);
         intent.putExtra(SessionManagementActivity.EXTRA_MAKEUP, true);
+        SessionManagementActivity.putShiftExtras(intent, currentShift);
         startActivity(intent);
     }
 

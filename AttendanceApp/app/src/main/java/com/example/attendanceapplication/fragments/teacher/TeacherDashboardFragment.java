@@ -27,12 +27,14 @@ import com.example.attendanceapplication.adapters.ShiftHomeAdapter;
 import com.example.attendanceapplication.models.ClassModel;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
+import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -130,6 +132,7 @@ public class TeacherDashboardFragment extends Fragment {
             intent.putExtra(SessionManagementActivity.EXTRA_SHIFT_ID, shift.getShiftId());
             intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, shift.getClassId());
             intent.putExtra(SessionManagementActivity.EXTRA_CLASS_NAME, shift.getClassName());
+            SessionManagementActivity.putShiftExtras(intent, shift);
             startActivity(intent);
         });
         rvTodayShifts.setLayoutManager(
@@ -177,7 +180,7 @@ public class TeacherDashboardFragment extends Fragment {
             classLiveData = repo.getTeacherClasses(uid);
         }
         classLiveData.removeObservers(getViewLifecycleOwner());
-        classLiveData.observe(getViewLifecycleOwner(), classes -> {
+        classLiveData.observe(getViewLifecycleOwner(), classes -> { //getViewLifecycleOwner() dùng trong Fragment để đảm bảo observer chỉ hoạt động khi View của Fragment còn tồn tại, tránh lỗi memory leak hoặc crash khi Fragment bị destroy.
             classList.clear();
             classList.addAll(classes);
             adapter.notifyDataSetChanged();
@@ -247,8 +250,9 @@ public class TeacherDashboardFragment extends Fragment {
         repo.getShiftsByDate(classIds, today, shifts -> {
             if (getActivity() == null) return;
             requireActivity().runOnUiThread(() -> {
+                List<Shift> sortedShifts = sortTodayShiftsOpenableFirst(shifts);
                 todayShiftList.clear();
-                todayShiftList.addAll(shifts);
+                todayShiftList.addAll(sortedShifts);
                 shiftHomeAdapter.notifyDataSetChanged();
 
                 tvTodaySessions.setText(String.valueOf(shifts.size()));
@@ -266,6 +270,28 @@ public class TeacherDashboardFragment extends Fragment {
                 rvTodayShifts.setVisibility(shifts.isEmpty() ? View.GONE : View.VISIBLE);
             });
         });
+    }
+
+    private List<Shift> sortTodayShiftsOpenableFirst(List<Shift> shifts) {
+        List<Shift> sorted = new ArrayList<>(shifts);
+        Date now = new Date();
+        sorted.sort(Comparator
+                .comparingInt((Shift shift) -> getTodayShiftPriority(shift, now))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getStartAt()))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getEndAt()))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getClassName()))
+                .thenComparing(shift -> safeSortValue(shift == null ? null : shift.getShiftId())));
+        return sorted;
+    }
+
+    private int getTodayShiftPriority(Shift shift, Date now) {
+        if (AttendanceUtils.canOpenAttendanceAt(shift, now)) return 0;
+        if (AttendanceUtils.isAttendanceInProgress(shift)) return 1;
+        return 2;
+    }
+
+    private String safeSortValue(String value) {
+        return value == null ? "\uffff" : value;
     }
 
     private String getInitials(String name) {

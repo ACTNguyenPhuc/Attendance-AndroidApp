@@ -207,6 +207,7 @@ public class TeacherCalendarFragment extends Fragment {
         intent.putExtra(SessionManagementActivity.EXTRA_SHIFT_ID, shift.getShiftId());
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_ID, shift.getClassId());
         intent.putExtra(SessionManagementActivity.EXTRA_CLASS_NAME, shift.getClassName());
+        SessionManagementActivity.putShiftExtras(intent, shift);
         startActivity(intent);
     }
 

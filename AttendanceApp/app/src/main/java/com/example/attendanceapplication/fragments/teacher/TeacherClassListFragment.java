@@ -132,7 +132,7 @@ public class TeacherClassListFragment extends Fragment {
             classLiveData = repo.getTeacherClasses(uid);
         }
         classLiveData.removeObservers(getViewLifecycleOwner());
-        classLiveData.observe(getViewLifecycleOwner(), classes -> {
+        classLiveData.observe(getViewLifecycleOwner(), classes -> {  // đăng ký lắng nghe dữ liệu.
             allClasses.clear();
             allClasses.addAll(classes);
             filterClasses(etSearch.getText().toString());
