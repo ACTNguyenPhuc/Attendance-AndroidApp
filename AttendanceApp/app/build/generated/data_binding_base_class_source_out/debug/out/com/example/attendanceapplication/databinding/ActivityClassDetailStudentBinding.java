@@ -34,6 +34,9 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
   public final TextView tvClassName;
 
   @NonNull
+  public final TextView tvRoom;
+
+  @NonNull
   public final TextView tvSchedule;
 
   @NonNull
@@ -45,19 +48,25 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
   @NonNull
   public final TextView tvStatPresent;
 
+  @NonNull
+  public final TextView tvTeacher;
+
   private ActivityClassDetailStudentBinding(@NonNull LinearLayout rootView,
       @NonNull RecyclerView rvShifts, @NonNull Toolbar toolbar, @NonNull TextView tvAttendanceRate,
-      @NonNull TextView tvClassName, @NonNull TextView tvSchedule, @NonNull TextView tvStatAbsent,
-      @NonNull TextView tvStatPast, @NonNull TextView tvStatPresent) {
+      @NonNull TextView tvClassName, @NonNull TextView tvRoom, @NonNull TextView tvSchedule,
+      @NonNull TextView tvStatAbsent, @NonNull TextView tvStatPast, @NonNull TextView tvStatPresent,
+      @NonNull TextView tvTeacher) {
     this.rootView = rootView;
     this.rvShifts = rvShifts;
     this.toolbar = toolbar;
     this.tvAttendanceRate = tvAttendanceRate;
     this.tvClassName = tvClassName;
+    this.tvRoom = tvRoom;
     this.tvSchedule = tvSchedule;
     this.tvStatAbsent = tvStatAbsent;
     this.tvStatPast = tvStatPast;
     this.tvStatPresent = tvStatPresent;
+    this.tvTeacher = tvTeacher;
   }
 
   @Override
@@ -111,6 +120,12 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_room;
+      TextView tvRoom = ViewBindings.findChildViewById(rootView, id);
+      if (tvRoom == null) {
+        break missingId;
+      }
+
       id = R.id.tv_schedule;
       TextView tvSchedule = ViewBindings.findChildViewById(rootView, id);
       if (tvSchedule == null) {
@@ -135,8 +150,15 @@ public final class ActivityClassDetailStudentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_teacher;
+      TextView tvTeacher = ViewBindings.findChildViewById(rootView, id);
+      if (tvTeacher == null) {
+        break missingId;
+      }
+
       return new ActivityClassDetailStudentBinding((LinearLayout) rootView, rvShifts, toolbar,
-          tvAttendanceRate, tvClassName, tvSchedule, tvStatAbsent, tvStatPast, tvStatPresent);
+          tvAttendanceRate, tvClassName, tvRoom, tvSchedule, tvStatAbsent, tvStatPast,
+          tvStatPresent, tvTeacher);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

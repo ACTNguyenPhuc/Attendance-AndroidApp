@@ -7,17 +7,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemStudentAbsentBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
   public final TextView tvStudentCode;
@@ -25,8 +25,8 @@ public final class ItemStudentAbsentBinding implements ViewBinding {
   @NonNull
   public final TextView tvStudentName;
 
-  private ItemStudentAbsentBinding(@NonNull CardView rootView, @NonNull TextView tvStudentCode,
-      @NonNull TextView tvStudentName) {
+  private ItemStudentAbsentBinding(@NonNull MaterialCardView rootView,
+      @NonNull TextView tvStudentCode, @NonNull TextView tvStudentName) {
     this.rootView = rootView;
     this.tvStudentCode = tvStudentCode;
     this.tvStudentName = tvStudentName;
@@ -34,7 +34,7 @@ public final class ItemStudentAbsentBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -71,7 +71,8 @@ public final class ItemStudentAbsentBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemStudentAbsentBinding((CardView) rootView, tvStudentCode, tvStudentName);
+      return new ItemStudentAbsentBinding((MaterialCardView) rootView, tvStudentCode,
+          tvStudentName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

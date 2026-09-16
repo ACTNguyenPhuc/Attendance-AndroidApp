@@ -4,28 +4,42 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemShiftTeacherBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final FrameLayout rootView;
+
+  @NonNull
+  public final LinearLayout actionDelete;
+
+  @NonNull
+  public final LinearLayout actionReschedule;
 
   @NonNull
   public final MaterialButton btnOpenAttendance;
 
   @NonNull
+  public final MaterialCardView foreground;
+
+  @NonNull
   public final ImageView ivAttIcon;
+
+  @NonNull
+  public final LinearLayout swipeActionPanel;
 
   @NonNull
   public final TextView tvAttInfo;
@@ -34,27 +48,41 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
   public final TextView tvDate;
 
   @NonNull
+  public final TextView tvMakeupBadge;
+
+  @NonNull
+  public final TextView tvRoom;
+
+  @NonNull
   public final TextView tvStatus;
 
   @NonNull
   public final TextView tvTime;
 
-  private ItemShiftTeacherBinding(@NonNull CardView rootView,
-      @NonNull MaterialButton btnOpenAttendance, @NonNull ImageView ivAttIcon,
-      @NonNull TextView tvAttInfo, @NonNull TextView tvDate, @NonNull TextView tvStatus,
+  private ItemShiftTeacherBinding(@NonNull FrameLayout rootView, @NonNull LinearLayout actionDelete,
+      @NonNull LinearLayout actionReschedule, @NonNull MaterialButton btnOpenAttendance,
+      @NonNull MaterialCardView foreground, @NonNull ImageView ivAttIcon,
+      @NonNull LinearLayout swipeActionPanel, @NonNull TextView tvAttInfo, @NonNull TextView tvDate,
+      @NonNull TextView tvMakeupBadge, @NonNull TextView tvRoom, @NonNull TextView tvStatus,
       @NonNull TextView tvTime) {
     this.rootView = rootView;
+    this.actionDelete = actionDelete;
+    this.actionReschedule = actionReschedule;
     this.btnOpenAttendance = btnOpenAttendance;
+    this.foreground = foreground;
     this.ivAttIcon = ivAttIcon;
+    this.swipeActionPanel = swipeActionPanel;
     this.tvAttInfo = tvAttInfo;
     this.tvDate = tvDate;
+    this.tvMakeupBadge = tvMakeupBadge;
+    this.tvRoom = tvRoom;
     this.tvStatus = tvStatus;
     this.tvTime = tvTime;
   }
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public FrameLayout getRoot() {
     return rootView;
   }
 
@@ -79,15 +107,39 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.action_delete;
+      LinearLayout actionDelete = ViewBindings.findChildViewById(rootView, id);
+      if (actionDelete == null) {
+        break missingId;
+      }
+
+      id = R.id.action_reschedule;
+      LinearLayout actionReschedule = ViewBindings.findChildViewById(rootView, id);
+      if (actionReschedule == null) {
+        break missingId;
+      }
+
       id = R.id.btn_open_attendance;
       MaterialButton btnOpenAttendance = ViewBindings.findChildViewById(rootView, id);
       if (btnOpenAttendance == null) {
         break missingId;
       }
 
+      id = R.id.foreground;
+      MaterialCardView foreground = ViewBindings.findChildViewById(rootView, id);
+      if (foreground == null) {
+        break missingId;
+      }
+
       id = R.id.iv_att_icon;
       ImageView ivAttIcon = ViewBindings.findChildViewById(rootView, id);
       if (ivAttIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.swipe_action_panel;
+      LinearLayout swipeActionPanel = ViewBindings.findChildViewById(rootView, id);
+      if (swipeActionPanel == null) {
         break missingId;
       }
 
@@ -103,6 +155,18 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_makeup_badge;
+      TextView tvMakeupBadge = ViewBindings.findChildViewById(rootView, id);
+      if (tvMakeupBadge == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_room;
+      TextView tvRoom = ViewBindings.findChildViewById(rootView, id);
+      if (tvRoom == null) {
+        break missingId;
+      }
+
       id = R.id.tv_status;
       TextView tvStatus = ViewBindings.findChildViewById(rootView, id);
       if (tvStatus == null) {
@@ -115,8 +179,9 @@ public final class ItemShiftTeacherBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemShiftTeacherBinding((CardView) rootView, btnOpenAttendance, ivAttIcon,
-          tvAttInfo, tvDate, tvStatus, tvTime);
+      return new ItemShiftTeacherBinding((FrameLayout) rootView, actionDelete, actionReschedule,
+          btnOpenAttendance, foreground, ivAttIcon, swipeActionPanel, tvAttInfo, tvDate,
+          tvMakeupBadge, tvRoom, tvStatus, tvTime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

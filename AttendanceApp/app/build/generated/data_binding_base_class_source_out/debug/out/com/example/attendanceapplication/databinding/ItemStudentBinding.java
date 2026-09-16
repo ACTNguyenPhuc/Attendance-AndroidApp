@@ -4,25 +4,21 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemStudentBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
-
-  @NonNull
-  public final ImageButton btnRemove;
+  private final MaterialCardView rootView;
 
   @NonNull
   public final ProgressBar progressAttendance;
@@ -39,11 +35,10 @@ public final class ItemStudentBinding implements ViewBinding {
   @NonNull
   public final TextView tvName;
 
-  private ItemStudentBinding(@NonNull CardView rootView, @NonNull ImageButton btnRemove,
+  private ItemStudentBinding(@NonNull MaterialCardView rootView,
       @NonNull ProgressBar progressAttendance, @NonNull TextView tvAttendanceSummary,
       @NonNull TextView tvAvatar, @NonNull TextView tvCode, @NonNull TextView tvName) {
     this.rootView = rootView;
-    this.btnRemove = btnRemove;
     this.progressAttendance = progressAttendance;
     this.tvAttendanceSummary = tvAttendanceSummary;
     this.tvAvatar = tvAvatar;
@@ -53,7 +48,7 @@ public final class ItemStudentBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -78,12 +73,6 @@ public final class ItemStudentBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btn_remove;
-      ImageButton btnRemove = ViewBindings.findChildViewById(rootView, id);
-      if (btnRemove == null) {
-        break missingId;
-      }
-
       id = R.id.progress_attendance;
       ProgressBar progressAttendance = ViewBindings.findChildViewById(rootView, id);
       if (progressAttendance == null) {
@@ -114,7 +103,7 @@ public final class ItemStudentBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemStudentBinding((CardView) rootView, btnRemove, progressAttendance,
+      return new ItemStudentBinding((MaterialCardView) rootView, progressAttendance,
           tvAttendanceSummary, tvAvatar, tvCode, tvName);
     }
     String missingId = rootView.getResources().getResourceName(id);

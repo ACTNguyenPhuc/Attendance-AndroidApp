@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
-import com.google.android.material.button.MaterialButton;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -23,13 +22,25 @@ public final class FragmentStudentDashboardBinding implements ViewBinding {
   private final FrameLayout rootView;
 
   @NonNull
-  public final MaterialButton btnJoinClass;
-
-  @NonNull
   public final ImageButton btnScanAttendance;
 
   @NonNull
   public final RecyclerView rvClasses;
+
+  @NonNull
+  public final RecyclerView rvToday;
+
+  @NonNull
+  public final TextView tvAttendanceRate;
+
+  @NonNull
+  public final TextView tvAvatar;
+
+  @NonNull
+  public final TextView tvClassesEmpty;
+
+  @NonNull
+  public final TextView tvDate;
 
   @NonNull
   public final TextView tvGreeting;
@@ -41,20 +52,29 @@ public final class FragmentStudentDashboardBinding implements ViewBinding {
   public final TextView tvTodayCount;
 
   @NonNull
+  public final TextView tvTodayEmpty;
+
+  @NonNull
   public final TextView tvTotalClasses;
 
   private FragmentStudentDashboardBinding(@NonNull FrameLayout rootView,
-      @NonNull MaterialButton btnJoinClass, @NonNull ImageButton btnScanAttendance,
-      @NonNull RecyclerView rvClasses, @NonNull TextView tvGreeting,
+      @NonNull ImageButton btnScanAttendance, @NonNull RecyclerView rvClasses,
+      @NonNull RecyclerView rvToday, @NonNull TextView tvAttendanceRate, @NonNull TextView tvAvatar,
+      @NonNull TextView tvClassesEmpty, @NonNull TextView tvDate, @NonNull TextView tvGreeting,
       @NonNull TextView tvStudentCode, @NonNull TextView tvTodayCount,
-      @NonNull TextView tvTotalClasses) {
+      @NonNull TextView tvTodayEmpty, @NonNull TextView tvTotalClasses) {
     this.rootView = rootView;
-    this.btnJoinClass = btnJoinClass;
     this.btnScanAttendance = btnScanAttendance;
     this.rvClasses = rvClasses;
+    this.rvToday = rvToday;
+    this.tvAttendanceRate = tvAttendanceRate;
+    this.tvAvatar = tvAvatar;
+    this.tvClassesEmpty = tvClassesEmpty;
+    this.tvDate = tvDate;
     this.tvGreeting = tvGreeting;
     this.tvStudentCode = tvStudentCode;
     this.tvTodayCount = tvTodayCount;
+    this.tvTodayEmpty = tvTodayEmpty;
     this.tvTotalClasses = tvTotalClasses;
   }
 
@@ -85,12 +105,6 @@ public final class FragmentStudentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btn_join_class;
-      MaterialButton btnJoinClass = ViewBindings.findChildViewById(rootView, id);
-      if (btnJoinClass == null) {
-        break missingId;
-      }
-
       id = R.id.btn_scan_attendance;
       ImageButton btnScanAttendance = ViewBindings.findChildViewById(rootView, id);
       if (btnScanAttendance == null) {
@@ -100,6 +114,36 @@ public final class FragmentStudentDashboardBinding implements ViewBinding {
       id = R.id.rv_classes;
       RecyclerView rvClasses = ViewBindings.findChildViewById(rootView, id);
       if (rvClasses == null) {
+        break missingId;
+      }
+
+      id = R.id.rv_today;
+      RecyclerView rvToday = ViewBindings.findChildViewById(rootView, id);
+      if (rvToday == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_attendance_rate;
+      TextView tvAttendanceRate = ViewBindings.findChildViewById(rootView, id);
+      if (tvAttendanceRate == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_avatar;
+      TextView tvAvatar = ViewBindings.findChildViewById(rootView, id);
+      if (tvAvatar == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_classes_empty;
+      TextView tvClassesEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (tvClassesEmpty == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_date;
+      TextView tvDate = ViewBindings.findChildViewById(rootView, id);
+      if (tvDate == null) {
         break missingId;
       }
 
@@ -121,14 +165,21 @@ public final class FragmentStudentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_today_empty;
+      TextView tvTodayEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (tvTodayEmpty == null) {
+        break missingId;
+      }
+
       id = R.id.tv_total_classes;
       TextView tvTotalClasses = ViewBindings.findChildViewById(rootView, id);
       if (tvTotalClasses == null) {
         break missingId;
       }
 
-      return new FragmentStudentDashboardBinding((FrameLayout) rootView, btnJoinClass,
-          btnScanAttendance, rvClasses, tvGreeting, tvStudentCode, tvTodayCount, tvTotalClasses);
+      return new FragmentStudentDashboardBinding((FrameLayout) rootView, btnScanAttendance,
+          rvClasses, rvToday, tvAttendanceRate, tvAvatar, tvClassesEmpty, tvDate, tvGreeting,
+          tvStudentCode, tvTodayCount, tvTodayEmpty, tvTotalClasses);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

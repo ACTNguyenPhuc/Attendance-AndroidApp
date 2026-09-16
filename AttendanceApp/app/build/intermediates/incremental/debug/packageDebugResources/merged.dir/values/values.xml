@@ -8,9 +8,9 @@
     <color name="divider">#E0E0E0</color>
     <color name="error_red">#C62828</color>
     <color name="overlay_dark">#80000000</color>
-    <color name="primary_blue">#1565C0</color>
+    <color name="primary_blue">#0f50aa</color>
     <color name="primary_dark">#0D47A1</color>
-    <color name="primary_light">#1E88E5</color>
+    <color name="primary_light">#0f50aa</color>
     <color name="primary_light_transparent">#D4F1FF</color>
     <color name="status_bar_color">#1565C0</color>
     <color name="text_primary">#212121</color>
@@ -39,11 +39,12 @@
     <dimen name="toolbar_height">56dp</dimen>
     <string name="about_app">Về ứng dụng</string>
     <string name="app_name">QR Attendance</string>
-    <string name="app_tagline">Điểm danh thông minh - Chống gian lận hiệu quả</string>
+    <string name="app_tagline">Ứng dụng điểm danh thông minh</string>
     <string name="app_version">Version 1.0.0</string>
-    <string name="attend_now">📷 Điểm danh ngay</string>
+    <string name="attend_now">Điểm danh ngay</string>
     <string name="attendance_history">Lịch sử điểm danh</string>
     <string name="change_password">Đổi mật khẩu</string>
+    <string name="change_password_description">Cập nhật mật khẩu đăng nhập</string>
     <string name="class_id_hint">VD: JavaL032026</string>
     <string name="class_name_hint">VD: Java Android L03 2026</string>
     <string name="close_session">Đóng phiên điểm danh</string>
@@ -58,6 +59,7 @@
     <string name="error_password_short">Mật khẩu tối thiểu 6 ký tự</string>
     <string name="error_qr_expired">Mã QR đã hết hiệu lực, liên hệ giảng viên</string>
     <string name="error_wrong_credentials">Email hoặc mật khẩu không đúng</string>
+    <string name="firebase_database_url" translatable="false">https://attendance-297e6-default-rtdb.firebaseio.com</string>
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="gcm_defaultSenderId" translatable="false">79921855292</string>
     <string name="google_api_key" translatable="false">AIzaSyAGj61SoNz-oItL8V33g66-WTc9fd3UuDE</string>
@@ -79,7 +81,7 @@
     <string name="project_id" translatable="false">attendance-297e6</string>
     <string name="qr_instruction">Hướng camera vào mã QR của giảng viên</string>
     <string name="realtime_list">Danh sách điểm danh</string>
-    <string name="refresh_qr">🔄 Làm mới QR</string>
+    <string name="refresh_qr">Làm mới QR</string>
     <string name="register">Đăng ký</string>
     <string name="register_redirect">Đăng ký tài khoản mới</string>
     <string name="role_student">SINH VIÊN</string>
@@ -98,6 +100,13 @@
     <string name="timetable">Thời khóa biểu</string>
     <string name="today_sessions">Buổi học hôm nay</string>
     <string name="welcome_back">Chào mừng trở lại</string>
+    <style name="ShapeAppearance.AttendanceApp.Card.BottomRounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+    </style>
     <style name="StatusBadge">
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/white</item>
@@ -109,6 +118,14 @@
     <style name="TabTextCompact" parent="TextAppearance.MaterialComponents.Button">
         <item name="android:textSize">12sp</item>
         <item name="textAllCaps">true</item>
+    </style>
+    <style name="TextAppearance.AttendanceApp.BottomNav.Active" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.AttendanceApp.BottomNav.Inactive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
     </style>
     <style name="Theme.AttendanceApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/primary_blue</item>

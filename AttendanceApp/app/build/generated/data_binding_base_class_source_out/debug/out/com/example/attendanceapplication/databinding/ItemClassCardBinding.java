@@ -7,20 +7,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemClassCardBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
-  public final CardView cardClass;
+  public final MaterialCardView cardClass;
 
   @NonNull
   public final TextView tvClassId;
@@ -40,9 +40,10 @@ public final class ItemClassCardBinding implements ViewBinding {
   @NonNull
   public final View viewHeader;
 
-  private ItemClassCardBinding(@NonNull CardView rootView, @NonNull CardView cardClass,
-      @NonNull TextView tvClassId, @NonNull TextView tvClassName, @NonNull TextView tvRoom,
-      @NonNull TextView tvSchedule, @NonNull TextView tvStudentCount, @NonNull View viewHeader) {
+  private ItemClassCardBinding(@NonNull MaterialCardView rootView,
+      @NonNull MaterialCardView cardClass, @NonNull TextView tvClassId,
+      @NonNull TextView tvClassName, @NonNull TextView tvRoom, @NonNull TextView tvSchedule,
+      @NonNull TextView tvStudentCount, @NonNull View viewHeader) {
     this.rootView = rootView;
     this.cardClass = cardClass;
     this.tvClassId = tvClassId;
@@ -55,7 +56,7 @@ public final class ItemClassCardBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -80,7 +81,7 @@ public final class ItemClassCardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      CardView cardClass = (CardView) rootView;
+      MaterialCardView cardClass = (MaterialCardView) rootView;
 
       id = R.id.tv_class_id;
       TextView tvClassId = ViewBindings.findChildViewById(rootView, id);
@@ -118,8 +119,8 @@ public final class ItemClassCardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemClassCardBinding((CardView) rootView, cardClass, tvClassId, tvClassName,
-          tvRoom, tvSchedule, tvStudentCount, viewHeader);
+      return new ItemClassCardBinding((MaterialCardView) rootView, cardClass, tvClassId,
+          tvClassName, tvRoom, tvSchedule, tvStudentCount, viewHeader);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

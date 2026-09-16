@@ -22,14 +22,10 @@ public final class DialogEditClassBinding implements ViewBinding {
   @NonNull
   public final TextInputEditText etClassName;
 
-  @NonNull
-  public final TextInputEditText etRoom;
-
   private DialogEditClassBinding(@NonNull LinearLayout rootView,
-      @NonNull TextInputEditText etClassName, @NonNull TextInputEditText etRoom) {
+      @NonNull TextInputEditText etClassName) {
     this.rootView = rootView;
     this.etClassName = etClassName;
-    this.etRoom = etRoom;
   }
 
   @Override
@@ -65,13 +61,7 @@ public final class DialogEditClassBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.et_room;
-      TextInputEditText etRoom = ViewBindings.findChildViewById(rootView, id);
-      if (etRoom == null) {
-        break missingId;
-      }
-
-      return new DialogEditClassBinding((LinearLayout) rootView, etClassName, etRoom);
+      return new DialogEditClassBinding((LinearLayout) rootView, etClassName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

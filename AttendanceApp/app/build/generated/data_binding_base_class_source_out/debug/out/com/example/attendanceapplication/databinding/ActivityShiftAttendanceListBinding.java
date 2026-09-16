@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.button.MaterialButton;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -20,6 +21,9 @@ import java.lang.String;
 public final class ActivityShiftAttendanceListBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
+
+  @NonNull
+  public final MaterialButton btnMakeupAttendance;
 
   @NonNull
   public final RecyclerView rvAbsent;
@@ -43,6 +47,9 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
   public final TextView tvAttendedHeader;
 
   @NonNull
+  public final TextView tvShiftContent;
+
+  @NonNull
   public final TextView tvShiftTime;
 
   @NonNull
@@ -58,13 +65,15 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
   public final TextView tvTotalStudents;
 
   private ActivityShiftAttendanceListBinding(@NonNull LinearLayout rootView,
-      @NonNull RecyclerView rvAbsent, @NonNull RecyclerView rvAttendance, @NonNull Toolbar toolbar,
-      @NonNull TextView tvAbsentEmpty, @NonNull TextView tvAbsentHeader,
-      @NonNull TextView tvAttendedEmpty, @NonNull TextView tvAttendedHeader,
+      @NonNull MaterialButton btnMakeupAttendance, @NonNull RecyclerView rvAbsent,
+      @NonNull RecyclerView rvAttendance, @NonNull Toolbar toolbar, @NonNull TextView tvAbsentEmpty,
+      @NonNull TextView tvAbsentHeader, @NonNull TextView tvAttendedEmpty,
+      @NonNull TextView tvAttendedHeader, @NonNull TextView tvShiftContent,
       @NonNull TextView tvShiftTime, @NonNull TextView tvShiftTitle,
       @NonNull TextView tvTotalAbsent, @NonNull TextView tvTotalAttended,
       @NonNull TextView tvTotalStudents) {
     this.rootView = rootView;
+    this.btnMakeupAttendance = btnMakeupAttendance;
     this.rvAbsent = rvAbsent;
     this.rvAttendance = rvAttendance;
     this.toolbar = toolbar;
@@ -72,6 +81,7 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
     this.tvAbsentHeader = tvAbsentHeader;
     this.tvAttendedEmpty = tvAttendedEmpty;
     this.tvAttendedHeader = tvAttendedHeader;
+    this.tvShiftContent = tvShiftContent;
     this.tvShiftTime = tvShiftTime;
     this.tvShiftTitle = tvShiftTitle;
     this.tvTotalAbsent = tvTotalAbsent;
@@ -106,6 +116,12 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_makeup_attendance;
+      MaterialButton btnMakeupAttendance = ViewBindings.findChildViewById(rootView, id);
+      if (btnMakeupAttendance == null) {
+        break missingId;
+      }
+
       id = R.id.rv_absent;
       RecyclerView rvAbsent = ViewBindings.findChildViewById(rootView, id);
       if (rvAbsent == null) {
@@ -148,6 +164,12 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_shift_content;
+      TextView tvShiftContent = ViewBindings.findChildViewById(rootView, id);
+      if (tvShiftContent == null) {
+        break missingId;
+      }
+
       id = R.id.tv_shift_time;
       TextView tvShiftTime = ViewBindings.findChildViewById(rootView, id);
       if (tvShiftTime == null) {
@@ -178,9 +200,10 @@ public final class ActivityShiftAttendanceListBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityShiftAttendanceListBinding((LinearLayout) rootView, rvAbsent, rvAttendance,
-          toolbar, tvAbsentEmpty, tvAbsentHeader, tvAttendedEmpty, tvAttendedHeader, tvShiftTime,
-          tvShiftTitle, tvTotalAbsent, tvTotalAttended, tvTotalStudents);
+      return new ActivityShiftAttendanceListBinding((LinearLayout) rootView, btnMakeupAttendance,
+          rvAbsent, rvAttendance, toolbar, tvAbsentEmpty, tvAbsentHeader, tvAttendedEmpty,
+          tvAttendedHeader, tvShiftContent, tvShiftTime, tvShiftTitle, tvTotalAbsent,
+          tvTotalAttended, tvTotalStudents);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

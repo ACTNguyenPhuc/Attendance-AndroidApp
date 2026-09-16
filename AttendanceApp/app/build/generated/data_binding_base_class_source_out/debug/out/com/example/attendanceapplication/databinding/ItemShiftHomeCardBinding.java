@@ -7,20 +7,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemShiftHomeCardBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
-  public final CardView cardShiftHome;
+  public final MaterialCardView cardShiftHome;
 
   @NonNull
   public final TextView tvClassName;
@@ -37,9 +37,10 @@ public final class ItemShiftHomeCardBinding implements ViewBinding {
   @NonNull
   public final View viewTopBar;
 
-  private ItemShiftHomeCardBinding(@NonNull CardView rootView, @NonNull CardView cardShiftHome,
-      @NonNull TextView tvClassName, @NonNull TextView tvRoom, @NonNull TextView tvStatus,
-      @NonNull TextView tvTime, @NonNull View viewTopBar) {
+  private ItemShiftHomeCardBinding(@NonNull MaterialCardView rootView,
+      @NonNull MaterialCardView cardShiftHome, @NonNull TextView tvClassName,
+      @NonNull TextView tvRoom, @NonNull TextView tvStatus, @NonNull TextView tvTime,
+      @NonNull View viewTopBar) {
     this.rootView = rootView;
     this.cardShiftHome = cardShiftHome;
     this.tvClassName = tvClassName;
@@ -51,7 +52,7 @@ public final class ItemShiftHomeCardBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -76,7 +77,7 @@ public final class ItemShiftHomeCardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      CardView cardShiftHome = (CardView) rootView;
+      MaterialCardView cardShiftHome = (MaterialCardView) rootView;
 
       id = R.id.tv_class_name;
       TextView tvClassName = ViewBindings.findChildViewById(rootView, id);
@@ -108,8 +109,8 @@ public final class ItemShiftHomeCardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemShiftHomeCardBinding((CardView) rootView, cardShiftHome, tvClassName, tvRoom,
-          tvStatus, tvTime, viewTopBar);
+      return new ItemShiftHomeCardBinding((MaterialCardView) rootView, cardShiftHome, tvClassName,
+          tvRoom, tvStatus, tvTime, viewTopBar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

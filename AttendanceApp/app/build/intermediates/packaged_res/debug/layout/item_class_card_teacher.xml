@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_class"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardCornerRadius="12dp"
+    app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
     app:cardElevation="3dp">
 
     <LinearLayout
@@ -24,7 +24,7 @@
                 android:id="@+id/tv_avatar"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:background="@drawable/bg_circle_white_border"
+                android:background="@drawable/bg_circle_subject_logo"
                 android:gravity="center"
                 android:text="L"
                 android:textColor="@color/white"
@@ -136,4 +136,4 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

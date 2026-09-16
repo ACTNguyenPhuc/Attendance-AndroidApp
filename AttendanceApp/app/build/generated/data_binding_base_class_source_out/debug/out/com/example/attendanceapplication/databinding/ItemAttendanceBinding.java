@@ -7,17 +7,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemAttendanceBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
   public final TextView tvCheckinTime;
@@ -31,7 +31,7 @@ public final class ItemAttendanceBinding implements ViewBinding {
   @NonNull
   public final TextView tvStudentName;
 
-  private ItemAttendanceBinding(@NonNull CardView rootView, @NonNull TextView tvCheckinTime,
+  private ItemAttendanceBinding(@NonNull MaterialCardView rootView, @NonNull TextView tvCheckinTime,
       @NonNull TextView tvDistance, @NonNull TextView tvStudentCode,
       @NonNull TextView tvStudentName) {
     this.rootView = rootView;
@@ -43,7 +43,7 @@ public final class ItemAttendanceBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -92,7 +92,7 @@ public final class ItemAttendanceBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemAttendanceBinding((CardView) rootView, tvCheckinTime, tvDistance,
+      return new ItemAttendanceBinding((MaterialCardView) rootView, tvCheckinTime, tvDistance,
           tvStudentCode, tvStudentName);
     }
     String missingId = rootView.getResources().getResourceName(id);

@@ -4,23 +4,40 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemAttendanceHistoryBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
-  public final TextView tvClassId;
+  public final ImageView ivExpand;
+
+  @NonNull
+  public final ImageView ivStatusIcon;
+
+  @NonNull
+  public final LinearLayout layoutDetail;
+
+  @NonNull
+  public final LinearLayout layoutHeader;
+
+  @NonNull
+  public final TextView tvClassName;
+
+  @NonNull
+  public final TextView tvCoords;
 
   @NonNull
   public final TextView tvDatetime;
@@ -29,29 +46,37 @@ public final class ItemAttendanceHistoryBinding implements ViewBinding {
   public final TextView tvDistance;
 
   @NonNull
-  public final TextView tvShiftId;
+  public final TextView tvExactTime;
+
+  @NonNull
+  public final TextView tvLabel;
 
   @NonNull
   public final TextView tvStatusBadge;
 
-  @NonNull
-  public final TextView tvStatusIcon;
-
-  private ItemAttendanceHistoryBinding(@NonNull CardView rootView, @NonNull TextView tvClassId,
-      @NonNull TextView tvDatetime, @NonNull TextView tvDistance, @NonNull TextView tvShiftId,
-      @NonNull TextView tvStatusBadge, @NonNull TextView tvStatusIcon) {
+  private ItemAttendanceHistoryBinding(@NonNull MaterialCardView rootView,
+      @NonNull ImageView ivExpand, @NonNull ImageView ivStatusIcon,
+      @NonNull LinearLayout layoutDetail, @NonNull LinearLayout layoutHeader,
+      @NonNull TextView tvClassName, @NonNull TextView tvCoords, @NonNull TextView tvDatetime,
+      @NonNull TextView tvDistance, @NonNull TextView tvExactTime, @NonNull TextView tvLabel,
+      @NonNull TextView tvStatusBadge) {
     this.rootView = rootView;
-    this.tvClassId = tvClassId;
+    this.ivExpand = ivExpand;
+    this.ivStatusIcon = ivStatusIcon;
+    this.layoutDetail = layoutDetail;
+    this.layoutHeader = layoutHeader;
+    this.tvClassName = tvClassName;
+    this.tvCoords = tvCoords;
     this.tvDatetime = tvDatetime;
     this.tvDistance = tvDistance;
-    this.tvShiftId = tvShiftId;
+    this.tvExactTime = tvExactTime;
+    this.tvLabel = tvLabel;
     this.tvStatusBadge = tvStatusBadge;
-    this.tvStatusIcon = tvStatusIcon;
   }
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -76,9 +101,39 @@ public final class ItemAttendanceHistoryBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.tv_class_id;
-      TextView tvClassId = ViewBindings.findChildViewById(rootView, id);
-      if (tvClassId == null) {
+      id = R.id.iv_expand;
+      ImageView ivExpand = ViewBindings.findChildViewById(rootView, id);
+      if (ivExpand == null) {
+        break missingId;
+      }
+
+      id = R.id.iv_status_icon;
+      ImageView ivStatusIcon = ViewBindings.findChildViewById(rootView, id);
+      if (ivStatusIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.layout_detail;
+      LinearLayout layoutDetail = ViewBindings.findChildViewById(rootView, id);
+      if (layoutDetail == null) {
+        break missingId;
+      }
+
+      id = R.id.layout_header;
+      LinearLayout layoutHeader = ViewBindings.findChildViewById(rootView, id);
+      if (layoutHeader == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_class_name;
+      TextView tvClassName = ViewBindings.findChildViewById(rootView, id);
+      if (tvClassName == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_coords;
+      TextView tvCoords = ViewBindings.findChildViewById(rootView, id);
+      if (tvCoords == null) {
         break missingId;
       }
 
@@ -94,9 +149,15 @@ public final class ItemAttendanceHistoryBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_shift_id;
-      TextView tvShiftId = ViewBindings.findChildViewById(rootView, id);
-      if (tvShiftId == null) {
+      id = R.id.tv_exact_time;
+      TextView tvExactTime = ViewBindings.findChildViewById(rootView, id);
+      if (tvExactTime == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_label;
+      TextView tvLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvLabel == null) {
         break missingId;
       }
 
@@ -106,14 +167,9 @@ public final class ItemAttendanceHistoryBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_status_icon;
-      TextView tvStatusIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvStatusIcon == null) {
-        break missingId;
-      }
-
-      return new ItemAttendanceHistoryBinding((CardView) rootView, tvClassId, tvDatetime,
-          tvDistance, tvShiftId, tvStatusBadge, tvStatusIcon);
+      return new ItemAttendanceHistoryBinding((MaterialCardView) rootView, ivExpand, ivStatusIcon,
+          layoutDetail, layoutHeader, tvClassName, tvCoords, tvDatetime, tvDistance, tvExactTime,
+          tvLabel, tvStatusBadge);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

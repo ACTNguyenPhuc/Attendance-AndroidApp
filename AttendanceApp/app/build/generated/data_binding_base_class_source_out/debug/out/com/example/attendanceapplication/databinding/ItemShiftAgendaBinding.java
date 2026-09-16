@@ -7,24 +7,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemShiftAgendaBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
   public final MaterialButton btnAttendNow;
 
   @NonNull
-  public final CardView cardShift;
+  public final MaterialCardView cardShift;
 
   @NonNull
   public final TextView tvClassName;
@@ -50,10 +50,11 @@ public final class ItemShiftAgendaBinding implements ViewBinding {
   @NonNull
   public final View viewLine;
 
-  private ItemShiftAgendaBinding(@NonNull CardView rootView, @NonNull MaterialButton btnAttendNow,
-      @NonNull CardView cardShift, @NonNull TextView tvClassName, @NonNull TextView tvRoom,
-      @NonNull TextView tvStatus, @NonNull TextView tvTeacher, @NonNull TextView tvTimeEnd,
-      @NonNull TextView tvTimeStart, @NonNull View viewDot, @NonNull View viewLine) {
+  private ItemShiftAgendaBinding(@NonNull MaterialCardView rootView,
+      @NonNull MaterialButton btnAttendNow, @NonNull MaterialCardView cardShift,
+      @NonNull TextView tvClassName, @NonNull TextView tvRoom, @NonNull TextView tvStatus,
+      @NonNull TextView tvTeacher, @NonNull TextView tvTimeEnd, @NonNull TextView tvTimeStart,
+      @NonNull View viewDot, @NonNull View viewLine) {
     this.rootView = rootView;
     this.btnAttendNow = btnAttendNow;
     this.cardShift = cardShift;
@@ -69,7 +70,7 @@ public final class ItemShiftAgendaBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -100,7 +101,7 @@ public final class ItemShiftAgendaBinding implements ViewBinding {
         break missingId;
       }
 
-      CardView cardShift = (CardView) rootView;
+      MaterialCardView cardShift = (MaterialCardView) rootView;
 
       id = R.id.tv_class_name;
       TextView tvClassName = ViewBindings.findChildViewById(rootView, id);
@@ -150,8 +151,8 @@ public final class ItemShiftAgendaBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemShiftAgendaBinding((CardView) rootView, btnAttendNow, cardShift, tvClassName,
-          tvRoom, tvStatus, tvTeacher, tvTimeEnd, tvTimeStart, viewDot, viewLine);
+      return new ItemShiftAgendaBinding((MaterialCardView) rootView, btnAttendNow, cardShift,
+          tvClassName, tvRoom, tvStatus, tvTeacher, tvTimeEnd, tvTimeStart, viewDot, viewLine);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

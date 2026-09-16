@@ -7,18 +7,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemStudentSearchBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
   public final MaterialButton btnAdd;
@@ -29,8 +29,8 @@ public final class ItemStudentSearchBinding implements ViewBinding {
   @NonNull
   public final TextView tvName;
 
-  private ItemStudentSearchBinding(@NonNull CardView rootView, @NonNull MaterialButton btnAdd,
-      @NonNull TextView tvCodeEmail, @NonNull TextView tvName) {
+  private ItemStudentSearchBinding(@NonNull MaterialCardView rootView,
+      @NonNull MaterialButton btnAdd, @NonNull TextView tvCodeEmail, @NonNull TextView tvName) {
     this.rootView = rootView;
     this.btnAdd = btnAdd;
     this.tvCodeEmail = tvCodeEmail;
@@ -39,7 +39,7 @@ public final class ItemStudentSearchBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -82,7 +82,7 @@ public final class ItemStudentSearchBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemStudentSearchBinding((CardView) rootView, btnAdd, tvCodeEmail, tvName);
+      return new ItemStudentSearchBinding((MaterialCardView) rootView, btnAdd, tvCodeEmail, tvName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

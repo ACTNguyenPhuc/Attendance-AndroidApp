@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
@@ -26,9 +25,6 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final MaterialButton btnLogin;
 
   @NonNull
-  public final MaterialButton btnRegister;
-
-  @NonNull
   public final TextInputEditText etEmail;
 
   @NonNull
@@ -43,23 +39,17 @@ public final class ActivityLoginBinding implements ViewBinding {
   @NonNull
   public final TextInputLayout tilPassword;
 
-  @NonNull
-  public final TextView tvForgotPassword;
-
   private ActivityLoginBinding(@NonNull FrameLayout rootView, @NonNull MaterialButton btnLogin,
-      @NonNull MaterialButton btnRegister, @NonNull TextInputEditText etEmail,
-      @NonNull TextInputEditText etPassword, @NonNull FrameLayout loadingOverlay,
-      @NonNull TextInputLayout tilEmail, @NonNull TextInputLayout tilPassword,
-      @NonNull TextView tvForgotPassword) {
+      @NonNull TextInputEditText etEmail, @NonNull TextInputEditText etPassword,
+      @NonNull FrameLayout loadingOverlay, @NonNull TextInputLayout tilEmail,
+      @NonNull TextInputLayout tilPassword) {
     this.rootView = rootView;
     this.btnLogin = btnLogin;
-    this.btnRegister = btnRegister;
     this.etEmail = etEmail;
     this.etPassword = etPassword;
     this.loadingOverlay = loadingOverlay;
     this.tilEmail = tilEmail;
     this.tilPassword = tilPassword;
-    this.tvForgotPassword = tvForgotPassword;
   }
 
   @Override
@@ -95,12 +85,6 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btn_register;
-      MaterialButton btnRegister = ViewBindings.findChildViewById(rootView, id);
-      if (btnRegister == null) {
-        break missingId;
-      }
-
       id = R.id.et_email;
       TextInputEditText etEmail = ViewBindings.findChildViewById(rootView, id);
       if (etEmail == null) {
@@ -131,14 +115,8 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_forgot_password;
-      TextView tvForgotPassword = ViewBindings.findChildViewById(rootView, id);
-      if (tvForgotPassword == null) {
-        break missingId;
-      }
-
-      return new ActivityLoginBinding((FrameLayout) rootView, btnLogin, btnRegister, etEmail,
-          etPassword, loadingOverlay, tilEmail, tilPassword, tvForgotPassword);
+      return new ActivityLoginBinding((FrameLayout) rootView, btnLogin, etEmail, etPassword,
+          loadingOverlay, tilEmail, tilPassword);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

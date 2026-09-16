@@ -30,12 +30,16 @@ public final class DialogClassQrBinding implements ViewBinding {
   @NonNull
   public final TextView tvLabel;
 
+  @NonNull
+  public final TextView tvTitle;
+
   private DialogClassQrBinding(@NonNull LinearLayout rootView, @NonNull ImageView ivQr,
-      @NonNull MaterialButton tvClose, @NonNull TextView tvLabel) {
+      @NonNull MaterialButton tvClose, @NonNull TextView tvLabel, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.ivQr = ivQr;
     this.tvClose = tvClose;
     this.tvLabel = tvLabel;
+    this.tvTitle = tvTitle;
   }
 
   @Override
@@ -83,7 +87,13 @@ public final class DialogClassQrBinding implements ViewBinding {
         break missingId;
       }
 
-      return new DialogClassQrBinding((LinearLayout) rootView, ivQr, tvClose, tvLabel);
+      id = R.id.tv_title;
+      TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvTitle == null) {
+        break missingId;
+      }
+
+      return new DialogClassQrBinding((LinearLayout) rootView, ivQr, tvClose, tvLabel, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

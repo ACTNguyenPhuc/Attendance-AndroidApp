@@ -66,6 +66,9 @@ public final class ActivityCreateClassBinding implements ViewBinding {
   public final TextInputEditText etRoom;
 
   @NonNull
+  public final LinearLayout llDayTimes;
+
+  @NonNull
   public final FrameLayout loadingOverlay;
 
   @NonNull
@@ -84,10 +87,19 @@ public final class ActivityCreateClassBinding implements ViewBinding {
   public final Toolbar toolbar;
 
   @NonNull
+  public final TextView tvDayTimesHint;
+
+  @NonNull
+  public final TextView tvDayTimesLabel;
+
+  @NonNull
   public final TextView tvEndDate;
 
   @NonNull
-  public final TextView tvEndTime;
+  public final TextView tvEndDateLabel;
+
+  @NonNull
+  public final TextView tvScheduleLabel;
 
   @NonNull
   public final TextView tvShiftPreview;
@@ -96,7 +108,7 @@ public final class ActivityCreateClassBinding implements ViewBinding {
   public final TextView tvStartDate;
 
   @NonNull
-  public final TextView tvStartTime;
+  public final TextView tvStartDateLabel;
 
   private ActivityCreateClassBinding(@NonNull LinearLayout rootView,
       @NonNull MaterialButton btnCreate, @NonNull Chip chipFri,
@@ -104,11 +116,13 @@ public final class ActivityCreateClassBinding implements ViewBinding {
       @NonNull Chip chipSun, @NonNull Chip chipThu, @NonNull Chip chipTue, @NonNull Chip chipWed,
       @NonNull TextInputEditText etClassId, @NonNull TextInputEditText etClassName,
       @NonNull TextInputEditText etDescription, @NonNull TextInputEditText etRoom,
-      @NonNull FrameLayout loadingOverlay, @NonNull TextInputLayout tilClassId,
-      @NonNull TextInputLayout tilClassName, @NonNull TextInputLayout tilDescription,
-      @NonNull TextInputLayout tilRoom, @NonNull Toolbar toolbar, @NonNull TextView tvEndDate,
-      @NonNull TextView tvEndTime, @NonNull TextView tvShiftPreview, @NonNull TextView tvStartDate,
-      @NonNull TextView tvStartTime) {
+      @NonNull LinearLayout llDayTimes, @NonNull FrameLayout loadingOverlay,
+      @NonNull TextInputLayout tilClassId, @NonNull TextInputLayout tilClassName,
+      @NonNull TextInputLayout tilDescription, @NonNull TextInputLayout tilRoom,
+      @NonNull Toolbar toolbar, @NonNull TextView tvDayTimesHint, @NonNull TextView tvDayTimesLabel,
+      @NonNull TextView tvEndDate, @NonNull TextView tvEndDateLabel,
+      @NonNull TextView tvScheduleLabel, @NonNull TextView tvShiftPreview,
+      @NonNull TextView tvStartDate, @NonNull TextView tvStartDateLabel) {
     this.rootView = rootView;
     this.btnCreate = btnCreate;
     this.chipFri = chipFri;
@@ -123,17 +137,21 @@ public final class ActivityCreateClassBinding implements ViewBinding {
     this.etClassName = etClassName;
     this.etDescription = etDescription;
     this.etRoom = etRoom;
+    this.llDayTimes = llDayTimes;
     this.loadingOverlay = loadingOverlay;
     this.tilClassId = tilClassId;
     this.tilClassName = tilClassName;
     this.tilDescription = tilDescription;
     this.tilRoom = tilRoom;
     this.toolbar = toolbar;
+    this.tvDayTimesHint = tvDayTimesHint;
+    this.tvDayTimesLabel = tvDayTimesLabel;
     this.tvEndDate = tvEndDate;
-    this.tvEndTime = tvEndTime;
+    this.tvEndDateLabel = tvEndDateLabel;
+    this.tvScheduleLabel = tvScheduleLabel;
     this.tvShiftPreview = tvShiftPreview;
     this.tvStartDate = tvStartDate;
-    this.tvStartTime = tvStartTime;
+    this.tvStartDateLabel = tvStartDateLabel;
   }
 
   @Override
@@ -241,6 +259,12 @@ public final class ActivityCreateClassBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.ll_day_times;
+      LinearLayout llDayTimes = ViewBindings.findChildViewById(rootView, id);
+      if (llDayTimes == null) {
+        break missingId;
+      }
+
       id = R.id.loading_overlay;
       FrameLayout loadingOverlay = ViewBindings.findChildViewById(rootView, id);
       if (loadingOverlay == null) {
@@ -277,15 +301,33 @@ public final class ActivityCreateClassBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_day_times_hint;
+      TextView tvDayTimesHint = ViewBindings.findChildViewById(rootView, id);
+      if (tvDayTimesHint == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_day_times_label;
+      TextView tvDayTimesLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvDayTimesLabel == null) {
+        break missingId;
+      }
+
       id = R.id.tv_end_date;
       TextView tvEndDate = ViewBindings.findChildViewById(rootView, id);
       if (tvEndDate == null) {
         break missingId;
       }
 
-      id = R.id.tv_end_time;
-      TextView tvEndTime = ViewBindings.findChildViewById(rootView, id);
-      if (tvEndTime == null) {
+      id = R.id.tv_end_date_label;
+      TextView tvEndDateLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvEndDateLabel == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_schedule_label;
+      TextView tvScheduleLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvScheduleLabel == null) {
         break missingId;
       }
 
@@ -301,17 +343,17 @@ public final class ActivityCreateClassBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_start_time;
-      TextView tvStartTime = ViewBindings.findChildViewById(rootView, id);
-      if (tvStartTime == null) {
+      id = R.id.tv_start_date_label;
+      TextView tvStartDateLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvStartDateLabel == null) {
         break missingId;
       }
 
       return new ActivityCreateClassBinding((LinearLayout) rootView, btnCreate, chipFri,
           chipGroupSchedule, chipMon, chipSat, chipSun, chipThu, chipTue, chipWed, etClassId,
-          etClassName, etDescription, etRoom, loadingOverlay, tilClassId, tilClassName,
-          tilDescription, tilRoom, toolbar, tvEndDate, tvEndTime, tvShiftPreview, tvStartDate,
-          tvStartTime);
+          etClassName, etDescription, etRoom, llDayTimes, loadingOverlay, tilClassId, tilClassName,
+          tilDescription, tilRoom, toolbar, tvDayTimesHint, tvDayTimesLabel, tvEndDate,
+          tvEndDateLabel, tvScheduleLabel, tvShiftPreview, tvStartDate, tvStartDateLabel);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

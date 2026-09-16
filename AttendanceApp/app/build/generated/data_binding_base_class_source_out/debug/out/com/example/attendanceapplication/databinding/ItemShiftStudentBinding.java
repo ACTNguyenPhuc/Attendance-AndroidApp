@@ -4,23 +4,24 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
+import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 
 public final class ItemShiftStudentBinding implements ViewBinding {
   @NonNull
-  private final CardView rootView;
+  private final MaterialCardView rootView;
 
   @NonNull
-  public final TextView tvAttIcon;
+  public final ImageView ivAttIcon;
 
   @NonNull
   public final TextView tvAttLabel;
@@ -34,11 +35,11 @@ public final class ItemShiftStudentBinding implements ViewBinding {
   @NonNull
   public final TextView tvTime;
 
-  private ItemShiftStudentBinding(@NonNull CardView rootView, @NonNull TextView tvAttIcon,
+  private ItemShiftStudentBinding(@NonNull MaterialCardView rootView, @NonNull ImageView ivAttIcon,
       @NonNull TextView tvAttLabel, @NonNull TextView tvDate, @NonNull TextView tvDay,
       @NonNull TextView tvTime) {
     this.rootView = rootView;
-    this.tvAttIcon = tvAttIcon;
+    this.ivAttIcon = ivAttIcon;
     this.tvAttLabel = tvAttLabel;
     this.tvDate = tvDate;
     this.tvDay = tvDay;
@@ -47,7 +48,7 @@ public final class ItemShiftStudentBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public CardView getRoot() {
+  public MaterialCardView getRoot() {
     return rootView;
   }
 
@@ -72,9 +73,9 @@ public final class ItemShiftStudentBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.tv_att_icon;
-      TextView tvAttIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvAttIcon == null) {
+      id = R.id.iv_att_icon;
+      ImageView ivAttIcon = ViewBindings.findChildViewById(rootView, id);
+      if (ivAttIcon == null) {
         break missingId;
       }
 
@@ -102,8 +103,8 @@ public final class ItemShiftStudentBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemShiftStudentBinding((CardView) rootView, tvAttIcon, tvAttLabel, tvDate, tvDay,
-          tvTime);
+      return new ItemShiftStudentBinding((MaterialCardView) rootView, ivAttIcon, tvAttLabel, tvDate,
+          tvDay, tvTime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

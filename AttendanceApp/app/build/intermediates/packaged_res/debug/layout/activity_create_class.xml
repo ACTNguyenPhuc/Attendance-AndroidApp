@@ -57,7 +57,7 @@
                 android:id="@+id/til_room"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:hint="Phòng học (VD: A101)"
+                android:hint="Phòng học (VD: 102-TA1)"
                 android:layout_marginBottom="12dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_room"
@@ -88,7 +88,8 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical"
                     android:layout_marginEnd="8dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    <TextView android:id="@+id/tv_start_date_label"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Ngày bắt đầu" android:textSize="12sp" android:textColor="@color/text_secondary" />
                     <TextView android:id="@+id/tv_start_date"
                         android:layout_width="match_parent" android:layout_height="48dp"
@@ -100,7 +101,8 @@
                 </LinearLayout>
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    <TextView android:id="@+id/tv_end_date_label"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Ngày kết thúc" android:textSize="12sp" android:textColor="@color/text_secondary" />
                     <TextView android:id="@+id/tv_end_date"
                         android:layout_width="match_parent" android:layout_height="48dp"
@@ -113,7 +115,8 @@
             </LinearLayout>
 
             <!-- Schedule Days -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            <TextView android:id="@+id/tv_schedule_label"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Ngày học trong tuần" android:textSize="16sp" android:textStyle="bold"
                 android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
 
@@ -161,49 +164,35 @@
                     app:chipBackgroundColor="@color/chip_bg_selector" app:checkedIconTint="@android:color/white" />
             </com.google.android.material.chip.ChipGroup>
 
-            <!-- Class Time -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Giờ học" android:textSize="16sp" android:textStyle="bold"
-                android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
+            <!-- Class Time (per-day) -->
+            <TextView android:id="@+id/tv_day_times_label"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Giờ học theo từng ngày" android:textSize="16sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="4dp" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:layout_marginBottom="16dp">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Giờ bắt đầu" android:textSize="12sp" android:textColor="@color/text_secondary" />
-                    <TextView android:id="@+id/tv_start_time"
-                        android:layout_width="match_parent" android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_outlined_field"
-                        android:paddingHorizontal="12dp"
-                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
-                </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Giờ kết thúc" android:textSize="12sp" android:textColor="@color/text_secondary" />
-                    <TextView android:id="@+id/tv_end_time"
-                        android:layout_width="match_parent" android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_outlined_field"
-                        android:paddingHorizontal="12dp"
-                        android:text="Chọn giờ" android:textColor="@color/text_primary" android:textSize="14sp" />
-                </LinearLayout>
-            </LinearLayout>
+            <TextView android:id="@+id/tv_day_times_hint"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Chọn ngày học ở trên, sau đó chọn một ca cố định cho từng ngày."
+                android:textSize="12sp" android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Mỗi ngày được chọn sẽ có một dropdown ca học được thêm động vào đây -->
+            <LinearLayout android:id="@+id/ll_day_times"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginBottom="16dp" />
 
             <!-- Preview -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="#E3F2FD"
-                app:cardCornerRadius="8dp" app:cardElevation="0dp">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded" app:cardElevation="0dp">
                 <TextView android:id="@+id/tv_shift_preview"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:padding="12dp"
                     android:text=""
                     android:textSize="13sp" android:textColor="@color/primary_dark" />
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Create Button -->
             <com.google.android.material.button.MaterialButton

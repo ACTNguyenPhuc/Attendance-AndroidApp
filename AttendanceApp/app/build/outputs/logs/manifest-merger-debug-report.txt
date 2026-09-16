@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-96:12
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-120:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-120:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-120:12
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:2:1-120:12
 MERGED from [androidx.databinding:viewbinding:8.2.2] C:\Users\Admin\.gradle\caches\transforms-3\60e7003366aff800641f22dc1a81709e\transformed\jetified-viewbinding-8.2.2\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:15:1-31:12
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Admin\.gradle\caches\transforms-3\9287c5ea0dbd9dca7290d1f343e8b0bf\transformed\material-1.11.0\AndroidManifest.xml:17:1-24:12
@@ -178,23 +178,33 @@ uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:15:5-81
 	android:name
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:15:22-78
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:17:5-77
+MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:23:5-77
+MERGED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:23:5-77
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:17:22-74
+uses-permission#android.permission.SCHEDULE_EXACT_ALARM
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:5-79
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:22-76
 uses-feature#android.hardware.camera
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:17:5-84
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-84
 MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Admin\.gradle\caches\transforms-3\45d3d0cb75d346ba80dc6059eeef3cf5\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:25:5-27:36
 MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Admin\.gradle\caches\transforms-3\45d3d0cb75d346ba80dc6059eeef3cf5\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:25:5-27:36
 	android:required
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:17:58-81
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:58-81
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:17:19-57
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:19-57
 uses-feature#android.hardware.location.gps
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:5-90
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:21:5-90
 	android:required
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:64-87
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:21:64-87
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:18:19-63
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:21:19-63
 application
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-94:19
-INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:20:5-94:19
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:23:5-118:19
+INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:23:5-118:19
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:21:5-29:19
 MERGED from [com.google.firebase:firebase-appcheck-debug:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\41255afdb43cce1328f451637429d6b9\transformed\jetified-firebase-appcheck-debug-17.1.2\AndroidManifest.xml:21:5-29:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\Admin\.gradle\caches\transforms-3\9287c5ea0dbd9dca7290d1f343e8b0bf\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
@@ -288,151 +298,191 @@ MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\Admin\.gradle\c
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.0] C:\Users\Admin\.gradle\caches\transforms-3\0adbc563328ed75b7961891561c95d07\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:26:9-35
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:29:9-35
 	android:label
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:24:9-41
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:27:9-41
 	android:roundIcon
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:25:9-54
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:28:9-54
 	tools:targetApi
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:29:9-29
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:32:9-29
 	android:icon
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:23:9-43
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:26:9-43
 	android:allowBackup
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:22:9-35
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:25:9-35
 	android:theme
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:27:9-51
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:30:9-51
 	android:usesCleartextTraffic
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:28:9-44
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:31:9-44
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:21:9-46
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:24:9-46
 activity#com.example.attendanceapplication.activities.SplashActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:32:9-40:20
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:35:9-43:20
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:34:13-36
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:37:13-36
 	android:theme
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:35:13-62
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:38:13-62
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:33:13-54
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:36:13-54
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:36:13-39:29
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:39:13-42:29
 action#android.intent.action.MAIN
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:37:17-69
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:40:17-69
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:37:25-66
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:40:25-66
 category#android.intent.category.LAUNCHER
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:38:17-77
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:41:17-77
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:38:27-74
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:41:27-74
 activity#com.example.attendanceapplication.activities.LoginActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:43:9-45:58
-	android:windowSoftInputMode
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:45:13-55
-	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:44:13-37
-	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:43:19-59
-activity#com.example.attendanceapplication.activities.RegisterActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:46:9-48:58
 	android:windowSoftInputMode
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:48:13-55
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:47:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:46:19-62
-activity#com.example.attendanceapplication.activities.TeacherMainActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:51:9-52:40
-	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:52:13-37
-	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:51:19-65
-activity#com.example.attendanceapplication.activities.CreateClassActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:53:9-55:58
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:46:19-59
+activity#com.example.attendanceapplication.activities.RegisterActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:49:9-51:58
 	android:windowSoftInputMode
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:55:13-55
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:51:13-55
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:54:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:50:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:53:19-65
-activity#com.example.attendanceapplication.activities.ClassDetailTeacherActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:56:9-57:40
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:49:19-62
+activity#com.example.attendanceapplication.activities.TeacherMainActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:54:9-55:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:55:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:54:19-65
+activity#com.example.attendanceapplication.activities.CreateClassActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:56:9-58:58
+	android:windowSoftInputMode
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:58:13-55
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:57:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:56:19-72
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:56:19-65
+activity#com.example.attendanceapplication.activities.ClassDetailTeacherActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:59:9-60:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:59:19-72
 activity#com.example.attendanceapplication.activities.SessionManagementActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:58:9-59:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:61:9-62:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:59:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:58:19-71
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:61:19-71
 activity#com.example.attendanceapplication.activities.ShiftAttendanceListActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:9-61:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:63:9-64:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:61:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:64:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:60:19-73
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:63:19-73
+activity#com.example.attendanceapplication.activities.StudentAttendanceDetailActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:65:9-66:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:66:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:65:19-77
 activity#com.example.attendanceapplication.activities.CreateSessionActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:9-64:58
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:9-69:58
 	android:windowSoftInputMode
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:64:13-55
-	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:63:13-37
-	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:62:19-67
-activity#com.example.attendanceapplication.activities.StudentMainActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:9-68:40
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:13-55
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:68:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:19-65
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:67:19-67
+activity#com.example.attendanceapplication.activities.StudentMainActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:72:9-73:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:72:19-65
 activity#com.example.attendanceapplication.activities.JoinClassActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:9-70:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:74:9-75:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:70:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:75:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:69:19-63
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:74:19-63
 activity#com.example.attendanceapplication.activities.ScanAttendanceActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:71:9-72:40
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:9-77:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:72:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:77:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:71:19-68
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:19-68
 activity#com.example.attendanceapplication.activities.AttendanceResultActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:9-74:40
-	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:74:13-37
-	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:73:19-70
-activity#com.example.attendanceapplication.activities.ClassDetailStudentActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:75:9-76:40
-	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:76:13-37
-	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:75:19-72
-activity#com.example.attendanceapplication.activities.ShiftDetailActivity
 ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:78:9-79:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:79:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:78:19-65
-activity#com.example.attendanceapplication.activities.ProfileActivity
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:82:9-83:40
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:78:19-70
+activity#com.example.attendanceapplication.activities.ClassDetailStudentActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:80:9-81:40
 	android:exported
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:83:13-37
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:81:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:82:19-61
-service#com.example.attendanceapplication.utils.FCMService
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:86:9-92:19
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:80:19-72
+activity#com.example.attendanceapplication.activities.ShiftDetailActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:83:9-84:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:84:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:83:19-65
+activity#com.example.attendanceapplication.activities.ProfileActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:87:9-88:40
 	android:exported
 		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:88:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:87:13-45
-intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:89:13-91:29
-action#com.google.firebase.MESSAGING_EVENT
-ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:90:17-78
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:87:19-61
+activity#com.example.attendanceapplication.activities.ChangePasswordActivity
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:89:9-91:58
+	android:windowSoftInputMode
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:91:13-55
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:90:13-37
 	android:name
-		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:90:25-75
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:89:19-68
+service#com.example.attendanceapplication.utils.FCMService
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:94:9-100:19
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:96:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:95:13-45
+intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:97:13-99:29
+action#com.google.firebase.MESSAGING_EVENT
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:98:17-78
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:98:25-75
+receiver#com.example.attendanceapplication.receivers.ShiftReminderReceiver
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:103:9-105:40
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:105:13-37
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:104:13-60
+receiver#com.example.attendanceapplication.receivers.BootReceiver
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:108:9-116:20
+	android:exported
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:110:13-36
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:109:13-51
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.LOCKED_BOOT_COMPLETED+action:name:android.intent.action.QUICKBOOT_POWERON
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:111:13-115:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:112:17-79
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:112:25-76
+action#android.intent.action.LOCKED_BOOT_COMPLETED
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:113:17-86
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:113:25-83
+action#android.intent.action.QUICKBOOT_POWERON
+ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:114:17-82
+	android:name
+		ADDED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml:114:25-79
 uses-sdk
 INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\KMALearn\AndroidProject\AttendanceApp3\AttendanceApp\app\src\main\AndroidManifest.xml
@@ -863,10 +913,6 @@ ADDED from [com.google.firebase:firebase-appcheck-playintegrity:17.1.2] C:\Users
 		ADDED from [com.google.firebase:firebase-appcheck-playintegrity:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\30206af3beccc7ae286ea134b8536623\transformed\jetified-firebase-appcheck-playintegrity-17.1.2\AndroidManifest.xml:27:17-82
 	android:name
 		ADDED from [com.google.firebase:firebase-appcheck-playintegrity:17.1.2] C:\Users\Admin\.gradle\caches\transforms-3\30206af3beccc7ae286ea134b8536623\transformed\jetified-firebase-appcheck-playintegrity-17.1.2\AndroidManifest.xml:26:17-144
-uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:23:5-77
-	android:name
-		ADDED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:23:22-74
 uses-permission#android.permission.WAKE_LOCK
 ADDED from [com.google.firebase:firebase-messaging:23.4.1] C:\Users\Admin\.gradle\caches\transforms-3\96d40a26204921a2553d17f477457a09\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:24:5-68
 MERGED from [com.google.android.gms:play-services-cloud-messaging:17.1.0] C:\Users\Admin\.gradle\caches\transforms-3\0af83da1773a4246d8c5495f600871db\transformed\jetified-play-services-cloud-messaging-17.1.0\AndroidManifest.xml:9:5-68

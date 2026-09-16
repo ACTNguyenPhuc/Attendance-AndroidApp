@@ -25,6 +25,9 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
   public final MaterialButton btnAttend;
 
   @NonNull
+  public final LinearLayout llAttDetails;
+
+  @NonNull
   public final LinearLayout llInfoBanner;
 
   @NonNull
@@ -34,29 +37,44 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
   public final TextView tvAttStatus;
 
   @NonNull
+  public final TextView tvCheckinTime;
+
+  @NonNull
   public final TextView tvDate;
 
   @NonNull
   public final TextView tvDayTime;
 
   @NonNull
+  public final TextView tvDistance;
+
+  @NonNull
   public final TextView tvInfoText;
+
+  @NonNull
+  public final TextView tvPunctuality;
 
   @NonNull
   public final TextView tvRoom;
 
   private ActivityShiftDetailBinding(@NonNull LinearLayout rootView,
-      @NonNull MaterialButton btnAttend, @NonNull LinearLayout llInfoBanner,
-      @NonNull Toolbar toolbar, @NonNull TextView tvAttStatus, @NonNull TextView tvDate,
-      @NonNull TextView tvDayTime, @NonNull TextView tvInfoText, @NonNull TextView tvRoom) {
+      @NonNull MaterialButton btnAttend, @NonNull LinearLayout llAttDetails,
+      @NonNull LinearLayout llInfoBanner, @NonNull Toolbar toolbar, @NonNull TextView tvAttStatus,
+      @NonNull TextView tvCheckinTime, @NonNull TextView tvDate, @NonNull TextView tvDayTime,
+      @NonNull TextView tvDistance, @NonNull TextView tvInfoText, @NonNull TextView tvPunctuality,
+      @NonNull TextView tvRoom) {
     this.rootView = rootView;
     this.btnAttend = btnAttend;
+    this.llAttDetails = llAttDetails;
     this.llInfoBanner = llInfoBanner;
     this.toolbar = toolbar;
     this.tvAttStatus = tvAttStatus;
+    this.tvCheckinTime = tvCheckinTime;
     this.tvDate = tvDate;
     this.tvDayTime = tvDayTime;
+    this.tvDistance = tvDistance;
     this.tvInfoText = tvInfoText;
+    this.tvPunctuality = tvPunctuality;
     this.tvRoom = tvRoom;
   }
 
@@ -93,6 +111,12 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.ll_att_details;
+      LinearLayout llAttDetails = ViewBindings.findChildViewById(rootView, id);
+      if (llAttDetails == null) {
+        break missingId;
+      }
+
       id = R.id.ll_info_banner;
       LinearLayout llInfoBanner = ViewBindings.findChildViewById(rootView, id);
       if (llInfoBanner == null) {
@@ -111,6 +135,12 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_checkin_time;
+      TextView tvCheckinTime = ViewBindings.findChildViewById(rootView, id);
+      if (tvCheckinTime == null) {
+        break missingId;
+      }
+
       id = R.id.tv_date;
       TextView tvDate = ViewBindings.findChildViewById(rootView, id);
       if (tvDate == null) {
@@ -123,9 +153,21 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_distance;
+      TextView tvDistance = ViewBindings.findChildViewById(rootView, id);
+      if (tvDistance == null) {
+        break missingId;
+      }
+
       id = R.id.tv_info_text;
       TextView tvInfoText = ViewBindings.findChildViewById(rootView, id);
       if (tvInfoText == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_punctuality;
+      TextView tvPunctuality = ViewBindings.findChildViewById(rootView, id);
+      if (tvPunctuality == null) {
         break missingId;
       }
 
@@ -135,8 +177,9 @@ public final class ActivityShiftDetailBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityShiftDetailBinding((LinearLayout) rootView, btnAttend, llInfoBanner,
-          toolbar, tvAttStatus, tvDate, tvDayTime, tvInfoText, tvRoom);
+      return new ActivityShiftDetailBinding((LinearLayout) rootView, btnAttend, llAttDetails,
+          llInfoBanner, toolbar, tvAttStatus, tvCheckinTime, tvDate, tvDayTime, tvDistance,
+          tvInfoText, tvPunctuality, tvRoom);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

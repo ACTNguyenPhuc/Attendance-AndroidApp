@@ -4,6 +4,7 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -13,6 +14,8 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
@@ -27,10 +30,37 @@ public final class FragmentStudentsTabBinding implements ViewBinding {
   public final MaterialButton btnAddStudent;
 
   @NonNull
+  public final MaterialButton btnClearFilter;
+
+  @NonNull
+  public final Chip chipAbsenceRate;
+
+  @NonNull
+  public final Chip chipAttendanceRate;
+
+  @NonNull
+  public final ChipGroup chipGroupFilter;
+
+  @NonNull
+  public final TextInputEditText etFilterPercent;
+
+  @NonNull
   public final TextInputEditText etSearch;
 
   @NonNull
+  public final ImageView ivFilterArrow;
+
+  @NonNull
+  public final LinearLayout llFilterHeader;
+
+  @NonNull
+  public final LinearLayout llFilterPanel;
+
+  @NonNull
   public final RecyclerView rvStudents;
+
+  @NonNull
+  public final TextInputLayout tilFilterPercent;
 
   @NonNull
   public final TextInputLayout tilSearch;
@@ -39,18 +69,36 @@ public final class FragmentStudentsTabBinding implements ViewBinding {
   public final TextView tvEmpty;
 
   @NonNull
+  public final TextView tvFilterSummary;
+
+  @NonNull
   public final TextView tvStudentCount;
 
   private FragmentStudentsTabBinding(@NonNull LinearLayout rootView,
-      @NonNull MaterialButton btnAddStudent, @NonNull TextInputEditText etSearch,
-      @NonNull RecyclerView rvStudents, @NonNull TextInputLayout tilSearch,
-      @NonNull TextView tvEmpty, @NonNull TextView tvStudentCount) {
+      @NonNull MaterialButton btnAddStudent, @NonNull MaterialButton btnClearFilter,
+      @NonNull Chip chipAbsenceRate, @NonNull Chip chipAttendanceRate,
+      @NonNull ChipGroup chipGroupFilter, @NonNull TextInputEditText etFilterPercent,
+      @NonNull TextInputEditText etSearch, @NonNull ImageView ivFilterArrow,
+      @NonNull LinearLayout llFilterHeader, @NonNull LinearLayout llFilterPanel,
+      @NonNull RecyclerView rvStudents, @NonNull TextInputLayout tilFilterPercent,
+      @NonNull TextInputLayout tilSearch, @NonNull TextView tvEmpty,
+      @NonNull TextView tvFilterSummary, @NonNull TextView tvStudentCount) {
     this.rootView = rootView;
     this.btnAddStudent = btnAddStudent;
+    this.btnClearFilter = btnClearFilter;
+    this.chipAbsenceRate = chipAbsenceRate;
+    this.chipAttendanceRate = chipAttendanceRate;
+    this.chipGroupFilter = chipGroupFilter;
+    this.etFilterPercent = etFilterPercent;
     this.etSearch = etSearch;
+    this.ivFilterArrow = ivFilterArrow;
+    this.llFilterHeader = llFilterHeader;
+    this.llFilterPanel = llFilterPanel;
     this.rvStudents = rvStudents;
+    this.tilFilterPercent = tilFilterPercent;
     this.tilSearch = tilSearch;
     this.tvEmpty = tvEmpty;
+    this.tvFilterSummary = tvFilterSummary;
     this.tvStudentCount = tvStudentCount;
   }
 
@@ -87,15 +135,69 @@ public final class FragmentStudentsTabBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btn_clear_filter;
+      MaterialButton btnClearFilter = ViewBindings.findChildViewById(rootView, id);
+      if (btnClearFilter == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_absence_rate;
+      Chip chipAbsenceRate = ViewBindings.findChildViewById(rootView, id);
+      if (chipAbsenceRate == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_attendance_rate;
+      Chip chipAttendanceRate = ViewBindings.findChildViewById(rootView, id);
+      if (chipAttendanceRate == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_group_filter;
+      ChipGroup chipGroupFilter = ViewBindings.findChildViewById(rootView, id);
+      if (chipGroupFilter == null) {
+        break missingId;
+      }
+
+      id = R.id.et_filter_percent;
+      TextInputEditText etFilterPercent = ViewBindings.findChildViewById(rootView, id);
+      if (etFilterPercent == null) {
+        break missingId;
+      }
+
       id = R.id.et_search;
       TextInputEditText etSearch = ViewBindings.findChildViewById(rootView, id);
       if (etSearch == null) {
         break missingId;
       }
 
+      id = R.id.iv_filter_arrow;
+      ImageView ivFilterArrow = ViewBindings.findChildViewById(rootView, id);
+      if (ivFilterArrow == null) {
+        break missingId;
+      }
+
+      id = R.id.ll_filter_header;
+      LinearLayout llFilterHeader = ViewBindings.findChildViewById(rootView, id);
+      if (llFilterHeader == null) {
+        break missingId;
+      }
+
+      id = R.id.ll_filter_panel;
+      LinearLayout llFilterPanel = ViewBindings.findChildViewById(rootView, id);
+      if (llFilterPanel == null) {
+        break missingId;
+      }
+
       id = R.id.rv_students;
       RecyclerView rvStudents = ViewBindings.findChildViewById(rootView, id);
       if (rvStudents == null) {
+        break missingId;
+      }
+
+      id = R.id.til_filter_percent;
+      TextInputLayout tilFilterPercent = ViewBindings.findChildViewById(rootView, id);
+      if (tilFilterPercent == null) {
         break missingId;
       }
 
@@ -111,14 +213,22 @@ public final class FragmentStudentsTabBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_filter_summary;
+      TextView tvFilterSummary = ViewBindings.findChildViewById(rootView, id);
+      if (tvFilterSummary == null) {
+        break missingId;
+      }
+
       id = R.id.tv_student_count;
       TextView tvStudentCount = ViewBindings.findChildViewById(rootView, id);
       if (tvStudentCount == null) {
         break missingId;
       }
 
-      return new FragmentStudentsTabBinding((LinearLayout) rootView, btnAddStudent, etSearch,
-          rvStudents, tilSearch, tvEmpty, tvStudentCount);
+      return new FragmentStudentsTabBinding((LinearLayout) rootView, btnAddStudent, btnClearFilter,
+          chipAbsenceRate, chipAttendanceRate, chipGroupFilter, etFilterPercent, etSearch,
+          ivFilterArrow, llFilterHeader, llFilterPanel, rvStudents, tilFilterPercent, tilSearch,
+          tvEmpty, tvFilterSummary, tvStudentCount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

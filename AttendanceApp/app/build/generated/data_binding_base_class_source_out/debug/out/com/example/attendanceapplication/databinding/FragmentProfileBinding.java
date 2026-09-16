@@ -4,6 +4,8 @@ package com.example.attendanceapplication.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -12,6 +14,7 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.attendanceapplication.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -21,32 +24,68 @@ public final class FragmentProfileBinding implements ViewBinding {
   private final ScrollView rootView;
 
   @NonNull
+  public final ImageButton btnHeaderLogout;
+
+  @NonNull
   public final MaterialButton btnLogout;
+
+  @NonNull
+  public final LinearLayout rowAbout;
+
+  @NonNull
+  public final LinearLayout rowChangePassword;
+
+  @NonNull
+  public final LinearLayout rowHelp;
+
+  @NonNull
+  public final LinearLayout rowLanguage;
+
+  @NonNull
+  public final LinearLayout rowPersonalInfo;
+
+  @NonNull
+  public final LinearLayout rowPersonalQr;
+
+  @NonNull
+  public final LinearLayout rowReminderTime;
+
+  @NonNull
+  public final SwitchMaterial switchNotification;
 
   @NonNull
   public final TextView tvAvatarInitial;
 
   @NonNull
-  public final TextView tvCode;
-
-  @NonNull
-  public final TextView tvEmail;
-
-  @NonNull
   public final TextView tvName;
+
+  @NonNull
+  public final TextView tvReminderValue;
 
   @NonNull
   public final TextView tvRole;
 
-  private FragmentProfileBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnLogout,
-      @NonNull TextView tvAvatarInitial, @NonNull TextView tvCode, @NonNull TextView tvEmail,
-      @NonNull TextView tvName, @NonNull TextView tvRole) {
+  private FragmentProfileBinding(@NonNull ScrollView rootView, @NonNull ImageButton btnHeaderLogout,
+      @NonNull MaterialButton btnLogout, @NonNull LinearLayout rowAbout,
+      @NonNull LinearLayout rowChangePassword, @NonNull LinearLayout rowHelp,
+      @NonNull LinearLayout rowLanguage, @NonNull LinearLayout rowPersonalInfo,
+      @NonNull LinearLayout rowPersonalQr, @NonNull LinearLayout rowReminderTime,
+      @NonNull SwitchMaterial switchNotification, @NonNull TextView tvAvatarInitial,
+      @NonNull TextView tvName, @NonNull TextView tvReminderValue, @NonNull TextView tvRole) {
     this.rootView = rootView;
+    this.btnHeaderLogout = btnHeaderLogout;
     this.btnLogout = btnLogout;
+    this.rowAbout = rowAbout;
+    this.rowChangePassword = rowChangePassword;
+    this.rowHelp = rowHelp;
+    this.rowLanguage = rowLanguage;
+    this.rowPersonalInfo = rowPersonalInfo;
+    this.rowPersonalQr = rowPersonalQr;
+    this.rowReminderTime = rowReminderTime;
+    this.switchNotification = switchNotification;
     this.tvAvatarInitial = tvAvatarInitial;
-    this.tvCode = tvCode;
-    this.tvEmail = tvEmail;
     this.tvName = tvName;
+    this.tvReminderValue = tvReminderValue;
     this.tvRole = tvRole;
   }
 
@@ -77,9 +116,63 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_header_logout;
+      ImageButton btnHeaderLogout = ViewBindings.findChildViewById(rootView, id);
+      if (btnHeaderLogout == null) {
+        break missingId;
+      }
+
       id = R.id.btn_logout;
       MaterialButton btnLogout = ViewBindings.findChildViewById(rootView, id);
       if (btnLogout == null) {
+        break missingId;
+      }
+
+      id = R.id.row_about;
+      LinearLayout rowAbout = ViewBindings.findChildViewById(rootView, id);
+      if (rowAbout == null) {
+        break missingId;
+      }
+
+      id = R.id.row_change_password;
+      LinearLayout rowChangePassword = ViewBindings.findChildViewById(rootView, id);
+      if (rowChangePassword == null) {
+        break missingId;
+      }
+
+      id = R.id.row_help;
+      LinearLayout rowHelp = ViewBindings.findChildViewById(rootView, id);
+      if (rowHelp == null) {
+        break missingId;
+      }
+
+      id = R.id.row_language;
+      LinearLayout rowLanguage = ViewBindings.findChildViewById(rootView, id);
+      if (rowLanguage == null) {
+        break missingId;
+      }
+
+      id = R.id.row_personal_info;
+      LinearLayout rowPersonalInfo = ViewBindings.findChildViewById(rootView, id);
+      if (rowPersonalInfo == null) {
+        break missingId;
+      }
+
+      id = R.id.row_personal_qr;
+      LinearLayout rowPersonalQr = ViewBindings.findChildViewById(rootView, id);
+      if (rowPersonalQr == null) {
+        break missingId;
+      }
+
+      id = R.id.row_reminder_time;
+      LinearLayout rowReminderTime = ViewBindings.findChildViewById(rootView, id);
+      if (rowReminderTime == null) {
+        break missingId;
+      }
+
+      id = R.id.switch_notification;
+      SwitchMaterial switchNotification = ViewBindings.findChildViewById(rootView, id);
+      if (switchNotification == null) {
         break missingId;
       }
 
@@ -89,21 +182,15 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_code;
-      TextView tvCode = ViewBindings.findChildViewById(rootView, id);
-      if (tvCode == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_email;
-      TextView tvEmail = ViewBindings.findChildViewById(rootView, id);
-      if (tvEmail == null) {
-        break missingId;
-      }
-
       id = R.id.tv_name;
       TextView tvName = ViewBindings.findChildViewById(rootView, id);
       if (tvName == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_reminder_value;
+      TextView tvReminderValue = ViewBindings.findChildViewById(rootView, id);
+      if (tvReminderValue == null) {
         break missingId;
       }
 
@@ -113,8 +200,9 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentProfileBinding((ScrollView) rootView, btnLogout, tvAvatarInitial, tvCode,
-          tvEmail, tvName, tvRole);
+      return new FragmentProfileBinding((ScrollView) rootView, btnHeaderLogout, btnLogout, rowAbout,
+          rowChangePassword, rowHelp, rowLanguage, rowPersonalInfo, rowPersonalQr, rowReminderTime,
+          switchNotification, tvAvatarInitial, tvName, tvReminderValue, tvRole);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
