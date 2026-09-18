@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trợ lý điểm danh — trang thử</title>
+<style>
+  :root{--bg:#f6f7f9;--card:#fff;--fg:#1a1d21;--dim:#6b7280;--line:#e3e6ea;
+        --me:#2563eb;--ai:#f1f3f5;--warn:#b45309;}
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#16181d;--card:#1e2128;--fg:#e8eaed;--dim:#9aa3ad;--line:#2d313a;
+          --ai:#272b33;--warn:#fbbf24;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:16px;background:var(--bg);color:var(--fg);
+       font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:14px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  select,input,button{font:inherit;padding:9px 11px;border:1px solid var(--line);
+       border-radius:9px;background:var(--card);color:var(--fg)}
+  button{cursor:pointer;background:var(--me);color:#fff;border-color:transparent;font-weight:600}
+  button:disabled{opacity:.5;cursor:default}
+  #log{background:var(--card);border:1px solid var(--line);border-radius:12px;
+       padding:14px;min-height:340px;max-height:58vh;overflow-y:auto}
+  .msg{margin-bottom:14px;display:flex}
+  .msg.me{justify-content:flex-end}
+  .bubble{max-width:82%;padding:10px 13px;border-radius:13px;white-space:pre-wrap;word-wrap:break-word}
+  .me .bubble{background:var(--me);color:#fff;border-bottom-right-radius:4px}
+  .ai .bubble{background:var(--ai);border-bottom-left-radius:4px}
+  .tool{font-size:12px;color:var(--dim);font-family:ui-monospace,Consolas,monospace;
+        margin:4px 0 8px;padding-left:4px}
+  .meta{font-size:11px;color:var(--dim);margin-top:5px}
+  .err{color:#dc2626}
+  .hint{font-size:12px;color:var(--warn);margin-top:10px}
+  .row{display:flex;gap:8px;margin-top:12px}
+  .row input{flex:1}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chips button{background:transparent;color:var(--dim);border:1px solid var(--line);
+        font-weight:400;font-size:12.5px;padding:6px 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Trợ lý điểm danh AttendanceApp</h1>
+  <div class="sub">Trang thử của chặng 3 — server FastAPI, chưa cần Android.</div>
+
+  <div class="bar">
+    <label for="uid">Đóng vai:</label>
+    <select id="uid">
+      <option value="Wir5XPSodGfm523tNEaj3DCbD5f2">SV · Bùi Khánh Linh (6 lớp, 9 buổi vắng)</option>
+      <option value="7AUIkd3JpwfaEiAmnZ8yqrkFhMm1">SV · Lý Thành Đạt (4 lớp — thử phân quyền)</option>
+      <option value="XIRtyYogQhZf5BL1lyGv8cB18Vi2">GV · Đặng Thành Nam (dạy 5 lớp)</option>
+    </select>
+    <button id="reset" style="background:transparent;color:var(--dim);border:1px solid var(--line);font-weight:400">
+      Hội thoại mới
+    </button>
+  </div>
+
+  <div id="log"></div>
+
+  <div class="row">
+    <input id="q" placeholder="Hỏi bằng tiếng Việt…" autocomplete="off">
+    <button id="send">Gửi</button>
+  </div>
+
+  <div class="chips">
+    <button data-q="Tôi vắng mấy buổi rồi?">Tôi vắng mấy buổi rồi?</button>
+    <button data-q="Lớp nào tôi vắng nhiều nhất?">Lớp nào vắng nhiều nhất?</button>
+    <button data-q="Cho tôi xem chi tiết từng buổi lớp LTACB_L01">Chi tiết lớp LTACB_L01</button>
+    <button data-q="Sinh viên nào vắng quá 20% lớp LTACB_L01?">SV vắng quá 20% (GV)</button>
+    <button data-q="Buổi ngày 2026-09-16 lớp LTACB_L01 ai vắng?">Buổi 16/09 ai vắng? (GV)</button>
+  </div>
+
+  <div class="hint">Giới hạn gói miễn phí: 5 request/phút cho cả hệ thống. Hỏi dồn sẽ phải chờ.</div>
+</div>
+
+<script>
+const log = document.getElementById('log');
+const qEl = document.getElementById('q');
+const sendEl = document.getElementById('send');
+const uidEl = document.getElementById('uid');
+let sessionId = null;
+
+uidEl.onchange = () => { sessionId = null; log.innerHTML = ''; };
+document.getElementById('reset').onclick = () => { sessionId = null; log.innerHTML = ''; qEl.focus(); };
+document.querySelectorAll('.chips button').forEach(b => {
+  b.onclick = () => { qEl.value = b.dataset.q; send(); };
+});
+
+function add(who, text, cls) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.innerHTML = '<div class="bubble ' + (cls || '') + '"></div>';
+  d.querySelector('.bubble').textContent = text;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+  return d;
+}
+function note(html) {
+  const d = document.createElement('div');
+  d.className = 'tool'; d.textContent = html;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+}
+
+async function send() {
+  const text = qEl.value.trim();
+  if (!text) return;
+  qEl.value = ''; sendEl.disabled = true;
+  add('me', text);
+  const pending = add('ai', 'đang suy nghĩ…');
+
+  try {
+    const r = await fetch('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: text, session_id: sessionId, uid: uidEl.value})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || ('HTTP ' + r.status));
+
+    sessionId = data.session_id;
+    pending.remove();
+    (data.tools || []).forEach(t =>
+      note('↳ gọi ' + t.ten + '(' + JSON.stringify(t.thamSo) + ')'));
+    const d = add('ai', data.reply);
+    const m = document.createElement('div');
+    m.className = 'meta';
+    m.textContent = data.tokens + ' token · ' + (data.tools || []).length + ' lần gọi tool';
+    d.querySelector('.bubble').appendChild(m);
+  } catch (e) {
+    pending.remove();
+    add('ai', 'Lỗi: ' + e.message, 'err');
+  } finally {
+    sendEl.disabled = false; qEl.focus();
+  }
+}
+
+sendEl.onclick = send;
+qEl.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+qEl.focus();
+</script>
+</body>
+</html>

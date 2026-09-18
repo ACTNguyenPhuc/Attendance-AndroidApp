@@ -1,0 +1,8 @@
+# Firestore (đọc dữ liệu thật)
+firebase-admin>=6.5.0
+
+# Gemini
+google-genai>=0.3.0
+
+# Đọc file .env
+python-dotenv>=1.0.0
