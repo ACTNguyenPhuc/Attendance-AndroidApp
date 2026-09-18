@@ -285,4 +285,17 @@
         android:src="@drawable/ic_qr"
         android:tint="@color/white" />
 
+
+    <!-- Nut mo tro ly AI -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_chat_ai"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Tro ly AI"
+        android:src="@drawable/ic_chat_white"
+        app:backgroundTint="@color/primary_blue"
+        app:tint="@color/white" />
+
 </FrameLayout>
