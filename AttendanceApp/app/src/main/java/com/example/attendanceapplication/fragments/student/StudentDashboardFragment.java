@@ -59,6 +59,14 @@ public class StudentDashboardFragment extends Fragment {
         rvToday          = view.findViewById(R.id.rv_today);
         rvClasses        = view.findViewById(R.id.rv_classes);
 
+        // Nut mo tro ly AI
+        View fabChat = view.findViewById(R.id.fab_chat_ai);
+        if (fabChat != null) {
+            fabChat.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), ChatActivity.class)));
+        }
+
+
         todayAdapter = new TodaySessionAdapter(todayShifts, shift ->
                 startActivity(new Intent(requireContext(), ScanAttendanceActivity.class)));
         rvToday.setLayoutManager(new LinearLayoutManager(requireContext()));

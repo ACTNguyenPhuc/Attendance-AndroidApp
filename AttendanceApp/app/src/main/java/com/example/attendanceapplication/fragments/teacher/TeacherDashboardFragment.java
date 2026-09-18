@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
+import com.example.attendanceapplication.activities.ChatActivity;
 import com.example.attendanceapplication.activities.CreateClassActivity;
 import com.example.attendanceapplication.activities.SessionManagementActivity;
 import com.example.attendanceapplication.activities.ShiftAttendanceListActivity;
@@ -102,6 +103,14 @@ public class TeacherDashboardFragment extends Fragment {
         tvViewAllShifts = view.findViewById(R.id.tv_view_all_shifts);
         tvCreateClass = view.findViewById(R.id.tv_create_class);
         tvTodayEmpty  = view.findViewById(R.id.tv_today_empty);
+
+        // Nut mo tro ly AI
+        View fabChat = view.findViewById(R.id.fab_chat_ai);
+        if (fabChat != null) {
+            fabChat.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), ChatActivity.class)));
+        }
+
 
         adapter = new ClassCardAdapter(classList, classModel -> {
             // Navigate to class detail

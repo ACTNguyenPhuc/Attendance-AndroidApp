@@ -55,3 +55,18 @@ desktop.ini
 .env
 .env.*
 !.env.example
+# =========================
+# Khóa bí mật — TUYỆT ĐỐI không commit
+# =========================
+serviceAccountKey.json
+**/serviceAccountKey.json
+*-firebase-adminsdk-*.json
+
+# =========================
+# Python (hệ thống AI)
+# =========================
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/

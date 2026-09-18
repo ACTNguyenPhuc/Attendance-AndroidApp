@@ -90,6 +90,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Tro ly AI -->
+        <activity android:name=".activities.ChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AttendanceApp.Chat"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Firebase Cloud Messaging -->
         <service
             android:name=".utils.FCMService"
