@@ -23,7 +23,8 @@ def get_my_schedule(ctx, from_date: str = "", to_date: str = "", class_id: str =
             return err
         ids = [class_id]
 
-    rows = [s for s in load_shifts(ids) if from_date <= s["ngay"] <= to_date]
+    all_shifts = load_shifts(ids)
+    rows = [s for s in all_shifts if from_date <= s["ngay"] <= to_date]
     out = []
     for s in rows:
         out.append({
@@ -41,11 +42,13 @@ def get_my_schedule(ctx, from_date: str = "", to_date: str = "", class_id: str =
 
     res = {"tuNgay": from_date, "denNgay": to_date, "homNay": today, "soBuoi": len(out), "danhSach": out}
     if not out:
-        # Toàn bộ 6 lớp trong CSDL kết thúc ngày 2026-09-16 — nói rõ để model
-        # không bịa ra lịch, và gợi ý khoảng ngày còn dữ liệu.
-        res["ghiChu"] = (
-            "Không có buổi học nào trong khoảng này. "
-            "Dữ liệu hiện có trải từ 2026-06-01 đến 2026-09-16; "
-            "hãy thử hỏi về một khoảng ngày trong phạm vi đó."
-        )
+        # Nói rõ khoảng ngày còn dữ liệu để model không bịa ra lịch.
+        # Tính từ dữ liệu thật, không viết cứng: giảng viên thêm buổi học bù là khoảng đổi.
+        res["ghiChu"] = "Không có buổi học nào trong khoảng này."
+        if all_shifts:
+            days = [s["ngay"] for s in all_shifts]
+            res["ghiChu"] += f" Lịch hiện có trải từ {min(days)} đến {max(days)}."
+            later = [d for d in days if d > to_date]
+            if later:
+                res["ghiChu"] += f" Buổi gần nhất sau khoảng này: {min(later)}."
     return res

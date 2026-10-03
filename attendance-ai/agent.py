@@ -1,224 +1,169 @@
-"""Vòng lặp hội thoại + gọi tool.
+"""Điểm vào duy nhất cho phần còn lại của dự án: `from agent import Agent`.
 
-ĐÂY LÀ FILE DUY NHẤT phụ thuộc vào Gemini. Đổi sang Claude/GPT chỉ cần sửa file này
-và phần GEMINI_DECLARATIONS trong tools/registry.py — tầng tools giữ nguyên.
+Agent ở đây là lớp bọc, bên trong là một trong hai agent thật:
+  ollama  -> agent_ollama.py  (mô hình chạy trên máy chủ của mình)
+  gemini  -> agent_gemini.py  (API Google)
 
-Agent KHÔNG biết gì về HTTP: nó nhận chuỗi, trả về object. Nhờ vậy dùng được
-cho cả CLI lẫn server web sau này.
+Chuyển đổi linh hoạt theo 3 mức:
+  1. Mặc định cho phiên mới: LLM_PROVIDER trong .env, hoặc set_default_provider() lúc chạy.
+  2. Từng phiên: Agent(ctx, provider="gemini"), hoặc agent.switch("ollama") giữa chừng —
+     lịch sử hội thoại được mang sang provider mới.
+  3. Tự động: LLM_FALLBACK=gemini -> provider đang dùng lỗi thì chuyển sang provider dự phòng
+     và hỏi lại. CHỈ chuyển khi chưa gọi tool nào và chưa phát chữ nào, để không chạy lại
+     một thao tác ghi dữ liệu hay trả về hai câu trả lời chồng nhau.
+
+Agent bọc có cùng giao diện với agent thật: Agent(ctx, history), .ask(), .ask_stream(),
+nên server.py, chat.py, evals/ không cần biết đang dùng bên nào.
 """
-import re
-import time
-from dataclasses import dataclass, field
+import importlib
 
-from google import genai
-from google.genai import types
+from config import LLM_FALLBACK, LLM_PROVIDER, PROVIDERS, model_of
+from prompt import MAX_TOOL_STEPS, Reply, build_system_prompt  # noqa: F401
 
-from config import MODELS, GOOGLE_API_KEY, check_api_key, now_vn, today_str
-from tools.registry import GEMINI_DECLARATIONS, call_tool
-
-MAX_TOOL_STEPS = 6  # chặn vòng lặp vô hạn nếu model cứ gọi tool mãi
-
-_THU_VN = {0: "Thứ Hai", 1: "Thứ Ba", 2: "Thứ Tư", 3: "Thứ Năm",
-           4: "Thứ Sáu", 5: "Thứ Bảy", 6: "Chủ Nhật"}
+# Import lười: dùng Ollama thì không cần cài google-genai, và ngược lại.
+_IMPLS = {"ollama": ("agent_ollama", "OllamaAgent"),
+          "gemini": ("agent_gemini", "GeminiAgent")}
 
 
-def build_system_prompt(ctx) -> str:
-    now = now_vn()
-    vai_tro = "giảng viên" if ctx.is_teacher else "sinh viên"
-    return f"""Bạn là trợ lý AI của ứng dụng điểm danh AttendanceApp.
-
-NGƯỜI ĐANG HỎI
-- Tên: {ctx.name}
-- Vai trò: {vai_tro}
-- Mã: {ctx.student_code}
-
-HÔM NAY: {today_str()} ({_THU_VN[now.weekday()]}), giờ Việt Nam.
-
-QUY TẮC BẮT BUỘC
-1. Mọi con số phải lấy từ tool. Tuyệt đối không tự suy đoán hay bịa số liệu.
-2. Nếu chưa biết mã lớp, gọi get_my_classes trước.
-3. Khi gọi tool, ngày luôn ở dạng yyyy-MM-dd.
-4. Nếu tool trả về trường "ghiChu" hoặc "error", hãy nói lại đúng ý đó cho người dùng,
-   đừng lấp liếm bằng thông tin tự nghĩ ra.
-5. Không hiển thị uid, mã phiên hay tên trường kỹ thuật. Người dùng chỉ cần thấy
-   tên lớp, ngày giờ, phòng, con số.
-6. Bạn chỉ có quyền ĐỌC. Nếu người dùng yêu cầu tạo lớp, mở điểm danh hay sửa dữ liệu,
-   hãy nói rõ là bạn chưa làm được và hướng dẫn họ thao tác trong ứng dụng.
-
-CÁCH TRÌNH BÀY — câu trả lời hiện trong bong bóng chat hẹp trên điện thoại
-7. Câu đầu tiên phải trả lời thẳng câu hỏi. Không mở bài, không nhắc lại câu hỏi.
-8. Ngắn gọn: tối đa 4 dòng nếu không phải liệt kê.
-9. Khi liệt kê, mỗi mục một dòng bắt đầu bằng "- ". Tối đa 6 mục; nhiều hơn thì
-   nêu vài mục đáng chú ý rồi nói tổng số.
-10. Chỉ dùng **in đậm** cho con số hoặc tên lớp quan trọng. Mỗi câu nhiều nhất một lần.
-11. TUYỆT ĐỐI KHÔNG dùng: tiêu đề (#), bảng (|), khối mã (```), chữ nghiêng, liên kết.
-    Giao diện chat không hiển thị được những thứ đó.
-12. Ngày viết dạng dd/MM, giờ dạng HH:mm. Ví dụ: "T4 16/09, 15:05-17:30, phòng 102-TA1".
-13. Đừng lặp lại toàn bộ dữ liệu tool trả về — chỉ nêu phần người dùng hỏi.
-"""
+class ProviderUnavailable(RuntimeError):
+    """Không dựng được agent cho provider này (thiếu API key, thiếu thư viện...)."""
 
 
-@dataclass
-class Reply:
-    text: str
-    tool_calls: list = field(default_factory=list)   # [(tên, tham số, kết quả)]
-    tokens: int = 0
+def _check(provider: str | None) -> str:
+    p = (provider or "").strip().lower()
+    if p not in _IMPLS:
+        raise ValueError(f"provider '{provider}' không hợp lệ. Chọn: {', '.join(PROVIDERS)}")
+    return p
+
+
+try:
+    _default = _check(LLM_PROVIDER)
+    for _p in LLM_FALLBACK:
+        _check(_p)
+except ValueError as e:
+    raise SystemExit(f"\n❌ .env: {e}\n") from e
+
+
+def default_provider() -> str:
+    return _default
+
+
+def set_default_provider(provider: str) -> str:
+    """Đổi provider cho các phiên MỚI. Phiên đang mở giữ nguyên provider của nó."""
+    global _default
+    _default = _check(provider)
+    return _default
+
+
+def _build(provider: str, ctx, history):
+    mod, cls = _IMPLS[provider]
+    try:
+        return getattr(importlib.import_module(mod), cls)(ctx, history=history or None)
+    except SystemExit as e:   # check_api_key() báo thiếu key bằng SystemExit
+        raise ProviderUnavailable(f"{provider}: {str(e).strip()}") from e
+    except ImportError as e:
+        raise ProviderUnavailable(f"{provider}: thiếu thư viện ({e.name})") from e
 
 
 class Agent:
-    def __init__(self, ctx):
-        check_api_key()
+    def __init__(self, ctx, history=None, provider: str | None = None):
+        """history: các lượt chữ đã lưu [{'role','text'}], dùng khi mở lại một hội thoại cũ."""
         self.ctx = ctx
-        self.client = genai.Client(api_key=GOOGLE_API_KEY)
-        self.model = MODELS[0]
-        self._cfg = types.GenerateContentConfig(
-            system_instruction=build_system_prompt(ctx),
-            tools=[types.Tool(function_declarations=GEMINI_DECLARATIONS)],
-            # Tự thực thi tool bằng tay, vì tool cần ctx — thứ model không được phép đặt.
-            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-        )
-        self.chat = self.client.chats.create(model=self.model, config=self._cfg)
-
-    def _switch_model(self) -> bool:
-        """Cạn quota ngày của model hiện tại -> chuyển sang model kế tiếp, GIỮ nguyên hội thoại."""
-        i = MODELS.index(self.model)
-        if i + 1 >= len(MODELS):
-            return False
-        history = self.chat.get_history()
-        self.model = MODELS[i + 1]
-        self.chat = self.client.chats.create(model=self.model, config=self._cfg, history=history)
-        return True
-
-    def _send(self, payload, on_wait=None, tries: int = 4):
-        """Gửi 1 lượt, tự chờ và thử lại khi bị giới hạn tốc độ.
-
-        Gói miễn phí của Gemini giới hạn 5 request/phút cho mỗi model. Một câu hỏi
-        cần gọi tool sẽ tốn 2 request, nên rất dễ chạm trần khi hỏi liên tiếp.
-        """
-        for i in range(tries):
+        first = _check(provider or _default)
+        err = None
+        for p in [first] + [p for p in LLM_FALLBACK if p != first]:
             try:
-                return self.chat.send_message(payload)
-            except Exception as e:  # noqa: BLE001
-                msg = str(e)
-                if ("RESOURCE_EXHAUSTED" not in msg and "429" not in msg) or i == tries - 1:
-                    raise
-                # Hết quota NGÀY -> chờ bao lâu cũng vô ích, phải đổi model.
-                # Hết quota PHÚT -> chờ vài chục giây là chạy lại được.
-                if "PerDay" in msg:
-                    if not self._switch_model():
-                        raise
-                    if on_wait:
-                        on_wait(0, f"đã cạn quota ngày, chuyển sang {self.model}")
-                    continue
-                m = re.search(r"retryDelay['\"]?:\s*['\"]?(\d+)", msg)
-                delay = int(m.group(1)) + 1 if m else 15 * (i + 1)
-                if on_wait:
-                    on_wait(delay)
-                time.sleep(delay)
-        raise RuntimeError("không gửi được sau nhiều lần thử")
+                self._impl = _build(p, ctx, history)
+                self.provider = p
+                return
+            except ProviderUnavailable as e:
+                err = e
+        raise err
+
+    @property
+    def model(self) -> str:
+        return getattr(self._impl, "model", model_of(self.provider))
+
+    def _handover(self) -> list[dict]:
+        """Lịch sử để trao cho provider mới: bắt đầu bằng user, kết thúc bằng model.
+
+        Lượt user cuối chưa có trả lời là câu vừa hỏi hỏng — sẽ được hỏi lại.
+        """
+        h = self._impl.export_history()
+        while h and h[0]["role"] != "user":
+            h.pop(0)
+        while h and h[-1]["role"] == "user":
+            h.pop()
+        return h
+
+    def switch(self, provider: str):
+        """Đổi provider cho phiên này, giữ nguyên mạch hội thoại."""
+        p = _check(provider)
+        if p != self.provider:
+            self._impl = _build(p, self.ctx, self._handover())
+            self.provider = p
+
+    def _fallback(self, tried: set, reason: str, notify=None) -> bool:
+        for p in LLM_FALLBACK:
+            if p in tried:
+                continue
+            tried.add(p)
+            old = self.provider
+            try:
+                self.switch(p)
+            except ProviderUnavailable:
+                continue
+            print(f"[agent] {old} lỗi ({reason[:120]}) -> chuyển sang {p}", flush=True)
+            if notify:
+                notify(0, f"{old} lỗi, chuyển sang {p}")
+            return True
+        return False
 
     def ask(self, text: str, on_tool=None, on_wait=None) -> Reply:
-        resp = self._send(text, on_wait)
-        used, tokens = [], 0
+        acted = False
 
-        for _ in range(MAX_TOOL_STEPS):
-            tokens += getattr(resp.usage_metadata, "total_token_count", 0) or 0
-            calls = [p.function_call for p in (resp.candidates[0].content.parts or []) if p.function_call]
-            if not calls:
-                break
+        def _on_tool(name, args):
+            nonlocal acted
+            acted = True
+            if on_tool:
+                on_tool(name, args)
 
-            parts = []
-            for fc in calls:
-                args = dict(fc.args or {})
-                if on_tool:
-                    on_tool(fc.name, args)
-                result = call_tool(self.ctx, fc.name, args)   # ctx do máy chủ cấp
-                used.append((fc.name, args, result))
-                parts.append(types.Part.from_function_response(
-                    name=fc.name, response={"result": result}))
-
-            resp = self._send(parts, on_wait)
-        else:
-            return Reply("Xin lỗi, câu hỏi này cần quá nhiều bước tra cứu. "
-                         "Bạn thử hỏi cụ thể hơn được không?", used, tokens)
-
-        return Reply((resp.text or "").strip() or "(không có nội dung trả lời)", used, tokens)
-
-    # ─────────────────────── Streaming (SSE) ───────────────────────
-    def _send_stream(self, payload, on_wait=None, tries: int = 4):
-        """Như _send nhưng trả về iterator các mẩu trả lời.
-
-        Việc thử lại chỉ an toàn TRƯỚC khi phát ra chữ đầu tiên. Nếu lỗi xảy ra
-        giữa chừng thì không thể phát lại từ đầu, phải báo lỗi cho người dùng.
-        """
-        for i in range(tries):
+        tried = {self.provider}
+        while True:
             try:
-                return self.chat.send_message_stream(payload)
+                return self._impl.ask(text, on_tool=_on_tool, on_wait=on_wait)
             except Exception as e:  # noqa: BLE001
-                msg = str(e)
-                if ("RESOURCE_EXHAUSTED" not in msg and "429" not in msg) or i == tries - 1:
+                if acted or not self._fallback(tried, f"{type(e).__name__}: {e}", on_wait):
                     raise
-                if "PerDay" in msg:
-                    if not self._switch_model():
-                        raise
-                    if on_wait:
-                        on_wait(0, f"đã cạn quota ngày, chuyển sang {self.model}")
-                    continue
-                m = re.search(r"retryDelay['\"]?:\s*['\"]?(\d+)", msg)
-                delay = int(m.group(1)) + 1 if m else 15 * (i + 1)
-                if on_wait:
-                    on_wait(delay)
-                time.sleep(delay)
-        raise RuntimeError("không gửi được sau nhiều lần thử")
 
     def ask_stream(self, text: str):
-        """Sinh ra từng sự kiện một, để server đẩy dần về client.
-
-        Sự kiện:
-          {"type":"tool", "name":..., "args":{...}}   đang tra cứu dữ liệu
-          {"type":"text", "delta":"..."}              một mẩu câu trả lời
-          {"type":"done", "tokens":N}                 kết thúc
-          {"type":"error","message":"..."}            lỗi
-        """
-        payload = text
-        tokens = 0
-
-        for _ in range(MAX_TOOL_STEPS):
-            calls = []
+        """Như agent thật; sự kiện "done" có thêm provider/model đã trả lời."""
+        tried = {self.provider}
+        while True:
+            started, failure = False, None
+            gen = self._impl.ask_stream(text)
             try:
-                stream = self._send_stream(payload)
-                for chunk in stream:
-                    tokens += getattr(chunk.usage_metadata, "total_token_count", 0) or 0
-                    cands = chunk.candidates or []
-                    if not cands or not cands[0].content:
-                        continue
-                    for p in (cands[0].content.parts or []):
-                        if p.function_call:
-                            calls.append(p.function_call)
-                        elif p.text:
-                            yield {"type": "text", "delta": p.text}
-            except Exception as e:  # noqa: BLE001
-                m = str(e)
-                if "RESOURCE_EXHAUSTED" in m or "429" in m:
-                    yield {"type": "error",
-                           "message": "Đã hết lượt dùng của gói miễn phí. Bạn thử lại sau nhé."}
+                for ev in gen:
+                    if ev["type"] == "error" and not started:
+                        failure = ev
+                        break
+                    if ev["type"] in ("text", "tool"):
+                        started = True
+                    elif ev["type"] == "done":
+                        ev = {**ev, "provider": self.provider, "model": self.model}
+                    yield ev
                 else:
-                    yield {"type": "error", "message": f"Lỗi xử lý: {type(e).__name__}"}
+                    return
+            except Exception as e:  # noqa: BLE001
+                if started:
+                    raise
+                failure = {"type": "error", "message": f"Lỗi xử lý: {type(e).__name__}"}
+            finally:
+                gen.close()
+            if not self._fallback(tried, failure["message"]):
+                yield failure
                 return
 
-            if not calls:
-                yield {"type": "done", "tokens": tokens}
-                return
 
-            parts = []
-            for fc in calls:
-                args = dict(fc.args or {})
-                yield {"type": "tool", "name": fc.name, "args": args}
-                result = call_tool(self.ctx, fc.name, args)   # ctx do máy chủ cấp
-                parts.append(types.Part.from_function_response(
-                    name=fc.name, response={"result": result}))
-            payload = parts
-
-        yield {"type": "text", "delta": "\n\nCâu hỏi này cần quá nhiều bước tra cứu, "
-                                        "bạn thử hỏi cụ thể hơn nhé."}
-        yield {"type": "done", "tokens": tokens}
+__all__ = ["Agent", "ProviderUnavailable", "Reply", "build_system_prompt",
+           "default_provider", "set_default_provider", "PROVIDERS"]

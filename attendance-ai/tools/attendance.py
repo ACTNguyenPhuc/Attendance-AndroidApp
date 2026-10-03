@@ -19,6 +19,21 @@ def _pct(part: int, whole: int) -> float:
     return round(part * 100.0 / whole, 1) if whole else 0.0
 
 
+def _top(rows: list[dict], key: str, highest: bool) -> list[dict]:
+    """Các lớp đứng đầu theo một chỉ số (nhiều lớp nếu bằng nhau).
+
+    Kết luận sẵn ở tầng tool để model khỏi tự so sánh: model nhỏ đọc danh sách dài
+    hay chọn nhầm dòng, hoặc lẫn "nhiều buổi nhất" với "tỷ lệ cao nhất".
+    Bỏ qua lớp chưa có buổi nào — tỷ lệ 0% ở đó là "chưa có dữ liệu", không phải thấp nhất.
+    """
+    rows = [r for r in rows if r["soBuoiDaDiemDanh"] > 0]
+    if not rows:
+        return []
+    best = (max if highest else min)(r[key] for r in rows)
+    return [{"maLop": r["maLop"], "tenLop": r["tenLop"], key: r[key]}
+            for r in rows if r[key] == best]
+
+
 def get_my_attendance_summary(ctx, class_id: str = "") -> dict:
     ids = my_class_ids(ctx)
     if class_id:
@@ -68,14 +83,16 @@ def _student_view(ctx, ids, shifts, info, today) -> dict:
             "tyLeChuyenCanPhanTram": _pct(len(co_mat_ids), len(held_ids)),
         })
 
-    rows.sort(key=lambda r: -r["tyLeVangPhanTram"])
+    rows.sort(key=lambda r: (-r["vang"], -r["tyLeVangPhanTram"]))
     return {
         "vaiTro": "sinh viên",
         "tinhDenNgay": today,
         "tongSoBuoiDaDiemDanh": tong_hoc,
         "tongSoBuoiVang": tong_vang,
         "tyLeVangChungPhanTram": _pct(tong_vang, tong_hoc),
-        "danhSach": rows,
+        "lopVangNhieuBuoiNhat": _top(rows, "vang", highest=True) if tong_vang else [],
+        "lopTyLeVangCaoNhat": _top(rows, "tyLeVangPhanTram", highest=True) if tong_vang else [],
+        "danhSach": rows,  # xếp theo số buổi vắng giảm dần
         "giaiThich": "Buổi vắng = buổi đã mở điểm danh và đã qua, nhưng không có bản ghi của bạn.",
     }
 
@@ -109,11 +126,14 @@ def _teacher_view(ids, shifts, info, today) -> dict:
             "tyLeChuyenCanPhanTram": _pct(len(recs), luot_toi_da),
         })
 
-    rows.sort(key=lambda r: r["tyLeChuyenCanPhanTram"])
+    # Lớp chưa điểm danh buổi nào xuống cuối, đừng để 0% của nó đứng đầu danh sách
+    rows.sort(key=lambda r: (r["soBuoiDaDiemDanh"] == 0, r["tyLeChuyenCanPhanTram"]))
     return {
         "vaiTro": "giảng viên",
         "tinhDenNgay": today,
         "soLop": len(rows),
-        "danhSach": rows,
+        "lopChuyenCanThapNhat": _top(rows, "tyLeChuyenCanPhanTram", highest=False),
+        "lopChuyenCanCaoNhat": _top(rows, "tyLeChuyenCanPhanTram", highest=True),
+        "danhSach": rows,  # xếp theo tỷ lệ chuyên cần tăng dần
         "giaiThich": "Lượt vắng = (số buổi đã điểm danh × sĩ số) − tổng lượt có mặt.",
     }

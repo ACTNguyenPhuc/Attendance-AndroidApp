@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import config  # noqa: F401,E402  — sửa mã hoá stdout
-from agent import Agent  # noqa: E402
+from agent import PROVIDERS, Agent  # noqa: E402
 from tools.context import load_ctx  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
@@ -27,6 +27,23 @@ DIM, BOLD, RED, GREEN, YELLOW, RESET = "\033[2m", "\033[1m", "\033[31m", "\033[3
 
 def has_number(text: str, n) -> bool:
     return re.search(rf"(?<![\d]){re.escape(str(n))}(?![\d])", text) is not None
+
+
+def _date_forms(s: str) -> list[str]:
+    """Các cách viết chấp nhận được cho một ngày/tháng ISO trong câu trả lời.
+
+    Quy tắc trình bày bắt model viết ngày dạng dd/MM ("10/06"), nên chấm theo
+    "2026-06-10" sẽ đánh hỏng một câu trả lời đúng. Chuỗi không phải ngày giữ nguyên.
+    """
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        y, mo, d = m.groups()
+        return [s, f"{d}/{mo}", f"{int(d)}/{int(mo)}", f"{d}/{mo}/{y}"]
+    m = re.fullmatch(r"(\d{4})-(\d{2})", s)
+    if m:
+        y, mo = m.groups()
+        return [s, f"/{mo}", f"tháng {int(mo)}", f"{int(mo)}/{y}"]
+    return [s]
 
 
 def grade(case: dict, answer: str, called: list[str]) -> list[str]:
@@ -53,7 +70,7 @@ def grade(case: dict, answer: str, called: list[str]) -> list[str]:
             fails.append(f"thiếu số {n}")
 
     for s in case.get("contains") or []:
-        if s.lower() not in low:
+        if not any(f.lower() in low for f in _date_forms(s)):
             fails.append(f"thiếu cụm {s!r}")
 
     for s in case.get("not_contains") or []:
@@ -67,9 +84,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="chỉ chạy ca có id này")
     ap.add_argument("--limit", type=int, help="chỉ chạy N ca đầu")
-    ap.add_argument("--delay", type=float, default=13.0,
+    # Chỉ Gemini gói miễn phí mới bị giới hạn 5 request/phút; Ollama chạy liền được.
+    ap.add_argument("--provider", choices=PROVIDERS, help="nơi chạy mô hình (mặc định: LLM_PROVIDER)")
+    ap.add_argument("--delay", type=float, default=None,
                     help="giây nghỉ giữa các ca, tránh chạm 5 request/phút của gói miễn phí")
     args = ap.parse_args()
+    provider = args.provider or config.LLM_PROVIDER
+    if args.delay is None:
+        args.delay = 13.0 if provider == "gemini" else 0.0
 
     data = json.loads((HERE / "questions.json").read_text(encoding="utf-8"))
     accounts, cases = data["accounts"], data["cases"]
@@ -91,9 +113,9 @@ def main():
         ctx = ctx_cache[uid]
 
         # Agent MỚI cho mỗi ca -> các ca độc lập, không ăn theo lịch sử của nhau
-        agent = Agent(ctx)
+        agent = Agent(ctx, provider=provider)
         try:
-            reply = agent.ask(case["q"], on_wait=lambda s: print(f"{DIM}   (chờ {s}s do giới hạn tốc độ){RESET}"))
+            reply = agent.ask(case["q"], on_wait=lambda s, note=None: print(f"{DIM}   ({note or f'chờ {s}s do giới hạn tốc độ'}){RESET}"))
             answer, called = reply.text, [t[0] for t in reply.tool_calls]
             err = None
         except Exception as e:  # noqa: BLE001

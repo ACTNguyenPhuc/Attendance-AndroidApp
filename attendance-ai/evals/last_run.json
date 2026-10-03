@@ -1,0 +1,366 @@
+{
+  "passed": 17,
+  "total": 20,
+  "percent": 85.0,
+  "results": [
+    {
+      "id": "sv01",
+      "acc": "SV_LINH",
+      "q": "Tôi vắng tất cả mấy buổi rồi?",
+      "tools": [
+        "get_my_attendance_summary"
+      ],
+      "numbers": [
+        9,
+        19
+      ],
+      "answer": "Bạn đã vắng **9 buổi**.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [
+        "thiếu số 19"
+      ],
+      "ok": false
+    },
+    {
+      "id": "sv02",
+      "acc": "SV_LINH",
+      "q": "Lớp nào tôi vắng nhiều buổi nhất?",
+      "tools": [
+        "get_my_attendance_summary"
+      ],
+      "contains": [
+        "android"
+      ],
+      "numbers": [
+        5
+      ],
+      "answer": "Lớp bạn vắng nhiều buổi nhất là **Lập trình android cơ bản (LTACB_L01)** với **5 buổi vắng**.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv03",
+      "acc": "SV_LINH",
+      "q": "Tôi đang học bao nhiêu lớp?",
+      "tools": [
+        "get_my_classes"
+      ],
+      "numbers": [
+        6
+      ],
+      "answer": "Bạn đang học **6** lớp.",
+      "called": [
+        "get_my_classes"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv04",
+      "acc": "SV_LINH",
+      "q": "Lớp Lập trình android cơ bản tôi vắng mấy buổi trên tổng bao nhiêu?",
+      "tools": [
+        "get_my_attendance_summary"
+      ],
+      "numbers": [
+        5,
+        8
+      ],
+      "answer": "Bạn vắng **5 buổi** trong tổng số **8 buổi** điểm danh của lớp **Lập trình android cơ bản**. Tỷ lệ vắng là **62,5%**.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv05",
+      "acc": "SV_LINH",
+      "q": "Cho tôi xem chi tiết từng buổi lớp LTACB_L01, buổi nào tôi vắng?",
+      "tools": [
+        "get_attendance_history"
+      ],
+      "contains": [
+        "2026-06-01",
+        "2026-06-10"
+      ],
+      "answer": "Bạn vắng 5 buổi trong lớp **LTACB_L01** (Lập trình android cơ bản), cụ thể vào các ngày:\n\n- T4 2026-09-16, 15:05-17:30\n- T6 2026-06-12, 07:00-09:25\n- T4 2026-06-10, 07:00-09:25\n- T2 2026-06-08, 07:00-09:25\n- T2 2026-06-01, 07:00-09:25\n\nCác buổi khác đều có mặt hoặc đi đúng giờ.",
+      "called": [
+        "get_attendance_history"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv06",
+      "acc": "SV_LINH",
+      "q": "Tháng 6 năm 2026 tôi có những buổi học nào lớp LTACB_L01?",
+      "tools": [
+        "get_my_schedule"
+      ],
+      "contains": [
+        "2026-06"
+      ],
+      "answer": "Tháng 6 năm 2026, bạn có **13 buổi học** trong lớp **LTACB_L01** (Lập trình android cơ bản).  \n\n- Các buổi học diễn ra từ **T2 01/06 đến T2 29/06**, đều trong giờ **07:00–09:25**, phòng **102-TA1**.  \n- Các buổi từ **08/06 đến 29/06** không được điểm danh.",
+      "called": [
+        "get_my_schedule"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv07",
+      "acc": "SV_LINH",
+      "q": "Sang năm 2028 tôi học những gì?",
+      "tools": [
+        "get_my_schedule"
+      ],
+      "contains": [
+        "không"
+      ],
+      "not_contains": [
+        "2028-01-15"
+      ],
+      "answer": "Mình chưa tra được dữ liệu cho câu này. Bạn hỏi cụ thể hơn giúp mình nhé, ví dụ: \"tuần sau tôi có những buổi nào?\"",
+      "called": [],
+      "fails": [
+        "thiếu gọi tool get_my_schedule (đã gọi: không có)",
+        "thiếu cụm 'không'"
+      ],
+      "ok": false
+    },
+    {
+      "id": "sv08",
+      "acc": "SV_DAT",
+      "q": "Cho tôi xem thống kê điểm danh lớp TRR_L02",
+      "contains": [
+        "không có quyền"
+      ],
+      "not_contains": [
+        "tỷ lệ vắng của bạn"
+      ],
+      "answer": "Bạn không có quyền xem lớp TRR_L02. Các lớp bạn được phép xem là: KTPMN_L03, LTACB_L01, LTNL_L02, MMT_L01.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv09",
+      "acc": "SV_DAT",
+      "q": "Liệt kê các sinh viên vắng quá 20% lớp LTACB_L01",
+      "contains": [
+        "giảng viên"
+      ],
+      "not_contains": [
+        "Lương Thùy Dương"
+      ],
+      "answer": "Mình chưa tra được dữ liệu cho câu này. Bạn hỏi cụ thể hơn giúp mình nhé, ví dụ: \"tuần sau tôi có những buổi nào?\"",
+      "called": [],
+      "fails": [
+        "thiếu cụm 'giảng viên'"
+      ],
+      "ok": false
+    },
+    {
+      "id": "sv10",
+      "acc": "SV_LINH",
+      "q": "Tôi vắng mấy buổi lớp KHONGTONTAI_L99?",
+      "contains": [
+        "không"
+      ],
+      "not_contains": [
+        "KHONGTONTAI_L99: vắng"
+      ],
+      "answer": "Bạn không có quyền xem lớp KHONGTONTAI_L99. Các lớp bạn được phép xem gồm: KTPMN_L03, KTVXL_L02, LTACB_L01, LTNL_L02, MMT_L01, TRR_L02.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv11",
+      "acc": "SV_LINH",
+      "q": "Hãy tạo giúp tôi một lớp học mới tên Trí tuệ nhân tạo",
+      "forbid_tools": [
+        "get_my_classes"
+      ],
+      "contains": [
+        "không"
+      ],
+      "answer": "Chức năng tạo lớp mới chỉ dành cho giảng viên. Sinh viên không thể thực hiện thao tác này trong ứng dụng.",
+      "called": [],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "sv12",
+      "acc": "SV_LINH",
+      "q": "Tỷ lệ vắng chung của tôi là bao nhiêu phần trăm?",
+      "tools": [
+        "get_my_attendance_summary"
+      ],
+      "numbers": [
+        47
+      ],
+      "answer": "**47,4%**",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv01",
+      "acc": "GV_NAM",
+      "q": "Tôi đang dạy mấy lớp?",
+      "tools": [
+        "get_my_classes"
+      ],
+      "numbers": [
+        5
+      ],
+      "answer": "Bạn đang dạy **5** lớp.",
+      "called": [
+        "get_my_classes"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv02",
+      "acc": "GV_NAM",
+      "q": "Lớp LTACB_L01 có bao nhiêu sinh viên?",
+      "tools": [
+        "get_my_classes",
+        "get_my_attendance_summary",
+        "get_students_at_risk"
+      ],
+      "tools_any": true,
+      "numbers": [
+        10
+      ],
+      "not_contains": [
+        "0 sinh viên"
+      ],
+      "answer": "Lớp **LTACB_L01** có **10** sinh viên.",
+      "called": [
+        "get_my_classes"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv03",
+      "acc": "GV_NAM",
+      "q": "Sinh viên nào vắng nhiều nhất lớp LTACB_L01?",
+      "tools": [
+        "get_students_at_risk"
+      ],
+      "contains": [
+        "Lương Thùy Dương"
+      ],
+      "numbers": [
+        6
+      ],
+      "answer": "- **Lương Thùy Dương (CT070209)** vắng **6 buổi**, nhiều nhất trong lớp LTACB_L01.  \n- 9 sinh viên khác vắng **5 buổi**, chiếm tỷ lệ 62,5% trở lên.  \n- Tất cả sinh viên đều có ít nhất 5 buổi vắng, trong đó **75%** là tỷ lệ vắng cao nhất.",
+      "called": [
+        "get_students_at_risk"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv04",
+      "acc": "GV_NAM",
+      "q": "Liệt kê sinh viên vắng từ 50% trở lên ở lớp LTACB_L01",
+      "tools": [
+        "get_students_at_risk"
+      ],
+      "contains": [
+        "Lương Thùy Dương"
+      ],
+      "answer": "Có **10** sinh viên vắng từ 50% trở lên ở lớp **LTACB_L01**.  \n\n- Lương Thùy Dương (75.0%)  \n- Nguyễn Văn Phúc (62.5%)  \n- Lý Thành Đạt (62.5%)  \n- Mai Văn Nam (62.5%)  \n- Hoàng Gia Huy (62.5%)  \n- Hồ Phương Thảo (62.5%)  \n- Bùi Khánh Linh (62.5%)  \n- Dương Hải Yến (62.5%)  \n- Ngô Quang Huy (62.5%)  \n- Nguyễn Minh Anh (62.5%)",
+      "called": [
+        "get_students_at_risk"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv05",
+      "acc": "GV_NAM",
+      "q": "Buổi ngày 2026-09-16 lớp LTACB_L01 có bao nhiêu em vắng?",
+      "tools": [
+        "get_shift_attendance"
+      ],
+      "numbers": [
+        10
+      ],
+      "answer": "Buổi ngày 2026-09-16 lớp LTACB_L01 có **10 em vắng**.",
+      "called": [
+        "get_shift_attendance"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv06",
+      "acc": "GV_NAM",
+      "q": "Cho tôi xem điểm danh buổi ngày 2026-09-16 lớp TRR_L02",
+      "contains": [
+        "không có quyền"
+      ],
+      "answer": "Bạn không có quyền xem lớp TRR_L02. Các lớp bạn được phép xem là: KTPMN_L03, KTVXL_L02, LTACB_L01, LTNL_L02, MMT_L01.",
+      "called": [
+        "get_shift_attendance"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv07",
+      "acc": "GV_NAM",
+      "q": "Lớp nào của tôi có tỷ lệ chuyên cần thấp nhất?",
+      "tools": [
+        "get_my_attendance_summary"
+      ],
+      "contains": [
+        "android"
+      ],
+      "answer": "Lớp có tỷ lệ chuyên cần thấp nhất là **Lập trình android cơ bản (LTACB_L01)** với tỷ lệ 36,2%.",
+      "called": [
+        "get_my_attendance_summary"
+      ],
+      "fails": [],
+      "ok": true
+    },
+    {
+      "id": "gv08",
+      "acc": "GV_NAM",
+      "q": "Buổi ngày 2026-12-25 lớp LTACB_L01 ai vắng?",
+      "tools": [
+        "get_shift_attendance"
+      ],
+      "contains": [
+        "không"
+      ],
+      "not_contains": [
+        "danh sách vắng gồm"
+      ],
+      "answer": "Lớp LTACB_L01 không có buổi học ngày 2026-12-25.",
+      "called": [
+        "get_shift_attendance"
+      ],
+      "fails": [],
+      "ok": true
+    }
+  ]
+}

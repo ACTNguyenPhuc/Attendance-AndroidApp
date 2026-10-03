@@ -6,3 +6,30 @@
   /tồn đọng
   //set chỉ cho mở ca trong ca/ngày đó
   //fix sắp diễn ra -> mở phiên
+
+  Giảng viên tạo phiên điểm danh
+
+Lưu danh sách BSSID được phép, tương ứng với phòng học.
+
+Sinh viên bấm điểm danh
+
+Ứng dụng quét Wi-Fi xung quanh, không bắt buộc kết nối Wi-Fi trường.
+
+Kiểm tra tín hiệu
+
+So sánh BSSID tìm thấy và RSSI với cấu hình của phòng.
+
+Kết hợp GPS và phiên học
+
+Kiểm tra thêm vị trí GPS, thời gian phiên học và tài khoản sinh viên.
+
+Gửi yêu cầu lên Firebase
+
+Backend xác minh các điều kiện trước khi ghi nhận điểm danh.
+
+# 1. Bật server (nếu chưa)
+cd attendance-ai
+venv/Scripts/python.exe -m uvicorn server:app --host 0.0.0.0 --port 8000
+
+# 2. Android Studio: Sync Gradle (vì vừa thêm OkHttp) rồi Run
+# 3. Đăng nhập → bấm nút tròn góc dưới phải → gõ "Tôi vắng mấy buổi rồi?"
