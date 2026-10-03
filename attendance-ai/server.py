@@ -16,13 +16,15 @@ import uuid
 from dataclasses import dataclass
 
 from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import config
-from agent import Agent
+from agent import (PROVIDERS, Agent, ProviderUnavailable, default_provider,
+                   set_default_provider)
 from config import HERE, get_db
+from conversations import load_history
 from tools.context import load_ctx
 
 # Cho phép gửi thẳng uid thay vì Firebase ID token — CHỈ để test local.
@@ -34,6 +36,11 @@ MAX_SESSIONS = 200          # chặn phình RAM
 RATE_LIMIT_PER_HOUR = 40    # mỗi người mỗi giờ, bảo vệ quota dùng chung
 
 app = FastAPI(title="AttendanceApp AI")
+
+
+@app.exception_handler(ProviderUnavailable)
+def _provider_unavailable(_req, e: ProviderUnavailable):
+    return JSONResponse(status_code=503, content={"detail": f"Mô hình chưa sẵn sàng: {e}"})
 
 
 # ─────────────────────────── Lưu phiên trong RAM ───────────────────────────
@@ -55,8 +62,15 @@ def _sweep(now: float):
         del _sessions[k]
 
 
-def get_session(session_id: str | None, ctx):
-    """Lấy phiên cũ hoặc tạo mới. Trả (session_id, Session)."""
+def get_session(session_id: str | None, ctx, conversation_id: str | None = None,
+                provider: str | None = None):
+    """Lấy phiên cũ hoặc tạo mới. Trả (session_id, Session).
+
+    Phiên chỉ sống trong RAM và hết hạn sau 30 phút, nên khi người dùng mở lại
+    một hội thoại cũ thì gần như chắc chắn phải dựng mới. Lúc đó đọc lại vài lượt
+    đã lưu trong Firestore để model không bị mất mạch — nếu không, màn hình đầy
+    tin nhắn cũ mà AI lại không hiểu "lớp kia" là lớp nào.
+    """
     now = time.time()
     with _lock:
         _sweep(now)
@@ -65,13 +79,19 @@ def get_session(session_id: str | None, ctx):
         # để đọc hội thoại không phải của mình.
         if s and s.uid == ctx.uid:
             s.last = now
+            if provider:
+                s.agent.switch(provider)   # giữ nguyên lịch sử, chỉ đổi nơi chạy mô hình
             return session_id, s
 
         if len(_sessions) >= MAX_SESSIONS:
             del _sessions[min(_sessions, key=lambda k: _sessions[k].last)]
 
+        # load_history đọc dưới users/{uid}/... nên chỉ chạm được dữ liệu của
+        # chính người gửi, kể cả khi conversation_id là của người khác.
+        history = load_history(ctx.uid, conversation_id)
+
         sid = uuid.uuid4().hex
-        _sessions[sid] = Session(Agent(ctx), ctx.uid, now)
+        _sessions[sid] = Session(Agent(ctx, history=history, provider=provider), ctx.uid, now)
         return sid, _sessions[sid]
 
 
@@ -114,26 +134,68 @@ def resolve_ctx(authorization: str | None, dev_uid: str | None):
 class ChatIn(BaseModel):
     message: str
     session_id: str | None = None
+    # Hội thoại trong lịch sử của người dùng; dùng để dựng lại mạch khi phiên đã hết hạn.
+    conversation_id: str | None = None
     uid: str | None = None   # chỉ có tác dụng khi DEV_MODE bật
+    # "ollama" | "gemini" — chọn nơi chạy mô hình cho phiên này. Chỉ có tác dụng khi DEV_MODE
+    # bật, để người dùng thật không tự ý đốt quota Gemini dùng chung.
+    provider: str | None = None
+
+
+class ProviderIn(BaseModel):
+    provider: str
+
+
+def requested_provider(body: ChatIn) -> str | None:
+    if not (DEV_MODE and body.provider):
+        return None
+    p = body.provider.strip().lower()
+    if p not in PROVIDERS:
+        raise HTTPException(400, f"provider phải là một trong: {', '.join(PROVIDERS)}")
+    return p
 
 
 @app.get("/health")
 def health():
     with _lock:
         n = len(_sessions)
-    return {"ok": True, "dev_mode": DEV_MODE, "phien_dang_mo": n, "model": config.MODEL}
+    p = default_provider()
+    return {"ok": True, "dev_mode": DEV_MODE, "phien_dang_mo": n,
+            "provider": p, "model": config.model_of(p), "du_phong": config.LLM_FALLBACK}
+
+
+@app.get("/provider")
+def get_provider():
+    return {"mac_dinh": default_provider(), "co_the_chon": list(PROVIDERS),
+            "du_phong": config.LLM_FALLBACK}
+
+
+@app.post("/provider")
+def change_provider(body: ProviderIn):
+    """Đổi provider mặc định cho các phiên MỚI, không cần khởi động lại server.
+
+    Đổi một phiên đang mở thì gửi kèm "provider" trong /chat.
+    """
+    if not DEV_MODE:
+        raise HTTPException(403, "Chỉ đổi được khi DEV_MODE bật. Khi deploy hãy sửa LLM_PROVIDER trong .env.")
+    try:
+        p = set_default_provider(body.provider)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+    return {"mac_dinh": p, "model": config.model_of(p)}
 
 
 # Dùng def (không phải async def) để FastAPI chạy trong threadpool —
-# lời gọi Gemini là đồng bộ, nếu để async sẽ chặn cả event loop.
+# lời gọi mô hình là đồng bộ, nếu để async sẽ chặn cả event loop.
 @app.post("/chat")
 def chat(body: ChatIn, authorization: str | None = Header(default=None)):
     if not (body.message or "").strip():
         raise HTTPException(400, "message rỗng")
 
     ctx = resolve_ctx(authorization, body.uid)
+    provider = requested_provider(body)
     check_rate(ctx.uid)
-    sid, sess = get_session(body.session_id, ctx)
+    sid, sess = get_session(body.session_id, ctx, body.conversation_id, provider)
 
     try:
         reply = sess.agent.ask(body.message)
@@ -142,6 +204,8 @@ def chat(body: ChatIn, authorization: str | None = Header(default=None)):
         if "RESOURCE_EXHAUSTED" in msg or "429" in msg:
             raise HTTPException(429, "Hệ thống đang quá tải (giới hạn gói miễn phí). "
                                      "Bạn thử lại sau ít giây nhé.") from e
+        if type(e).__name__ == "OllamaError":   # câu đã dịch sẵn, hiện thẳng được
+            raise HTTPException(503, msg) from e
         raise HTTPException(500, f"Lỗi xử lý: {type(e).__name__}") from e
 
     return {
@@ -149,6 +213,8 @@ def chat(body: ChatIn, authorization: str | None = Header(default=None)):
         "reply": reply.text,
         "tools": [{"ten": t[0], "thamSo": t[1]} for t in reply.tool_calls],
         "tokens": reply.tokens,
+        "provider": sess.agent.provider,
+        "model": sess.agent.model,
         "nguoiDung": {"ten": ctx.name, "vaiTro": ctx.role},
     }
 
@@ -169,12 +235,13 @@ def chat_stream(body: ChatIn, authorization: str | None = Header(default=None)):
         raise HTTPException(400, "message rỗng")
 
     ctx = resolve_ctx(authorization, body.uid)
+    provider = requested_provider(body)
     check_rate(ctx.uid)
-    sid, sess = get_session(body.session_id, ctx)
+    sid, sess = get_session(body.session_id, ctx, body.conversation_id, provider)
 
     def gen():
         # Gửi session_id ngay để client lưu lại cho lượt sau
-        yield sse({'type': 'start', 'session_id': sid})
+        yield sse({'type': 'start', 'session_id': sid, 'provider': sess.agent.provider})
         try:
             for ev in sess.agent.ask_stream(body.message):
                 yield sse(ev)
@@ -202,6 +269,15 @@ def index():
 
 @app.on_event("startup")
 def _warn():
+    p = default_provider()
+    where = config.OLLAMA_URL if p == "ollama" else "Gemini API"
+    print("\n" + "=" * 68)
+    print(f"  LLM provider : {p}  ({where})")
+    print(f"  Model        : {config.model_of(p)}")
+    if p == "gemini" and len(config.MODELS) > 1:
+        print(f"  Model phụ    : {', '.join(config.MODELS[1:])}")
+    print(f"  Dự phòng     : {', '.join(config.LLM_FALLBACK) or 'tắt (LLM_FALLBACK trống)'}")
+    print("=" * 68)
     if DEV_MODE:
         print("\n" + "!" * 68)
         print("  DEV_MODE đang BẬT — cho phép gửi uid trực tiếp, KHÔNG cần đăng nhập.")

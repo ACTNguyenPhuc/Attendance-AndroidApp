@@ -1,7 +1,10 @@
 # Firestore (đọc dữ liệu thật)
 firebase-admin>=6.5.0
 
-# Gemini
+# Gọi Ollama (mô hình chạy local)
+httpx>=0.27
+
+# Gemini — chỉ cần khi LLM_PROVIDER=gemini
 google-genai>=0.3.0
 
 # Đọc file .env

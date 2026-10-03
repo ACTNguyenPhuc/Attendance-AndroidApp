@@ -3,13 +3,16 @@
     venv/Scripts/python.exe chat.py                 # hiện danh sách tài khoản để chọn
     venv/Scripts/python.exe chat.py --uid <uid>     # vào chat luôn
     venv/Scripts/python.exe chat.py --uid <uid> --quiet   # ẩn dòng gọi tool
+    venv/Scripts/python.exe chat.py --uid <uid> --provider gemini   # bỏ qua LLM_PROVIDER trong .env
+
+Trong lúc chat gõ /provider để xem, /provider ollama|gemini để đổi (giữ nguyên hội thoại).
 """
 import argparse
 import json
 import sys
 
 import config  # noqa: F401 — import sớm để sửa mã hoá stdout trước mọi lần print
-from agent import Agent
+from agent import PROVIDERS, Agent
 from config import get_db
 from tools.context import load_ctx
 
@@ -44,6 +47,7 @@ def main():
     ap = argparse.ArgumentParser(description="Chat AI với dữ liệu điểm danh thật")
     ap.add_argument("--uid", help="uid Firebase của người dùng muốn đóng vai")
     ap.add_argument("--quiet", action="store_true", help="ẩn dòng hiển thị tool được gọi")
+    ap.add_argument("--provider", choices=PROVIDERS, help="nơi chạy mô hình (mặc định: LLM_PROVIDER)")
     args = ap.parse_args()
 
     if not args.uid:
@@ -51,11 +55,12 @@ def main():
         return
 
     ctx = load_ctx(args.uid)
-    agent = Agent(ctx)
+    agent = Agent(ctx, provider=args.provider)
 
     vai_tro = "Giảng viên" if ctx.is_teacher else "Sinh viên"
     print(f"\n{BOLD}Trợ lý điểm danh AttendanceApp{RESET}")
     print(f"{DIM}Đang đóng vai: {vai_tro} {ctx.name} ({ctx.student_code}){RESET}")
+    print(f"{DIM}Mô hình: {agent.provider} · {agent.model}  (gõ /provider <tên> để đổi){RESET}")
     print(f"{DIM}Gõ câu hỏi bằng tiếng Việt. Gõ 'thoat' hoặc Ctrl+C để kết thúc.{RESET}\n")
 
     def on_wait(sec, note=None):
@@ -80,6 +85,16 @@ def main():
         if q.lower() in {"thoat", "thoát", "exit", "quit", "q"}:
             print("Tạm biệt.")
             return
+        if q.lower().startswith("/provider"):
+            want = q[len("/provider"):].strip()
+            try:
+                if want:
+                    agent.switch(want)
+                print(f"  {YELLOW}Mô hình: {agent.provider} · {agent.model}{RESET}"
+                      f"  {DIM}(chọn được: {', '.join(PROVIDERS)}){RESET}\n")
+            except Exception as e:  # noqa: BLE001
+                print(f"  {YELLOW}Không đổi được: {e}{RESET}\n")
+            continue
 
         try:
             reply = agent.ask(q, on_tool=on_tool, on_wait=on_wait)
