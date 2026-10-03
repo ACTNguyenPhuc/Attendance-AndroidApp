@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Attendance ChatboxAI"
+                android:text="Trợ lý điểm danh"
                 android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -142,6 +142,34 @@
                     android:id="@+id/sug_3"
                     style="@style/ChatSuggestionBlock"
                     android:layout_marginTop="10dp" />
+
+                <!-- Lich su chat. An khi chua co hoi thoai nao duoc luu. -->
+                <LinearLayout
+                    android:id="@+id/layout_chat_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cuộc trò chuyện gần đây"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <!-- Nam trong ScrollView nen phai tu cao theo noi dung
+                         va nhuong viec cuon cho khung ngoai. -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_chat_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </FrameLayout>

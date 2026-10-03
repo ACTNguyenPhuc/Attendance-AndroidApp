@@ -1,6 +1,7 @@
 package com.example.attendanceapplication.models;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -14,6 +15,8 @@ public class ChatMessage {
 
     private static final SimpleDateFormat HHMM =
             new SimpleDateFormat("HH:mm", new Locale("vi", "VN"));
+    private static final SimpleDateFormat DDMM =
+            new SimpleDateFormat("dd/MM", new Locale("vi", "VN"));
 
     private int role;
     private String text;
@@ -41,8 +44,33 @@ public class ChatMessage {
     }
 
     public static ChatMessage dateSeparator() {
-        return new ChatMessage(ROLE_DATE,
-                "Hôm nay, " + HHMM.format(new Date()));
+        return dateSeparator(System.currentTimeMillis());
+    }
+
+    /**
+     * Dòng ngày cho một mốc thời gian bất kỳ.
+     *
+     * Hội thoại mở lại từ lịch sử có thể của hôm qua hay tuần trước, nên không
+     * thể mặc định là "Hôm nay" như lúc đang chat.
+     */
+    public static ChatMessage dateSeparator(long millis) {
+        Calendar then = Calendar.getInstance();
+        then.setTimeInMillis(millis);
+        Calendar ref = Calendar.getInstance();
+
+        String ngay;
+        if (sameDay(then, ref)) {
+            ngay = "Hôm nay";
+        } else {
+            ref.add(Calendar.DAY_OF_YEAR, -1);
+            ngay = sameDay(then, ref) ? "Hôm qua" : DDMM.format(new Date(millis));
+        }
+        return new ChatMessage(ROLE_DATE, ngay + ", " + HHMM.format(new Date(millis)));
+    }
+
+    private static boolean sameDay(Calendar a, Calendar b) {
+        return a.get(Calendar.YEAR) == b.get(Calendar.YEAR)
+                && a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR);
     }
 
     /** Giờ hiển thị dưới bong bóng, dạng HH:mm. */

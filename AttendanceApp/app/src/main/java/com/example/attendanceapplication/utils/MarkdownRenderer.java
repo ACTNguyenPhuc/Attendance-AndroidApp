@@ -109,6 +109,43 @@ public final class MarkdownRenderer {
         return trimEnd(out);
     }
 
+    /**
+     * Gỡ bỏ ký tự đánh dấu Markdown, trả về văn bản thuần một dòng.
+     *
+     * Dùng cho dòng xem trước trong danh sách lịch sử: ở đó không gắn span được
+     * vì chuỗi còn bị cắt ngắn, mà để nguyên thì người dùng thấy đầy dấu sao.
+     */
+    public static String plain(String markdown) {
+        if (markdown == null || markdown.isEmpty()) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (String raw : markdown.replace("\r\n", "\n").replace("\r", "\n").split("\n", -1)) {
+            String line = raw.trim();
+            if (line.isEmpty()) continue;
+
+            Matcher mh = HEADING.matcher(line);
+            Matcher mb = BULLET.matcher(line);
+            Matcher mn = NUMBER.matcher(line);
+            if (mh.matches()) {
+                line = mh.group(1).trim();
+            } else if (mb.matches()) {
+                line = mb.group(1).trim();
+            } else if (mn.matches()) {
+                line = mn.group(1) + ". " + mn.group(2).trim();
+            }
+
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(line);
+        }
+
+        // BOLD phải chạy trước ITALIC, vì ** cũng khớp một phần với mẫu *
+        String out = sb.toString();
+        out = BOLD.matcher(out).replaceAll("$1");
+        out = CODE.matcher(out).replaceAll("$1");
+        out = ITALIC.matcher(out).replaceAll("$1");
+        return out.trim();
+    }
+
     private interface SpanFactory {
         Object create();
     }

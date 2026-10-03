@@ -45,6 +45,13 @@ public class ChatRepository {
     private final Handler main = new Handler(Looper.getMainLooper());
     /** Giữ mạch hội thoại giữa các lượt hỏi. Server tự hết hạn sau 30 phút. */
     private String sessionId;
+    /**
+     * Hội thoại đang mở trong lịch sử (Firestore). Gửi kèm mỗi lượt hỏi để khi
+     * phiên phía server đã hết hạn, server tự dựng lại mạch từ các tin đã lưu.
+     */
+    private String conversationId;
+    /** Tài khoản mà hội thoại hiện tại thuộc về. */
+    private String ownerUid;
     private Call current;
 
     private ChatRepository() {
@@ -54,6 +61,19 @@ public class ChatRepository {
                 // Streaming giữ kết nối mở suốt lúc AI trả lời -> không đặt hạn đọc
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
+
+        // Đăng xuất hoặc đổi tài khoản thì hội thoại đang mở không còn thuộc về
+        // người đang đăng nhập. Repository là singleton, sống lâu hơn cả màn hình
+        // chat, nên nếu không bỏ đi thì tin nhắn của người mới sẽ ghi nhầm vào
+        // bản ghi lịch sử của người trước.
+        FirebaseAuth.getInstance().addAuthStateListener(auth -> {
+            FirebaseUser u = auth.getCurrentUser();
+            String uid = u == null ? null : u.getUid();
+            if (ownerUid != null && !ownerUid.equals(uid)) {
+                ownerUid = null;
+                newConversation();
+            }
+        });
     }
 
     public static synchronized ChatRepository getInstance() {
@@ -77,7 +97,43 @@ public class ChatRepository {
 
     public void newConversation() {
         sessionId = null;
+        conversationId = null;
         cancel();
+    }
+
+    /**
+     * Gắn mạch hội thoại hiện tại vào một bản ghi lịch sử vừa được tạo.
+     * Dùng khi người dùng gửi câu hỏi đầu tiên của một hội thoại mới.
+     */
+    public void bindConversation(String convId) {
+        conversationId = convId;
+    }
+
+    /**
+     * Mở lại một hội thoại cũ.
+     *
+     * {@code serverSessionId} có thể đã hết hạn — cứ gửi đi, server không tìm
+     * thấy thì tự đọc lại lịch sử từ Firestore để dựng lại mạch.
+     */
+    public void openConversation(String convId, String serverSessionId) {
+        cancel();
+        conversationId = convId;
+        sessionId = serverSessionId;
+    }
+
+    /** Mã phiên server của lượt vừa rồi, để lưu lại cùng hội thoại. */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    /**
+     * Hội thoại đang mở, hoặc null nếu chưa gửi câu nào.
+     *
+     * Repository là singleton nên giá trị này sống lâu hơn Activity — nhờ vậy
+     * xoay màn hình hay thoát rồi vào lại vẫn quay về đúng hội thoại đang dở.
+     */
+    public String getConversationId() {
+        return conversationId;
     }
 
     public void cancel() {
@@ -93,6 +149,7 @@ public class ChatRepository {
             main.post(() -> cb.onError("Bạn cần đăng nhập lại."));
             return;
         }
+        ownerUid = user.getUid();
         user.getIdToken(false)
                 .addOnSuccessListener(res -> doSend(res.getToken(), message, cb))
                 .addOnFailureListener(e ->
@@ -105,6 +162,7 @@ public class ChatRepository {
             JSONObject o = new JSONObject();
             o.put("message", message);
             if (sessionId != null) o.put("session_id", sessionId);
+            if (conversationId != null) o.put("conversation_id", conversationId);
             body = o.toString();
         } catch (Exception e) {
             main.post(() -> cb.onError("Lỗi tạo yêu cầu."));

@@ -286,13 +286,17 @@
         android:tint="@color/white" />
 
 
-    <!-- Nut mo tro ly AI -->
+    <!-- Nut mo tro ly AI. Dat o goc TRAI de khong dung nut quet diem danh.
+         Le duoi 24dp: tam FAB (56dp) cach day 24+28 = 52dp, bang dung tam
+         nut quet (64dp, le duoi 20dp) -> hai nut nam tren cung mot duong.
+         Le trai 24dp doi xung voi le phai 20dp cua nut quet. -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_chat_ai"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="24dp"
         android:contentDescription="Tro ly AI"
         android:src="@drawable/ic_chat_white"
         app:backgroundTint="@color/primary_blue"
