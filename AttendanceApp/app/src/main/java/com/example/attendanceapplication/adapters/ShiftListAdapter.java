@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.ClassCardUi;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -142,17 +143,25 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         Context ctx = holder.itemView.getContext();
 
         holder.tvDate.setText(formatDateVN(shift.getDate()));
-        holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
+        holder.tvStartTime.setText(shift.getStartAt() != null ? shift.getStartAt() : "");
+        holder.tvEndTime.setText(shift.getEndAt() != null ? shift.getEndAt() : "");
         String room = shift.getRoom() == null ? "" : shift.getRoom().trim();
-        holder.tvRoom.setText("Phòng: " + (room.isEmpty() ? "Chưa cập nhật" : room));
+        holder.tvRoom.setText(room.isEmpty() ? "Chưa cập nhật phòng" : "Phòng " + room);
         holder.tvMakeupBadge.setVisibility(shift.isMakeup() ? View.VISIBLE : View.GONE);
 
+        // Tiêu đề nhóm chỉ hiện ở thẻ đầu tiên của mỗi nhóm.
+        String section = getSection(shift);
+        Shift previous = position > 0 ? shiftList.get(position - 1) : null;
+        boolean showHeader = previous == null || !section.equals(getSection(previous));
+        holder.tvSectionHeader.setVisibility(showHeader ? View.VISIBLE : View.GONE);
+        holder.tvSectionHeader.setText(section);
+
         boolean attendanceInProgress = AttendanceUtils.isAttendanceInProgress(shift);
-        int activeStrokeWidth = Math.round(2 * ctx.getResources().getDisplayMetrics().density);
-        holder.foreground.setStrokeWidth(attendanceInProgress ? activeStrokeWidth : 0);
-        holder.foreground.setStrokeColor(ContextCompat.getColor(ctx, R.color.accent_green));
-        holder.foreground.setCardElevation(
-                attendanceInProgress ? activeStrokeWidth * 4f : activeStrokeWidth);
+        float density = ctx.getResources().getDisplayMetrics().density;
+        holder.foreground.setStrokeWidth(Math.round((attendanceInProgress ? 1.5f : 1f) * density));
+        holder.foreground.setStrokeColor(ContextCompat.getColor(ctx,
+                attendanceInProgress ? R.color.status_green_fg : R.color.card_stroke));
+        holder.foreground.setCardElevation(attendanceInProgress ? 3 * density : density);
 
         holder.foreground.animate().cancel();
         holder.foreground.setTranslationX(0f);
@@ -191,37 +200,45 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         // Status badge. "Sắp diễn ra" only shows when the shift is within 1 day.
         String status = shift.getStatus();
         boolean hideUpcoming = Shift.STATUS_UPCOMING.equals(status)
-                && !com.example.attendanceapplication.utils.AttendanceUtils
-                        .shouldShowUpcomingBadge(shift.getDate());
+                && !AttendanceUtils.shouldShowUpcomingBadge(shift.getDate());
         if (hideUpcoming) {
             holder.tvStatus.setVisibility(View.GONE);
         } else {
             holder.tvStatus.setVisibility(View.VISIBLE);
-            holder.tvStatus.setText(getStatusText(status));
-            holder.tvStatus.setBackgroundResource(getStatusBackground(status));
+            ClassCardUi.bindStatusPill(holder.tvStatus, ClassCardUi.getStatusText(status),
+                    ClassCardUi.getStatusBackground(status), ClassCardUi.getStatusColor(status));
         }
+        int barColor = attendanceInProgress || Shift.STATUS_ONGOING.equals(status)
+                ? R.color.status_green_fg
+                : Shift.STATUS_UPCOMING.equals(status) ? R.color.status_orange_fg
+                : R.color.shift_bar_gray;
+        holder.viewStatusBar.setBackgroundColor(ContextCompat.getColor(ctx, barColor));
 
-        // Attendance info and action
+        // Dải trạng thái điểm danh: ẩn với ca đã kết thúc/hủy và ca chưa tới ngày.
         holder.btnOpenAtt.setOnClickListener(null);
-        if (Shift.STATUS_COMPLETED.equals(status) || Shift.STATUS_CANCELLED.equals(status)) {
-            holder.btnOpenAtt.setVisibility(View.GONE);
-            holder.ivAttIcon.setVisibility(View.GONE);
-            holder.tvAttInfo.setText("Đã kết thúc");
-            holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary));
+        boolean finished = Shift.STATUS_COMPLETED.equals(status) || Shift.STATUS_CANCELLED.equals(status);
+        if (finished) {
+            holder.attFooter.setVisibility(View.GONE);
         } else if (shift.isAttendanceOpened()) {
+            holder.attFooter.setVisibility(View.VISIBLE);
+            holder.attFooter.setBackgroundColor(ContextCompat.getColor(ctx, R.color.shift_footer_green));
             holder.ivAttIcon.setVisibility(View.VISIBLE);
             holder.tvAttInfo.setText("Đã mở điểm danh");
-            holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.accent_green));
+            holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.status_green_fg));
             holder.btnOpenAtt.setVisibility(View.GONE);
-        } else {
+        } else if (todayString().equals(shift.getDate())) {
             boolean canOpenAttendance = canOpenAttendanceAt(shift, new Date());
-            holder.btnOpenAtt.setVisibility(canOpenAttendance ? View.VISIBLE : View.GONE);
+            holder.attFooter.setVisibility(View.VISIBLE);
+            holder.attFooter.setBackgroundColor(ContextCompat.getColor(ctx, R.color.shift_footer_gray));
             holder.ivAttIcon.setVisibility(View.GONE);
             holder.tvAttInfo.setText("Chưa mở điểm danh");
             holder.tvAttInfo.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary));
+            holder.btnOpenAtt.setVisibility(canOpenAttendance ? View.VISIBLE : View.GONE);
             if (canOpenAttendance && listener != null) {
                 holder.btnOpenAtt.setOnClickListener(v -> listener.onOpen(shift));
             }
+        } else {
+            holder.attFooter.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -233,23 +250,33 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
         });
     }
 
-    private String getStatusText(String status) {
-        if (status == null) return "";
-        switch (status) {
-            case Shift.STATUS_UPCOMING:  return "Sắp diễn ra";
-            case Shift.STATUS_ONGOING:   return "Đang diễn ra";
-            case Shift.STATUS_COMPLETED: return "Đã kết thúc";
-            case Shift.STATUS_CANCELLED: return "Đã hủy";
-            default: return status;
+
+
+    public static final String SECTION_TODAY = "HÔM NAY";
+    public static final String SECTION_UPCOMING = "SẮP DIỄN RA";
+    public static final String SECTION_FINISHED = "ĐÃ KẾT THÚC";
+
+    /** Nhóm hiển thị của ca: đang điểm danh / hôm nay → sắp diễn ra → đã kết thúc. */
+    public static String getSection(Shift shift) {
+        if (AttendanceUtils.isAttendanceInProgress(shift)) return SECTION_TODAY;
+        String status = shift.getStatus();
+        if (Shift.STATUS_COMPLETED.equals(status) || Shift.STATUS_CANCELLED.equals(status)) {
+            return SECTION_FINISHED;
         }
+        if (todayString().equals(shift.getDate())) return SECTION_TODAY;
+        return SECTION_UPCOMING;
     }
 
-    private int getStatusBackground(String status) {
-        if (Shift.STATUS_ONGOING.equals(status)) return R.drawable.bg_badge_green;
-        if (Shift.STATUS_UPCOMING.equals(status)) return R.drawable.bg_badge_orange;
-        if (Shift.STATUS_COMPLETED.equals(status)) return R.drawable.bg_badge_gray;
-        if (Shift.STATUS_CANCELLED.equals(status)) return R.drawable.bg_badge_gray;
-        return R.drawable.bg_badge_gray;
+    /** Thứ tự nhóm để sắp xếp danh sách (0 = hôm nay, 1 = sắp diễn ra, 2 = đã kết thúc). */
+    public static int getSectionOrder(Shift shift) {
+        String section = getSection(shift);
+        if (SECTION_TODAY.equals(section)) return 0;
+        if (SECTION_UPCOMING.equals(section)) return 1;
+        return 2;
+    }
+
+    private static String todayString() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
     }
 
     private String formatDateVN(String date) {
@@ -275,7 +302,8 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
     public int getItemCount() { return shiftList.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvTime, tvRoom, tvStatus, tvAttInfo, tvMakeupBadge;
+        TextView tvSectionHeader, tvDate, tvStartTime, tvEndTime, tvRoom, tvStatus, tvAttInfo, tvMakeupBadge;
+        View viewStatusBar, attFooter;
         ImageView ivAttIcon;
         MaterialButton btnOpenAtt;
         // Lớp foreground được dịch chuyển khi vuốt để lộ hai hành động phía sau.
@@ -289,7 +317,11 @@ public class ShiftListAdapter extends RecyclerView.Adapter<ShiftListAdapter.View
             actionDelete = itemView.findViewById(R.id.action_delete);
             actionReschedule = itemView.findViewById(R.id.action_reschedule);
             tvDate     = itemView.findViewById(R.id.tv_date);
-            tvTime     = itemView.findViewById(R.id.tv_time);
+            tvSectionHeader = itemView.findViewById(R.id.tv_section_header);
+            tvStartTime = itemView.findViewById(R.id.tv_start_time);
+            tvEndTime  = itemView.findViewById(R.id.tv_end_time);
+            viewStatusBar = itemView.findViewById(R.id.view_status_bar);
+            attFooter  = itemView.findViewById(R.id.layout_att_footer);
             tvRoom     = itemView.findViewById(R.id.tv_room);
             tvStatus   = itemView.findViewById(R.id.tv_status);
             tvMakeupBadge = itemView.findViewById(R.id.tv_makeup_badge);

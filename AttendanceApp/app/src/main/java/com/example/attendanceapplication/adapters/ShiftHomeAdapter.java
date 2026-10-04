@@ -7,13 +7,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.ClassCardUi;
 
 import java.util.Date;
 import java.util.List;
@@ -46,18 +46,28 @@ public class ShiftHomeAdapter extends RecyclerView.Adapter<ShiftHomeAdapter.View
         Context ctx = holder.itemView.getContext();
 
         holder.tvClassName.setText(shift.getClassName() != null ? shift.getClassName() : shift.getTitle());
-        holder.tvTime.setText(shift.getStartAt() + " - " + shift.getEndAt());
-        holder.tvRoom.setText(shift.getRoom() != null ? shift.getRoom() : "");
+        holder.tvStartTime.setText(shift.getStartAt() != null ? shift.getStartAt() : "");
+        holder.tvEndTime.setText(shift.getEndAt() != null ? shift.getEndAt() : "");
+        String room = shift.getRoom();
+        holder.tvRoom.setText(room != null && !room.trim().isEmpty() ? room : "Chưa có phòng");
 
         Date now = new Date();
         boolean attendanceNow = AttendanceUtils.canOpenAttendanceAt(shift, now);
-        String statusText = attendanceNow ? "Điểm danh ngay" : getStatusText(shift.getStatus());
-        holder.tvStatus.setText(statusText);
-        holder.tvStatus.setBackgroundColor(attendanceNow
-                ? ContextCompat.getColor(ctx, R.color.accent_green)
-                : getStatusColor(ctx, shift.getStatus(), shift.isAttendanceOpened()));
+        String status = shift.getStatus();
+        int colorRes;
+        if (attendanceNow) {
+            colorRes = R.color.status_green_fg;
+            ClassCardUi.bindStatusPill(holder.tvStatus, "Điểm danh ngay",
+                    R.drawable.bg_pill_soft_green, colorRes);
+        } else {
+            colorRes = ClassCardUi.getStatusColor(status);
+            ClassCardUi.bindStatusPill(holder.tvStatus, ClassCardUi.getStatusText(status),
+                    ClassCardUi.getStatusBackground(status), colorRes);
+        }
+        holder.viewStatusBar.setBackgroundColor(ContextCompat.getColor(ctx, colorRes));
+        holder.viewDivider.setVisibility(position == shiftList.size() - 1 ? View.GONE : View.VISIBLE);
 
-        boolean canOpenCard = Shift.STATUS_COMPLETED.equals(shift.getStatus())
+        boolean canOpenCard = Shift.STATUS_COMPLETED.equals(status)
                 || shift.isAttendanceOpened()
                 || attendanceNow;
         holder.card.setOnClickListener(null);
@@ -68,48 +78,23 @@ public class ShiftHomeAdapter extends RecyclerView.Adapter<ShiftHomeAdapter.View
         }
     }
 
-    private String getStatusText(String status) {
-        if (status == null) return "";
-        switch (status) {
-            case Shift.STATUS_UPCOMING: return "Sắp diễn ra";
-            case Shift.STATUS_ONGOING: return "Đang diễn ra";
-            case Shift.STATUS_COMPLETED: return "Đã kết thúc";
-            case Shift.STATUS_CANCELLED: return "Đã hủy";
-            default: return status;
-        }
-    }
-
-    private int getStatusColor(Context ctx, String status, boolean attendanceOpened) {
-        // "Chờ mở" in the stats means not opened; keep the badge green only when ongoing+opened.
-        if (Shift.STATUS_ONGOING.equals(status) && attendanceOpened) {
-            return ContextCompat.getColor(ctx, R.color.accent_green);
-        }
-        if (Shift.STATUS_ONGOING.equals(status) || Shift.STATUS_UPCOMING.equals(status)) {
-            return ContextCompat.getColor(ctx, R.color.primary_light);
-        }
-        if (Shift.STATUS_COMPLETED.equals(status)) {
-            return ContextCompat.getColor(ctx, R.color.divider);
-        }
-        if (Shift.STATUS_CANCELLED.equals(status)) {
-            return ContextCompat.getColor(ctx, R.color.error_red);
-        }
-        return ContextCompat.getColor(ctx, R.color.primary_light);
-    }
-
     @Override
     public int getItemCount() {
         return shiftList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        CardView card;
-        TextView tvClassName, tvTime, tvRoom, tvStatus;
+        View card, viewStatusBar, viewDivider;
+        TextView tvClassName, tvStartTime, tvEndTime, tvRoom, tvStatus;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             card = itemView.findViewById(R.id.card_shift_home);
+            viewStatusBar = itemView.findViewById(R.id.view_status_bar);
+            viewDivider = itemView.findViewById(R.id.view_divider);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
-            tvTime = itemView.findViewById(R.id.tv_time);
+            tvStartTime = itemView.findViewById(R.id.tv_start_time);
+            tvEndTime = itemView.findViewById(R.id.tv_end_time);
             tvRoom = itemView.findViewById(R.id.tv_room);
             tvStatus = itemView.findViewById(R.id.tv_status);
         }

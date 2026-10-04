@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/home_bg">
 
     <TextView
         android:id="@+id/tv_empty"
@@ -20,7 +20,8 @@
         android:id="@+id/rv_shifts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="12dp"
-        android:paddingTop="8dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="16dp"
         android:clipToPadding="false" />
 </LinearLayout>

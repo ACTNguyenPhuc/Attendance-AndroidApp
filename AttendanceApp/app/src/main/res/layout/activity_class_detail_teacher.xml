@@ -3,85 +3,101 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/home_bg"
+    android:orientation="vertical">
 
-    <!-- Collapsing Header -->
+    <!-- Header xanh bo góc dưới -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue"
+        android:background="@drawable/bg_home_header"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingBottom="48dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/transparent"
-            app:titleTextColor="@color/white"
-            app:iconTint="@color/white" />
+            app:contentInsetStartWithNavigation="0dp"
+            app:titleTextColor="@color/white" />
 
         <TextView
             android:id="@+id/tv_class_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
             android:text="Tên lớp"
             android:textColor="@color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cg_header_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="10dp"
+            android:paddingHorizontal="20dp"
+            app:chipSpacingHorizontal="6dp"
+            app:chipSpacingVertical="6dp">
 
             <TextView
                 android:id="@+id/tv_class_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_class_code"
+                android:letterSpacing="0.05"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
                 android:text="MÃ LỚP"
-                android:textColor="#CCFFFFFF"
-                android:textSize="13sp" />
+                android:textColor="@color/primary_blue"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </com.google.android.material.chip.ChipGroup>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" · "
-                android:textColor="#CCFFFFFF"
-                android:textSize="13sp" />
+        <!-- Giữ lại cho tương thích code cũ, không hiển thị -->
+        <TextView
+            android:id="@+id/tv_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tv_schedule"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lịch học"
-                android:textColor="#CCFFFFFF"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/tv_student_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="#CCFFFFFF"
-                android:textSize="13sp" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_student_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Tabs -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
+    <!-- Tabs dạng thẻ nổi đè lên header -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue"
-        app:tabInlineLabel="true"
-        app:tabTextAppearance="@style/TabTextCompact"
-        app:tabIconTint="@color/white"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="#CCFFFFFF"
-        app:tabIndicatorColor="@color/white" />
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="-30dp"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="4dp">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/white"
+            android:padding="5dp"
+            app:tabIconTint="@color/tab_detail_item_color"
+            app:tabIndicator="@drawable/bg_tab_indicator_pill"
+            app:tabIndicatorColor="@color/avatar_blue_bg"
+            app:tabIndicatorFullWidth="true"
+            app:tabIndicatorGravity="stretch"
+            app:tabInlineLabel="true"
+            app:tabMode="fixed"
+            app:tabPaddingEnd="4dp"
+            app:tabPaddingStart="4dp"
+            app:tabRippleColor="@null"
+            app:tabSelectedTextColor="@color/primary_blue"
+            app:tabTextAppearance="@style/TabTextDetail"
+            app:tabTextColor="@color/text_secondary" />
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"

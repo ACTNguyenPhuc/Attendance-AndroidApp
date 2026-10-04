@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.graphics.drawable.Drawable;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import android.view.Menu;
+import com.example.attendanceapplication.utils.ClassCardUi;
 import com.example.attendanceapplication.utils.ClassQRDialog;
 import com.example.attendanceapplication.utils.RequiredFieldUtils;
 import com.example.attendanceapplication.utils.StudyShiftOptions;
@@ -140,9 +142,19 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
                     tvClassName.setText(classModel.getClassName());
                     tvClassId.setText(classModel.getClassId());
                     tvSchedule.setText(classModel.getScheduleTimeDisplay());
+                    bindHeaderScheduleChips(classModel);
                 }),
                 e -> {}
         );
+    }
+
+    /** Chip mã lớp (đã có trong layout) + một chip trong suốt cho mỗi buổi học trong tuần. */
+    private void bindHeaderScheduleChips(ClassModel classModel) {
+        ViewGroup group = findViewById(R.id.cg_header_info);
+        // Giữ lại chip mã lớp ở vị trí đầu, xoá chip lịch cũ.
+        while (group.getChildCount() > 1) group.removeViewAt(group.getChildCount() - 1);
+        ClassCardUi.addScheduleChips(group, classModel, R.drawable.bg_chip_header_translucent,
+                R.color.white, R.color.white);
     }
 
     private void openAddStudent() {

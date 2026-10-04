@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class TeacherClassListFragment extends Fragment {
 
     private RecyclerView rvClasses;
     private EditText etSearch;
+    private TextView tvClassCount;
     private FloatingActionButton fabAdd;
     private TeacherClassCardAdapter adapter;
     private List<ClassModel> allClasses = new ArrayList<>();
@@ -79,6 +81,7 @@ public class TeacherClassListFragment extends Fragment {
 
         rvClasses = view.findViewById(R.id.rv_classes);
         etSearch  = view.findViewById(R.id.et_search);
+        tvClassCount = view.findViewById(R.id.tv_class_count);
         fabAdd    = view.findViewById(R.id.fab_add);
 
         adapter = new TeacherClassCardAdapter(
@@ -212,6 +215,7 @@ public class TeacherClassListFragment extends Fragment {
     }
 
     private void filterClasses(String query) {
+        updateClassCount();
         filteredClasses.clear();
         if (query.isEmpty()) {
             filteredClasses.addAll(allClasses);
@@ -225,6 +229,10 @@ public class TeacherClassListFragment extends Fragment {
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    private void updateClassCount() {
+        if (tvClassCount != null) tvClassCount.setText(allClasses.size() + " lớp học");
     }
 
     private void notifyClassUpdated(String classId) {
@@ -284,6 +292,7 @@ public class TeacherClassListFragment extends Fragment {
                 allClasses.remove(i);
             }
         }
+        updateClassCount();
         for (int i = filteredClasses.size() - 1; i >= 0; i--) {
             if (classId.equals(filteredClasses.get(i).getClassId())) {
                 filteredClasses.remove(i);

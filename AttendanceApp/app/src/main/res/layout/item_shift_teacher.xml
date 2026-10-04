@@ -1,208 +1,278 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Root là FrameLayout để hỗ trợ "swipe actions": vuốt thẻ (foreground) sang trái
-  sẽ lộ ra panel "Xóa / Dời ca" (swipe_action_panel) nằm phía sau, bên phải.
-  Việc dịch chuyển thẻ do ShiftSwipeCallback (ItemTouchHelper) xử lý.
+  Thẻ ca học trong tab "Buổi học" (giáo viên).
+  - tv_section_header: tiêu đề nhóm (HÔM NAY / SẮP DIỄN RA / ĐÃ KẾT THÚC), chỉ hiện ở thẻ đầu nhóm.
+  - swipe_container hỗ trợ "swipe actions": vuốt thẻ (foreground) sang trái
+    sẽ lộ ra panel "Xóa / Dời ca" (swipe_action_panel) nằm phía sau, bên phải.
+    Việc dịch chuyển thẻ do ShiftSwipeCallback (ItemTouchHelper) xử lý.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp">
+    android:orientation="vertical">
 
-    <!-- Panel hành động lộ ra khi vuốt: "Xóa" và "Dời ca" -->
-    <LinearLayout
-        android:id="@+id/swipe_action_panel"
-        android:layout_width="184dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="@drawable/bg_swipe_reschedule"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:id="@+id/action_delete"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/error_red"
-            android:clickable="false"
-            android:contentDescription="Xóa ca học"
-            android:enabled="false"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_delete"
-                app:tint="@color/white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Xóa"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/action_reschedule"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:clickable="false"
-            android:contentDescription="Dời ca học"
-            android:enabled="false"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_reschedule"
-                app:tint="@color/white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Dời ca"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Foreground: nội dung thẻ ca học (phần được vuốt) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/foreground"
+    <TextView
+        android:id="@+id/tv_section_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/card_surface"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.AttendanceApp.Card.BottomRounded"
-        app:cardElevation="2dp">
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
+        android:letterSpacing="0.05"
+        android:text="HÔM NAY"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
+    <FrameLayout
+        android:id="@+id/swipe_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <!-- Panel hành động lộ ra khi vuốt: "Xóa" và "Dời ca" -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:id="@+id/swipe_action_panel"
+            android:layout_width="184dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@drawable/bg_swipe_reschedule"
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tv_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Thứ Bảy, 09 tháng 05 2026"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:id="@+id/tv_makeup_badge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_chip_blue_light"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:text="Bù"
-                    android:textSize="12sp"
-                    android:textColor="@color/primary_blue"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/tv_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_badge_green"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:text="Đang diễn ra"
-                    android:textSize="12sp"
-                    android:textColor="@color/white" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_time"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="18:00 - 20:00"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tv_room"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxWidth="160dp"
-                    android:maxLines="1"
-                    android:text="Phòng: A101"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:id="@+id/action_delete"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/error_red"
+                android:clickable="false"
+                android:contentDescription="Xóa ca học"
+                android:enabled="false"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/iv_att_icon"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/ic_menu_camera"
-                    android:tint="@color/accent_green"
-                    android:contentDescription="Điểm danh"
-                    android:visibility="gone" />
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_delete"
+                    app:tint="@color/white" />
 
                 <TextView
-                    android:id="@+id/tv_att_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="Đã mở điểm danh"
+                    android:layout_marginTop="4dp"
+                    android:text="Xóa"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+            <LinearLayout
+                android:id="@+id/action_reschedule"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:contentDescription="Dời ca học"
+                android:enabled="false"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_open_attendance"
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_reschedule"
+                    app:tint="@color/white" />
+
+                <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:text="Mở điểm danh"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Dời ca"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
-                    style="@style/Widget.AttendanceApp.Button.Success"
-                    android:visibility="gone" />
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+
+        <!-- Foreground: nội dung thẻ ca học (phần được vuốt) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/foreground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/card_surface"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="1dp"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <!-- Giờ bắt đầu / kết thúc -->
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_start_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="09:35"
+                            android:textColor="@color/home_title"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_end_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12:00"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/view_status_bar"
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="10dp"
+                        android:minHeight="40dp"
+                        android:background="@color/shift_bar_gray" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_date"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Thứ Bảy, 09 tháng 05 2026"
+                                android:textColor="@color/home_title"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_makeup_badge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_pill_soft_blue"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="Bù"
+                                android:textColor="@color/status_blue_fg"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:contentDescription="Phòng"
+                                android:src="@drawable/ic_location" />
+
+                            <TextView
+                                android:id="@+id/tv_room"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="Phòng A101"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/tv_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_pill_soft_gray"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Đã kết thúc"
+                                android:textColor="@color/status_gray_fg"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Dải trạng thái điểm danh (chỉ hiện với ca hôm nay / đang mở) -->
+                <LinearLayout
+                    android:id="@+id/layout_att_footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/shift_footer_green"
+                    android:gravity="center_vertical"
+                    android:minHeight="40dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp">
+
+                    <ImageView
+                        android:id="@+id/iv_att_icon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="Điểm danh"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/status_green_fg" />
+
+                    <TextView
+                        android:id="@+id/tv_att_info"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="Đã mở điểm danh"
+                        android:textColor="@color/status_green_fg"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_open_attendance"
+                        style="@style/Widget.AttendanceApp.Button.Success"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:text="Mở điểm danh"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</LinearLayout>

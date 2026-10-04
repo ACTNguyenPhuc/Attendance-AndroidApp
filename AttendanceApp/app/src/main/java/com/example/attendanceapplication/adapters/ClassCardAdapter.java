@@ -7,11 +7,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.ClassModel;
+import com.example.attendanceapplication.utils.ClassCardUi;
 
 import java.util.List;
 
@@ -42,10 +42,13 @@ public class ClassCardAdapter extends RecyclerView.Adapter<ClassCardAdapter.View
         ClassModel classModel = classList.get(position);
         holder.tvClassName.setText(classModel.getClassName());
         holder.tvClassId.setText(classModel.getClassId());
-        holder.tvSchedule.setText(classModel.getScheduleTimeDisplay());
-        holder.tvRoom.setText(classModel.getRoom() != null ? classModel.getRoom() : "");
-        holder.tvStudentCount.setText("Sinh vien: " + classModel.getStudentCount());
-        holder.viewHeader.setBackgroundColor(getHeaderColor(holder.itemView.getContext(), position));
+        ClassCardUi.bindAvatar(holder.tvAvatar, classModel.getClassName(), position);
+        ClassCardUi.bindScheduleChips(holder.cgSchedule, classModel);
+        String room = classModel.getRoom();
+        boolean hasRoom = room != null && !room.trim().isEmpty();
+        holder.layoutRoom.setVisibility(hasRoom ? View.VISIBLE : View.GONE);
+        holder.tvRoom.setText(hasRoom ? room : "");
+        holder.tvStudentCount.setText("Sinh viên: " + classModel.getStudentCount());
 
         holder.card.setOnClickListener(v -> listener.onClick(classModel));
     }
@@ -55,28 +58,21 @@ public class ClassCardAdapter extends RecyclerView.Adapter<ClassCardAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView card;
-        View viewHeader;
-        TextView tvClassName, tvClassId, tvSchedule, tvRoom, tvStudentCount;
+        View layoutRoom;
+        ViewGroup cgSchedule;
+        TextView tvAvatar, tvClassName, tvClassId, tvRoom, tvStudentCount;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             card        = itemView.findViewById(R.id.card_class);
-            viewHeader  = itemView.findViewById(R.id.view_header);
+            tvAvatar    = itemView.findViewById(R.id.tv_avatar);
+            layoutRoom  = itemView.findViewById(R.id.layout_room);
+            cgSchedule  = itemView.findViewById(R.id.cg_schedule);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
             tvClassId   = itemView.findViewById(R.id.tv_class_id);
-            tvSchedule  = itemView.findViewById(R.id.tv_schedule);
             tvRoom      = itemView.findViewById(R.id.tv_room);
             tvStudentCount = itemView.findViewById(R.id.tv_student_count);
         }
     }
 
-    private int getHeaderColor(android.content.Context ctx, int position) {
-        int[] colors = new int[] {
-                ContextCompat.getColor(ctx, R.color.accent_green),
-                ContextCompat.getColor(ctx, R.color.accent_yellow),
-                ContextCompat.getColor(ctx, R.color.primary_blue)
-        };
-        int index = position % colors.length;
-        return colors[index];
-    }
 }

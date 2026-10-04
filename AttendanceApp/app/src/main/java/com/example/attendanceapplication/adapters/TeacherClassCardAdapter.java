@@ -1,6 +1,5 @@
 package com.example.attendanceapplication.adapters;
 
-import android.content.Context;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.widget.PopupMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.ClassModel;
 import com.example.attendanceapplication.models.Shift;
+import com.example.attendanceapplication.utils.ClassCardUi;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCardAdapter.ViewHolder> {
@@ -67,31 +65,21 @@ public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCa
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ClassModel classModel = classList.get(position);
-        Context ctx = holder.itemView.getContext();
-
         holder.tvClassName.setText(classModel.getClassName());
         holder.tvClassId.setText(classModel.getClassId());
-        if (classModel.getDaySchedules() != null && !classModel.getDaySchedules().isEmpty()) {
-            // Giờ riêng theo từng ngày: gộp vào một chip, ẩn chip giờ chung.
-            holder.tvSchedule.setText(classModel.getScheduleTimeDisplay());
-            holder.tvTime.setVisibility(View.GONE);
-        } else {
-            holder.tvSchedule.setText(classModel.getScheduleDisplay());
-            holder.tvTime.setText(classModel.getStartAt() + "-" + classModel.getEndAt());
-            holder.tvTime.setVisibility(View.VISIBLE);
-        }
+        ClassCardUi.bindAvatar(holder.tvAvatar, classModel.getClassName(), position);
+        ClassCardUi.bindScheduleChips(holder.cgSchedule, classModel);
         holder.tvStudentCount.setText(classModel.getStudentCount() + " sinh viên");
-
-        holder.tvAvatar.setText(getInitials(classModel.getClassName()));
-        holder.header.setBackgroundColor(getHeaderColor(ctx, position));
 
         Shift shift = todayShiftMap.get(classModel.getClassId());
         if (shift == null || shift.getStatus() == null) {
             holder.tvStatus.setVisibility(View.GONE);
         } else {
             holder.tvStatus.setVisibility(View.VISIBLE);
-            holder.tvStatus.setText(getStatusText(shift.getStatus()));
-            holder.tvStatus.setBackgroundResource(getStatusBackground(shift.getStatus()));
+            ClassCardUi.bindStatusPill(holder.tvStatus,
+                    getStatusText(shift.getStatus()),
+                    ClassCardUi.getStatusBackground(shift.getStatus()),
+                    ClassCardUi.getStatusColor(shift.getStatus()));
         }
 
         holder.card.setOnClickListener(v -> listener.onClick(classModel));
@@ -103,22 +91,7 @@ public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCa
         return classList.size();
     }
 
-    private int getHeaderColor(Context ctx, int position) {
-        int[] colors = new int[] {
-                ContextCompat.getColor(ctx, R.color.accent_green),
-                ContextCompat.getColor(ctx, R.color.accent_yellow),
-                ContextCompat.getColor(ctx, R.color.primary_light)
-        };
-        int index = position % colors.length;
-        return colors[index];
-    }
 
-    private String getInitials(String name) {
-        if (name == null) return "G";
-        String trimmed = name.trim();
-        if (trimmed.isEmpty()) return "G";
-        return trimmed.substring(0, 1).toUpperCase(Locale.getDefault());
-    }
 
     private String getStatusText(String status) {
         switch (status) {
@@ -135,20 +108,6 @@ public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCa
         }
     }
 
-    private int getStatusBackground(String status) {
-        switch (status) {
-            case Shift.STATUS_ONGOING:
-                return R.drawable.bg_badge_green;
-            case Shift.STATUS_UPCOMING:
-                return R.drawable.bg_badge_orange;
-            case Shift.STATUS_COMPLETED:
-                return R.drawable.bg_badge_gray;
-            case Shift.STATUS_CANCELLED:
-                return R.drawable.bg_badge_gray;
-            default:
-                return R.drawable.bg_badge_gray;
-        }
-    }
 
     private void showMenu(ViewHolder holder, ClassModel classModel) {
         PopupMenu popupMenu = new PopupMenu(holder.itemView.getContext(), holder.ivMenu);
@@ -184,19 +143,17 @@ public class TeacherClassCardAdapter extends RecyclerView.Adapter<TeacherClassCa
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView card;
-        LinearLayout header;
-        TextView tvAvatar, tvClassName, tvClassId, tvSchedule, tvTime, tvStudentCount, tvStatus;
+        ViewGroup cgSchedule;
+        TextView tvAvatar, tvClassName, tvClassId, tvStudentCount, tvStatus;
         ImageView ivMenu;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             card = itemView.findViewById(R.id.card_class);
-            header = itemView.findViewById(R.id.layout_header);
             tvAvatar = itemView.findViewById(R.id.tv_avatar);
             tvClassName = itemView.findViewById(R.id.tv_class_name);
             tvClassId = itemView.findViewById(R.id.tv_class_id);
-            tvSchedule = itemView.findViewById(R.id.tv_schedule_chip);
-            tvTime = itemView.findViewById(R.id.tv_time_chip);
+            cgSchedule = itemView.findViewById(R.id.cg_schedule);
             tvStudentCount = itemView.findViewById(R.id.tv_student_count);
             tvStatus = itemView.findViewById(R.id.tv_status);
             ivMenu = itemView.findViewById(R.id.iv_menu);

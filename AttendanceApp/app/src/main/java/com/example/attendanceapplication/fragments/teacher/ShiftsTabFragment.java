@@ -120,6 +120,9 @@ public class ShiftsTabFragment extends Fragment {
         repo.getClassShifts(classId).observe(getViewLifecycleOwner(), shifts -> {
             List<Shift> sortedShifts = new ArrayList<>(shifts);
             AttendanceUtils.sortShiftsActiveFirst(sortedShifts);
+            // Gom theo nhóm (hôm nay → sắp diễn ra → đã kết thúc); sort ổn định nên giữ thứ tự ngày trong nhóm.
+            sortedShifts.sort((a, b) -> Integer.compare(
+                    ShiftListAdapter.getSectionOrder(a), ShiftListAdapter.getSectionOrder(b)));
             shiftList.clear();
             shiftList.addAll(sortedShifts);
             adapter.notifyDataSetChanged();

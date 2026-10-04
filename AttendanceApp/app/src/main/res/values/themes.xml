@@ -66,6 +66,11 @@
         <item name="cornerSizeBottomRight">8dp</item>
     </style>
 
+    <style name="ShapeAppearance.AttendanceApp.Fab" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
     <!-- TextInputLayout -->
     <style name="Widget.AttendanceApp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/primary_blue</item>
@@ -76,6 +81,13 @@
     <style name="TabTextCompact" parent="TextAppearance.MaterialComponents.Button">
         <item name="android:textSize">12sp</item>
         <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="TabTextDetail" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">13sp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
     </style>
 
     <!-- Bottom navigation label: đậm khi active, thường khi inactive -->

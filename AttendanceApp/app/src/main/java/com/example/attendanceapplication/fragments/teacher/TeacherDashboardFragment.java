@@ -143,9 +143,7 @@ public class TeacherDashboardFragment extends Fragment {
             SessionManagementActivity.putShiftExtras(intent, shift);
             startActivity(intent);
         });
-        rvTodayShifts.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvTodayShifts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvTodayShifts.setAdapter(shiftHomeAdapter);
 
         tvCreateClass.setOnClickListener(v ->
@@ -173,7 +171,7 @@ public class TeacherDashboardFragment extends Fragment {
                 user -> {
                     if (getActivity() != null) {
                         requireActivity().runOnUiThread(() -> {
-                            tvGreeting.setText("Xin chào, " + user.getName());
+                            tvGreeting.setText(user.getName());
                         });
                     }
                 },
