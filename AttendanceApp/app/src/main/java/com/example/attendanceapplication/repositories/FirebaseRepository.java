@@ -10,6 +10,8 @@ import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.BssidVerifier;
 import com.example.attendanceapplication.utils.RoomConflictChecker;
 import com.example.attendanceapplication.utils.TeacherScheduleConflictChecker;
+import com.example.attendanceapplication.widget.TodayWidgetData;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class FirebaseRepository {
     private static final String TAG = "FirebaseRepository";
@@ -903,6 +906,29 @@ public class FirebaseRepository {
         return liveData;
     }
 
+    /**
+     * Bản one-shot của {@link #getClassShifts}: đọc toàn bộ shift của lớp một lần.
+     * Không orderBy để khỏi cần composite index — caller tự sắp xếp.
+     */
+    public void getClassShiftsOnce(String classId,
+                                   OnSuccessListener<List<Shift>> onSuccess,
+                                   OnFailureListener onFailure) {
+        db.collection(COL_SHIFTS)
+                .whereEqualTo("classId", classId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Shift> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Shift s = doc.toObject(Shift.class);
+                        if (s == null) continue;
+                        if (s.getShiftId() == null) s.setShiftId(doc.getId());
+                        list.add(s);
+                    }
+                    onSuccess.onSuccess(list);
+                })
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     public void getShiftById(String shiftId,
                              OnSuccessListener<Shift> onSuccess,
                              OnFailureListener onFailure) {
@@ -1022,6 +1048,100 @@ public class FirebaseRepository {
                         if (--pending[0] == 0) onComplete.onSuccess(all);
                     });
         }
+    }
+
+    // ==================== WIDGET ====================
+
+    private static final long WIDGET_QUERY_TIMEOUT_SEC = 15;
+
+    /**
+     * Tải các buổi học trong ngày {@code date} ("yyyy-MM-dd") của người dùng đang đăng
+     * nhập cho widget màn hình chính. CHẶN luồng gọi; không được gọi trên main thread.
+     *
+     * @return null nếu chưa đăng nhập.
+     */
+    public TodayWidgetData loadTodayWidgetDataBlocking(String date) throws Exception {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return null;
+        String uid = user.getUid();
+
+        TodayWidgetData data = new TodayWidgetData();
+        User profile = await(db.collection(COL_USERS).document(uid).get()).toObject(User.class);
+        data.teacher = profile != null && profile.isTeacher();
+
+        List<String> classIds = new ArrayList<>();
+        if (data.teacher) {
+            for (DocumentSnapshot d : await(db.collection(COL_CLASSES)
+                    .whereEqualTo("teacherId", uid).get()).getDocuments()) {
+                classIds.add(d.getId());
+            }
+        } else {
+            for (DocumentSnapshot d : await(db.collection(COL_ENROLLMENTS)
+                    .whereEqualTo("studentId", uid)
+                    .whereEqualTo("status", "active").get()).getDocuments()) {
+                String classId = d.getString("classId");
+                if (classId != null) classIds.add(classId);
+            }
+        }
+
+        List<String> shiftIds = new ArrayList<>();
+        for (List<String> chunk : chunks(classIds)) {
+            for (DocumentSnapshot d : await(db.collection(COL_SHIFTS)
+                    .whereIn("classId", chunk).whereEqualTo("date", date).get()).getDocuments()) {
+                Shift s = d.toObject(Shift.class);
+                if (s == null) continue;
+                if (s.getShiftId() == null) s.setShiftId(d.getId());
+                data.shifts.add(s);
+                shiftIds.add(s.getShiftId());
+            }
+        }
+        if (shiftIds.isEmpty()) return data;
+
+        if (data.teacher) {
+            List<String> todayClassIds = new ArrayList<>();
+            for (Shift s : data.shifts) {
+                if (s.getClassId() != null && !todayClassIds.contains(s.getClassId())) {
+                    todayClassIds.add(s.getClassId());
+                }
+            }
+            for (List<String> chunk : chunks(todayClassIds)) {
+                for (DocumentSnapshot d : await(db.collection(COL_ENROLLMENTS)
+                        .whereIn("classId", chunk)
+                        .whereEqualTo("status", "active").get()).getDocuments()) {
+                    String classId = d.getString("classId");
+                    if (classId != null) data.rosterByClass.merge(classId, 1, Integer::sum);
+                }
+            }
+            for (List<String> chunk : chunks(shiftIds)) {
+                for (DocumentSnapshot d : await(db.collection(COL_ATTENDANCES)
+                        .whereIn("shiftId", chunk).get()).getDocuments()) {
+                    String shiftId = d.getString("shiftId");
+                    if (shiftId != null) data.presentByShift.merge(shiftId, 1, Integer::sum);
+                }
+            }
+        } else {
+            for (List<String> chunk : chunks(shiftIds)) {
+                for (DocumentSnapshot d : await(db.collection(COL_ATTENDANCES)
+                        .whereEqualTo("studentId", uid)
+                        .whereIn("shiftId", chunk).get()).getDocuments()) {
+                    Attendance a = d.toObject(Attendance.class);
+                    if (a != null && a.getShiftId() != null) data.mineByShift.put(a.getShiftId(), a);
+                }
+            }
+        }
+        return data;
+    }
+
+    private static <T> T await(com.google.android.gms.tasks.Task<T> task) throws Exception {
+        return Tasks.await(task, WIDGET_QUERY_TIMEOUT_SEC, TimeUnit.SECONDS);
+    }
+
+    private static List<List<String>> chunks(List<String> ids) {
+        List<List<String>> out = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i += WHERE_IN_CHUNK_SIZE) {
+            out.add(ids.subList(i, Math.min(i + WHERE_IN_CHUNK_SIZE, ids.size())));
+        }
+        return out;
     }
 
     public void updateShiftStatus(String shiftId, String status, boolean attendanceOpened,

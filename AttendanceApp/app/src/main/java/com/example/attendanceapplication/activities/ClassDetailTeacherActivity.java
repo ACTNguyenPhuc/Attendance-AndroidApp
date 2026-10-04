@@ -64,6 +64,11 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
         if (navIcon != null) {
             navIcon.setTint(ContextCompat.getColor(this, R.color.white));
         }
+        // Icon 3 chấm (overflow menu) mặc định màu tối — đổi sang trắng cho hợp toolbar xanh
+        Drawable overflowIcon = toolbar.getOverflowIcon();
+        if (overflowIcon != null) {
+            overflowIcon.setTint(ContextCompat.getColor(this, R.color.white));
+        }
         initViews();
         loadClassDetails();
     }
@@ -91,6 +96,10 @@ public class ClassDetailTeacherActivity extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.action_edit_class) {
             showEditClassDialog();
+            return true;
+        }
+        if (item.getItemId() == R.id.action_export_stats) {
+            AttendanceReportPreviewActivity.start(this, classId, className);
             return true;
         }
         return super.onOptionsItemSelected(item);

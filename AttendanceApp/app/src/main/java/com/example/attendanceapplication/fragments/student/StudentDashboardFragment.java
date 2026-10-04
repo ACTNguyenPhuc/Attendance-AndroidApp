@@ -23,7 +23,7 @@ import java.util.*;
 
 public class StudentDashboardFragment extends Fragment {
 
-    private TextView tvGreeting, tvStudentCode, tvAvatar, tvDate;
+    private TextView tvGreeting, tvStudentCode, tvDate;
     private TextView tvTotalClasses, tvAttendanceRate, tvTodayCount;
     private TextView tvTodayEmpty, tvClassesEmpty;
     private ImageButton btnScanAttendance;
@@ -48,7 +48,6 @@ public class StudentDashboardFragment extends Fragment {
 
         tvGreeting       = view.findViewById(R.id.tv_greeting);
         tvStudentCode    = view.findViewById(R.id.tv_student_code);
-        tvAvatar         = view.findViewById(R.id.tv_avatar);
         tvDate           = view.findViewById(R.id.tv_date);
         tvTotalClasses   = view.findViewById(R.id.tv_total_classes);
         tvAttendanceRate = view.findViewById(R.id.tv_attendance_rate);
@@ -119,7 +118,6 @@ public class StudentDashboardFragment extends Fragment {
                         tvGreeting.setText("Xin chào, " + user.getName());
                         tvStudentCode.setText("Mã SV: "
                                 + (user.getStudentCode() != null ? user.getStudentCode() : ""));
-                        tvAvatar.setText(getInitials(user.getName()));
                     });
                 },
                 e -> {}
@@ -262,18 +260,4 @@ public class StudentDashboardFragment extends Fragment {
         }
     }
 
-    private String getInitials(String name) {
-        if (name == null) return "SV";
-        String trimmed = name.trim();
-        if (trimmed.isEmpty()) return "SV";
-        String[] parts = trimmed.split("\\s+");
-        if (parts.length == 1) {
-            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase(Locale.getDefault());
-        }
-        String first = parts[0];
-        String last = parts[parts.length - 1];
-        String initials = (first.isEmpty() ? "" : first.substring(0, 1))
-                + (last.isEmpty() ? "" : last.substring(0, 1));
-        return initials.toUpperCase(Locale.getDefault());
-    }
 }

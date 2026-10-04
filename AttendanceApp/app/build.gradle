@@ -25,6 +25,8 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        // FastExcel dùng java.time khi ghi file — cần desugaring cho API 24–25
+        coreLibraryDesugaringEnabled true
     }
     buildFeatures {
         viewBinding true
@@ -34,6 +36,7 @@ android {
 dependencies {
     // AndroidX Core
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
@@ -93,6 +96,10 @@ dependencies {
 
     // OkHttp - goi server AI (chatbot), doc luong SSE
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // FastExcel - ghi file .xlsx thống kê điểm danh (chỉ writer, không dùng Apache POI)
+    implementation 'org.dhatim:fastexcel:0.20.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.0'

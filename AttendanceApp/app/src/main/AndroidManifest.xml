@@ -70,6 +70,8 @@
         <activity android:name=".activities.CreateSessionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".activities.AttendanceReportPreviewActivity"
+            android:exported="false" />
 
         <!-- Student Activities -->
         <activity android:name=".activities.StudentMainActivity"
@@ -99,6 +101,17 @@
             android:theme="@style/Theme.AttendanceApp.Chat"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Chia sẻ file thống kê điểm danh (cacheDir/reports) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- Firebase Cloud Messaging -->
         <service
             android:name=".utils.FCMService"
@@ -124,6 +137,29 @@
             </intent-filter>
         </receiver>
 
+        <!-- Widget màn hình chính "Lịch hôm nay" -->
+        <receiver
+            android:name=".widget.TodayShiftsWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_today_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_shifts_widget_info" />
+        </receiver>
+        <service
+            android:name=".widget.TodayShiftsWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <activity
+            android:name=".widget.WidgetActionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
     </application>
 
 </manifest>

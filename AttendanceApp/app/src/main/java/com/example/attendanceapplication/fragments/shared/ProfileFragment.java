@@ -1,5 +1,6 @@
 package com.example.attendanceapplication.fragments.shared;
 
+import com.example.attendanceapplication.widget.TodayShiftsWidget;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -198,6 +199,7 @@ public class ProfileFragment extends Fragment {
                 .setMessage("Bạn có chắc muốn đăng xuất?")
                 .setPositiveButton("Đăng xuất", (d, w) -> {
                     repo.signOut();
+                    TodayShiftsWidget.refresh(requireContext());
                     Intent intent = new Intent(requireContext(), LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

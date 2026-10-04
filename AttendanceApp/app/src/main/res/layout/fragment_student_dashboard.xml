@@ -51,16 +51,16 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_avatar"
+                <!-- Logo app (app_logo.svg) trong vòng viền trắng -->
+                <ImageView
+                    android:id="@+id/iv_app_logo"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
+                    android:padding="2dp"
                     android:background="@drawable/bg_circle_white_border"
-                    android:gravity="center"
-
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:contentDescription="@string/app_name"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_app_logo_profile" />
             </LinearLayout>
 
             <!-- Stats row (overlaps header) -->

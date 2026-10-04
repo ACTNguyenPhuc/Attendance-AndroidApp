@@ -22,16 +22,16 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_avatar_initial"
+                <!-- Logo app (app_logo.svg) trong vòng viền trắng -->
+                <ImageView
+                    android:id="@+id/iv_app_logo"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:gravity="center"
-                    android:text="A"
-                    android:textSize="36sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:background="@drawable/bg_circle_white_border" />
+                    android:padding="3dp"
+                    android:background="@drawable/bg_circle_white_border"
+                    android:contentDescription="@string/app_name"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_app_logo_profile" />
 
                 <TextView
                     android:id="@+id/tv_name"

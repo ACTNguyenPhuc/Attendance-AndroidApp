@@ -23,6 +23,7 @@ import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.WifiUtils;
+import com.example.attendanceapplication.widget.TodayShiftsWidget;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
@@ -314,6 +315,7 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                         showError(SHIFT_ENDED_MESSAGE);
                         return;
                     }
+                    TodayShiftsWidget.refresh(this);
                     // Navigate to success screen
                     Intent intent = new Intent(this, AttendanceResultActivity.class);
                     intent.putExtra(AttendanceResultActivity.EXTRA_SUCCESS, true);

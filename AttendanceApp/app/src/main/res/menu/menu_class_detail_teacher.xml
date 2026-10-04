@@ -21,4 +21,9 @@
         android:title="Sửa lớp"
         android:icon="@drawable/ic_edit"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_export_stats"
+        android:title="@string/report_menu_export"
+        android:icon="@drawable/ic_download"
+        app:showAsAction="ifRoom" />
 </menu>

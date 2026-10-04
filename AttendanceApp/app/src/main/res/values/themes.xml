@@ -13,9 +13,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.AttendanceApp.Splash" parent="Theme.AttendanceApp">
-        <item name="android:windowBackground">@color/primary_blue</item>
-        <item name="android:statusBarColor">@color/primary_blue</item>
+    <!-- Splash dùng SplashScreen API (core-splashscreen): một màn duy nhất từ Android 7 đến 14+ -->
+    <style name="Theme.AttendanceApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.AttendanceApp</item>
     </style>
 
     <style name="Theme.AttendanceApp.NoActionBar" parent="Theme.AttendanceApp">

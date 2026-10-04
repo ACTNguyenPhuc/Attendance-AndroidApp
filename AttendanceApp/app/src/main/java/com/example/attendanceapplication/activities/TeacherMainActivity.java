@@ -13,6 +13,7 @@ import com.example.attendanceapplication.fragments.teacher.TeacherCalendarFragme
 import com.example.attendanceapplication.fragments.shared.ProfileFragment;
 import com.example.attendanceapplication.utils.NotificationSupport;
 import com.example.attendanceapplication.utils.NotificationScheduler;
+import com.example.attendanceapplication.widget.TodayShiftsWidget;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class TeacherMainActivity extends AppCompatActivity {
@@ -39,6 +40,14 @@ public class TeacherMainActivity extends AppCompatActivity {
         super.onStart();
         // Đồng bộ lại lịch nhắc ca dạy mỗi khi vào app / quay lại app.
         NotificationScheduler.rescheduleAll(this);
+        // Vừa đăng nhập / quay lại app: widget lấy đúng tài khoản và dữ liệu mới.
+        TodayShiftsWidget.refresh(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        TodayShiftsWidget.refresh(this);
     }
 
     private void setupBottomNavigation() {

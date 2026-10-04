@@ -35,6 +35,7 @@ import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.LocationService;
 import com.example.attendanceapplication.utils.WifiUtils;
+import com.example.attendanceapplication.widget.TodayShiftsWidget;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -872,6 +873,13 @@ public class SessionManagementActivity extends AppCompatActivity {
                     currentSession.getContent());
         }
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Phiên vừa mở/đóng hoặc có thêm lượt điểm danh → cập nhật widget.
+        TodayShiftsWidget.refresh(this);
     }
 
     @Override

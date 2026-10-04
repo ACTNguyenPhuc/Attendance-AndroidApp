@@ -3,12 +3,10 @@ package com.example.attendanceapplication.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.splashscreen.SplashScreen;
 
-import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.User;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.google.firebase.auth.FirebaseUser;
@@ -16,15 +14,17 @@ import com.google.firebase.auth.FirebaseUser;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY = 2000; // 2 seconds
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
+    private boolean navigated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Phải gọi trước super.onCreate: hiện logo splash cho tới khi xác định xong màn đích
+        SplashScreen splash = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        splash.setKeepOnScreenCondition(() -> !navigated);
 
-        new Handler(Looper.getMainLooper()).postDelayed(this::checkAuthState, SPLASH_DELAY);
+        checkAuthState();
     }
 
     private void checkAuthState() {
@@ -48,6 +48,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void navigateTo(Class<?> target) {
+        navigated = true;
         Intent intent = new Intent(this, target);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

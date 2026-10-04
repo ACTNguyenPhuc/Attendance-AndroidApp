@@ -11,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.attendanceapplication.R;
 import com.example.attendanceapplication.models.User;
@@ -40,6 +42,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Màn đăng nhập nền trắng: thanh trạng thái trắng, icon tối
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
+        new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
+                .setAppearanceLightStatusBars(true);
 
         initViews();
         setupTextWatchers();

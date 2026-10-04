@@ -42,7 +42,7 @@ import java.util.Locale;
 
 public class TeacherDashboardFragment extends Fragment {
 
-    private TextView tvGreeting, tvDate, tvAvatar, tvTotalClasses, tvTodaySessions, tvPendingOpen;
+    private TextView tvGreeting, tvDate, tvTotalClasses, tvTodaySessions, tvPendingOpen;
     private RecyclerView rvClasses;
     private RecyclerView rvTodayShifts;
     private TextView tvViewAllShifts, tvCreateClass, tvTodayEmpty;
@@ -94,7 +94,6 @@ public class TeacherDashboardFragment extends Fragment {
     private void initViews(View view) {
         tvGreeting    = view.findViewById(R.id.tv_greeting);
         tvDate        = view.findViewById(R.id.tv_date);
-        tvAvatar      = view.findViewById(R.id.tv_avatar);
         tvTotalClasses = view.findViewById(R.id.tv_total_classes);
         tvTodaySessions = view.findViewById(R.id.tv_today_sessions);
         tvPendingOpen = view.findViewById(R.id.tv_pending_open);
@@ -175,7 +174,6 @@ public class TeacherDashboardFragment extends Fragment {
                     if (getActivity() != null) {
                         requireActivity().runOnUiThread(() -> {
                             tvGreeting.setText("Xin chào, " + user.getName());
-                            tvAvatar.setText(getInitials(user.getName()));
                         });
                     }
                 },
@@ -303,18 +301,4 @@ public class TeacherDashboardFragment extends Fragment {
         return value == null ? "\uffff" : value;
     }
 
-    private String getInitials(String name) {
-        if (name == null) return "GV";
-        String trimmed = name.trim();
-        if (trimmed.isEmpty()) return "GV";
-        String[] parts = trimmed.split("\\s+");
-        if (parts.length == 1) {
-            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase(Locale.getDefault());
-        }
-        String first = parts[0];
-        String last = parts[parts.length - 1];
-        String initials = (first.isEmpty() ? "" : first.substring(0, 1))
-                + (last.isEmpty() ? "" : last.substring(0, 1));
-        return initials.toUpperCase(Locale.getDefault());
-    }
 }

@@ -70,4 +70,24 @@
     <string name="gps_ready">✅ Vị trí đã sẵn sàng</string>
     <string name="qr_instruction">Hướng camera vào mã QR của giảng viên</string>
     <string name="join_qr_instruction">Đưa mã QR vào khung hình để tham gia lớp</string>
+    <string name="widget_today_label">Lịch hôm nay</string>
+    <string name="widget_today_description">Các buổi học hôm nay và trạng thái điểm danh</string>
+
+    <!-- Xuất thống kê điểm danh -->
+    <string name="report_menu_export">Xuất thống kê</string>
+    <string name="report_title">Thống kê điểm danh</string>
+    <string name="report_loading">Đang tổng hợp dữ liệu…</string>
+    <string name="report_retry">Thử lại</string>
+    <string name="report_share">Chia sẻ</string>
+    <string name="report_export_excel">Xuất Excel</string>
+    <string name="report_exporting">Đang xuất…</string>
+    <string name="report_empty">Lớp chưa có buổi học nào được điểm danh</string>
+    <string name="report_no_students">Lớp chưa có sinh viên nào</string>
+    <string name="report_error">Không tải được dữ liệu thống kê.\n%1$s</string>
+    <string name="report_ongoing_notice">Có %1$d buổi đang điểm danh, chưa được tính</string>
+    <string name="report_saved">Đã lưu %1$s</string>
+    <string name="report_open">Mở</string>
+    <string name="report_export_failed">Xuất file thất bại: %1$s</string>
+    <string name="report_no_excel_app">Không tìm thấy ứng dụng mở được file Excel. Hãy cài Microsoft Excel, Google Sheets hoặc WPS Office.</string>
+    <string name="report_share_chooser">Chia sẻ file thống kê</string>
 </resources>

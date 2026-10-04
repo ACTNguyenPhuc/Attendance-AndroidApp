@@ -1,5 +1,6 @@
 package com.example.attendanceapplication.activities;
 
+import com.example.attendanceapplication.widget.TodayShiftsWidget;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .setMessage("Bạn có chắc muốn đăng xuất?")
                 .setPositiveButton("Đăng xuất", (d, w) -> {
                     repo.signOut();
+                    TodayShiftsWidget.refresh(this);
                     finish();
                 })
                 .setNegativeButton("Hủy", null)

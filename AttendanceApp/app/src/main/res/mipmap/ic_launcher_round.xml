@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Icon cho Android 7.x. Android 8+ dùng adaptive icon trong mipmap-anydpi-v26. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-
-    <path
-        android:fillColor="#1565C0"
-        android:pathData="M54,0c29.8,0 54,24.2 54,54s-24.2,54 -54,54S0,83.8 0,54 24.2,0 54,0z" />
-
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,22c-17.7,0 -32,14.3 -32,32s14.3,32 32,32 32,-14.3 32,-32 -14.3,-32 -32,-32z" />
-
-    <path
-        android:fillColor="#1565C0"
-        android:pathData="M48.2,68h-6.3l12.1,-28h6.3l12.1,28h-6.3l-2.1,-5H50.3zM52.3,58.2h9.5L57,46.9h-0.8z" />
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+    <group android:pivotX="144" android:pivotY="144" android:scaleX="1.4" android:scaleY="1.4">
+        <path android:fillColor="#004BFF" android:pathData="M144,240C197.019,240 240,197.019 240,144C240,90.981 197.019,48 144,48C90.981,48 48,90.981 48,144C48,197.019 90.981,240 144,240Z" />
+        <path android:fillColor="#F3FAFF" android:pathData="M112,87H101C93.27,87 87,93.27 87,101V112H94V101C94,97.13 97.13,94 101,94H112V87ZM176,87H187C194.73,87 201,93.27 201,101V112H194V101C194,97.13 190.87,94 187,94H176V87ZM87,176V187C87,194.73 93.27,201 101,201H112V194H101C97.13,194 94,190.87 94,187V176H87ZM201,176V187C201,194.73 194.73,201 187,201H176V194H187C190.87,194 194,190.87 194,187V176H201Z" />
+        <path android:fillColor="#F3FAFF" android:pathData="M100,186L136,106H152L188,186H167L144,132L121,186H100Z" />
+        <path android:fillColor="#38E8C6" android:pathData="M116,147L126,137L138,149L182,115L194,127L138,173L116,147Z" />
+    </group>
 </vector>

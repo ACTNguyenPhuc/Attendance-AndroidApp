@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bảng màu riêng cho widget màn hình chính (theo mockup) -->
+    <color name="widget_bg">#F3F5F9</color>
+    <color name="widget_card">#FFFFFF</color>
+    <color name="widget_card_border">#E3E7EE</color>
+    <color name="widget_live_bg">#EEF3FF</color>
+    <color name="widget_live_border">#C9D8FB</color>
+    <color name="widget_text">#111827</color>
+    <color name="widget_text_secondary">#6B7280</color>
+    <color name="widget_blue">#2563EB</color>
+    <color name="widget_green">#1E7F3C</color>
+    <color name="widget_orange">#C2410C</color>
+    <color name="widget_red">#C62828</color>
+    <color name="widget_gray">#6B7280</color>
+</resources>

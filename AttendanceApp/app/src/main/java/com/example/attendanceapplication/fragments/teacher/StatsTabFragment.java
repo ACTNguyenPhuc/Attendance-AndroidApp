@@ -9,6 +9,7 @@ import androidx.annotation.*;
 import androidx.fragment.app.Fragment;
 
 import com.example.attendanceapplication.R;
+import com.example.attendanceapplication.activities.AttendanceReportPreviewActivity;
 import com.example.attendanceapplication.models.Attendance;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.models.User;
@@ -42,7 +43,17 @@ public class StatsTabFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (getArguments() != null) classId = getArguments().getString("classId");
+        String className = null;
+        if (getArguments() != null) {
+            classId = getArguments().getString("classId");
+            className = getArguments().getString("className");
+        }
+        final String reportClassName = className;
+        view.findViewById(R.id.btn_export_report).setOnClickListener(v -> {
+            if (classId != null) {
+                AttendanceReportPreviewActivity.start(requireContext(), classId, reportClassName);
+            }
+        });
 
         pieChart       = view.findViewById(R.id.pie_chart);
         barChart       = view.findViewById(R.id.bar_chart);
