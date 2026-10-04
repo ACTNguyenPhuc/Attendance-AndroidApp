@@ -14,6 +14,7 @@ from ._common import (
     load_shifts,
     load_users,
     my_class_ids,
+    wifi_label,
 )
 
 _CHI_GIANG_VIEN = {
@@ -119,7 +120,9 @@ def get_shift_attendance(ctx, class_id: str, date: str) -> dict:
             co_mat.append({**who,
                            "trangThai": "đi muộn" if r.get("status") == "late" else "đúng giờ",
                            "gioDiemDanh": to_vn_time(r.get("checkinTime")),
-                           "khoangCachMet": round(r.get("distance") or 0)})
+                           "khoangCachMet": round(r.get("distance") or 0),
+                           "wifi": wifi_label(r),
+                           "lyDoCanhBaoWifi": r.get("bssidNote") if wifi_label(r) == "cảnh báo" else None})
         else:
             vang.append(who)
 
@@ -136,6 +139,7 @@ def get_shift_attendance(ctx, class_id: str, date: str) -> dict:
         "soCoMat": len(co_mat),
         "soVang": len(vang),
         "tyLeCoMatPhanTram": _pct(len(co_mat), len(roster)),
+        "soLuotCanhBaoWifi": sum(1 for x in co_mat if x["wifi"] == "cảnh báo"),
         "danhSachCoMat": co_mat,
         "danhSachVang": vang,
     }

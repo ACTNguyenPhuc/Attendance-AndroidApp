@@ -28,7 +28,7 @@ public class ShiftDetailActivity extends AppCompatActivity {
     public static final String EXTRA_CLASS_NAME = "className";
 
     private TextView tvDate, tvDayTime, tvRoom, tvAttStatus, tvInfoText;
-    private TextView tvCheckinTime, tvPunctuality, tvDistance;
+    private TextView tvCheckinTime, tvPunctuality, tvDistance, tvBssidStatus, tvBssidNote;
     private View infoBanner;   // LinearLayout container
     private View attDetails;   // LinearLayout holding check-in time + punctuality
     private Button btnAttend;
@@ -76,6 +76,8 @@ public class ShiftDetailActivity extends AppCompatActivity {
         attDetails    = findViewById(R.id.ll_att_details);
         tvCheckinTime = findViewById(R.id.tv_checkin_time);
         tvPunctuality = findViewById(R.id.tv_punctuality);
+        tvBssidStatus = findViewById(R.id.tv_bssid_status);
+        tvBssidNote = findViewById(R.id.tv_bssid_note);
         tvDistance    = findViewById(R.id.tv_distance);
         btnAttend   = findViewById(R.id.btn_attend);
 
@@ -157,6 +159,23 @@ public class ShiftDetailActivity extends AppCompatActivity {
         } else {
             tvPunctuality.setText("Đúng giờ");
             tvPunctuality.setTextColor(ContextCompat.getColor(this, R.color.accent_green));
+        }
+
+        if (att.hasBssidWarning()) {
+            tvBssidStatus.setText("⚠ Cảnh báo");
+            tvBssidStatus.setTextColor(ContextCompat.getColor(this, R.color.warning_yellow));
+            tvBssidNote.setText(att.getBssidNote() != null
+                    ? att.getBssidNote() : "Không trùng Wi-Fi của lớp");
+            tvBssidNote.setVisibility(View.VISIBLE);
+        } else if (Attendance.BSSID_VALID.equals(att.getBssidStatus())) {
+            tvBssidStatus.setText("Hợp lệ");
+            tvBssidStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green));
+            tvBssidNote.setVisibility(View.GONE);
+        } else {
+            // Bản ghi cũ, trước khi có kiểm tra BSSID.
+            tvBssidStatus.setText("--");
+            tvBssidStatus.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            tvBssidNote.setVisibility(View.GONE);
         }
         attDetails.setVisibility(View.VISIBLE);
     }

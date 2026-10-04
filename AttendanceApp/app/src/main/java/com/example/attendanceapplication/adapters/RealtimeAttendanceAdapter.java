@@ -43,13 +43,14 @@ public class RealtimeAttendanceAdapter extends RecyclerView.Adapter<RealtimeAtte
             holder.tvTime.setText(timeFormat.format(att.getCheckinTime().toDate()));
         }
         holder.tvDistance.setText(AttendanceUtils.formatDistance(att.getDistance()));
+        holder.tvBssidTag.setVisibility(att.hasBssidWarning() ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public int getItemCount() { return attendanceList.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCode, tvTime, tvDistance;
+        TextView tvName, tvCode, tvTime, tvDistance, tvBssidTag;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -57,6 +58,7 @@ public class RealtimeAttendanceAdapter extends RecyclerView.Adapter<RealtimeAtte
             tvCode     = itemView.findViewById(R.id.tv_student_code);
             tvTime     = itemView.findViewById(R.id.tv_checkin_time);
             tvDistance = itemView.findViewById(R.id.tv_distance);
+            tvBssidTag = itemView.findViewById(R.id.tv_bssid_tag);
         }
     }
 }

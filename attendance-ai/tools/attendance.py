@@ -66,6 +66,7 @@ def _student_view(ctx, ids, shifts, info, today) -> dict:
 
         dung_gio = sum(1 for a in mine if a["trangThai"] == "present")
         di_muon = sum(1 for a in mine if a["trangThai"] == "late")
+        canh_bao_wifi = sum(1 for a in mine if a["wifi"] == "cảnh báo")
         vang = len(held_ids - co_mat_ids)
 
         tong_hoc += len(held_ids)
@@ -78,6 +79,7 @@ def _student_view(ctx, ids, shifts, info, today) -> dict:
             "coMat": len(co_mat_ids),
             "dungGio": dung_gio,
             "diMuon": di_muon,
+            "canhBaoWifi": canh_bao_wifi,
             "vang": vang,
             "tyLeVangPhanTram": _pct(vang, len(held_ids)),
             "tyLeChuyenCanPhanTram": _pct(len(co_mat_ids), len(held_ids)),
@@ -122,6 +124,7 @@ def _teacher_view(ids, shifts, info, today) -> dict:
             "tongLuotCoMat": len(recs),
             "dungGio": sum(1 for r in recs if r.get("status") == "present"),
             "diMuon": sum(1 for r in recs if r.get("status") == "late"),
+            "canhBaoWifi": sum(1 for r in recs if r.get("bssidStatus") == "warning"),
             "tongLuotVang": max(luot_toi_da - len(recs), 0),
             "tyLeChuyenCanPhanTram": _pct(len(recs), luot_toi_da),
         })

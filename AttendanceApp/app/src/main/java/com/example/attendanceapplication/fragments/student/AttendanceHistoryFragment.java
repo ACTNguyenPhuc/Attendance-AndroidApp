@@ -185,6 +185,9 @@ public class AttendanceHistoryFragment extends Fragment {
                 it.latitude = att.getLatitude();
                 it.longitude = att.getLongitude();
                 it.checkinTime = att.getCheckinTime() != null ? att.getCheckinTime().toDate() : null;
+                it.bssidWarning = att.hasBssidWarning();
+                it.bssidNote = att.getBssidNote();
+                it.deviceBssid = att.getDeviceBssid();
                 present++;
             } else {
                 it.hasAttendance = false;

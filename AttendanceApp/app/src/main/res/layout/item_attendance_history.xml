@@ -63,6 +63,20 @@
                     android:text="01/01/2026"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_bssid_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_badge_orange"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="⚠ CẢNH BÁO WI-FI"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
@@ -132,6 +146,15 @@
                 android:textSize="13sp"
                 app:drawableStartCompat="@drawable/ic_language"
                 app:drawableTint="@color/primary_blue" />
+
+            <TextView
+                android:id="@+id/tv_bssid_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Wi-Fi: --"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

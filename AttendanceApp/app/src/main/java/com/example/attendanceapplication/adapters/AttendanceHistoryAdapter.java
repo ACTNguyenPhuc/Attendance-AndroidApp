@@ -43,6 +43,9 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
         public double latitude;
         public double longitude;
         public Date checkinTime;    // null nếu vắng
+        public boolean bssidWarning;
+        public String bssidNote;
+        public String deviceBssid;
         public boolean expanded;
     }
 
@@ -118,11 +121,22 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
             h.tvCoords.setText("Tọa độ: " + formatCoords(it.latitude, it.longitude));
             h.tvExactTime.setVisibility(View.VISIBLE);
             h.tvCoords.setVisibility(View.VISIBLE);
+            if (it.bssidWarning) {
+                h.tvBssidDetail.setText("⚠ Wi-Fi: "
+                        + (it.bssidNote != null ? it.bssidNote : "không trùng Wi-Fi của lớp")
+                        + (it.deviceBssid != null ? " (" + it.deviceBssid + ")" : ""));
+                h.tvBssidDetail.setTextColor(ctx.getColor(R.color.warning_yellow));
+                h.tvBssidDetail.setVisibility(View.VISIBLE);
+            } else {
+                h.tvBssidDetail.setVisibility(View.GONE);
+            }
         } else {
             h.tvDistance.setText("Bạn không điểm danh buổi học này.");
             h.tvExactTime.setVisibility(View.GONE);
             h.tvCoords.setVisibility(View.GONE);
+            h.tvBssidDetail.setVisibility(View.GONE);
         }
+        h.tvBssidTag.setVisibility(it.hasAttendance && it.bssidWarning ? View.VISIBLE : View.GONE);
 
         h.layoutDetail.setVisibility(it.expanded ? View.VISIBLE : View.GONE);
         h.ivExpand.setRotation(it.expanded ? 270 : 90);
@@ -155,6 +169,7 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
     static class ItemVH extends RecyclerView.ViewHolder {
         LinearLayout layoutHeader, layoutDetail;
         TextView tvClassName, tvLabel, tvDateTime, tvBadge, tvDistance, tvExactTime, tvCoords;
+        TextView tvBssidTag, tvBssidDetail;
         ImageView ivStatusIcon, ivExpand;
 
         ItemVH(@NonNull View v) {
@@ -169,6 +184,8 @@ public class AttendanceHistoryAdapter extends RecyclerView.Adapter<RecyclerView.
             tvDistance = v.findViewById(R.id.tv_distance);
             tvExactTime = v.findViewById(R.id.tv_exact_time);
             tvCoords = v.findViewById(R.id.tv_coords);
+            tvBssidTag = v.findViewById(R.id.tv_bssid_tag);
+            tvBssidDetail = v.findViewById(R.id.tv_bssid_detail);
             ivExpand = v.findViewById(R.id.iv_expand);
         }
     }

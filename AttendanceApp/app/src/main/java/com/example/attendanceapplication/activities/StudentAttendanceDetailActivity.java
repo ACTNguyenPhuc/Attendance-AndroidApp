@@ -182,6 +182,7 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
             if (att != null) {
                 r.present = true;
                 r.late = Attendance.STATUS_LATE.equals(att.getStatus());
+                r.bssidWarning = att.hasBssidWarning();
                 r.checkinText = att.getCheckinTime() != null
                         ? formatTime(att.getCheckinTime().toDate().getTime()) : null;
                 if (r.late) late++; else present++;
@@ -247,6 +248,7 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
         String checkinText;   // null nếu vắng
         boolean present;
         boolean late;
+        boolean bssidWarning;
     }
 
     static class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.VH> {
@@ -302,6 +304,7 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
             h.ivStatusIcon.setColorFilter(ContextCompat.getColor(ctx, colorRes));
             h.tvStatusBadge.setText(badgeText);
             h.tvStatusBadge.setBackgroundResource(badgeBg);
+            h.tvBssidTag.setVisibility(r.present && r.bssidWarning ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -309,7 +312,7 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
 
         static class VH extends RecyclerView.ViewHolder {
             ImageView ivStatusIcon;
-            TextView tvLabel, tvDateTime, tvCheckin, tvStatusBadge;
+            TextView tvLabel, tvDateTime, tvCheckin, tvStatusBadge, tvBssidTag;
             VH(@NonNull View v) {
                 super(v);
                 ivStatusIcon = v.findViewById(R.id.iv_status_icon);
@@ -317,6 +320,7 @@ public class StudentAttendanceDetailActivity extends AppCompatActivity {
                 tvDateTime   = v.findViewById(R.id.tv_datetime);
                 tvCheckin    = v.findViewById(R.id.tv_checkin);
                 tvStatusBadge = v.findViewById(R.id.tv_status_badge);
+                tvBssidTag   = v.findViewById(R.id.tv_bssid_tag);
             }
         }
     }

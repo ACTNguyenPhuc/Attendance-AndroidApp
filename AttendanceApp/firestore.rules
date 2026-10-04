@@ -112,7 +112,16 @@ service cloud.firestore {
                        sessionData(request.resource.data.sessionId).classId
                          == request.resource.data.classId &&
                        sessionData(request.resource.data.sessionId).shiftId
-                         == request.resource.data.shiftId;
+                         == request.resource.data.shiftId &&
+                       // BSSID chỉ để cảnh báo: luôn cho tạo, nhưng chỉ được ghi
+                       // "valid" khi BSSID thiết bị trùng đúng BSSID của phiên.
+                       request.resource.data.bssidStatus in ['valid', 'warning'] &&
+                       (request.resource.data.bssidStatus == 'warning' ||
+                         (sessionData(request.resource.data.sessionId).get('bssid', null) is string &&
+                          request.resource.data.sessionBssid
+                            == sessionData(request.resource.data.sessionId).bssid &&
+                          request.resource.data.deviceBssid
+                            == sessionData(request.resource.data.sessionId).bssid));
       // No updates/deletes by students; teachers can update (e.g. mark absent)
       allow update: if request.auth != null;
       allow delete: if false;

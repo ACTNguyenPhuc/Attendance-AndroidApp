@@ -76,6 +76,7 @@ Lưu phiên điểm danh của một buổi học. ID có dạng `session_{class
 | `active` | Boolean | Phiên còn hoạt động hay không |
 | `content` | String/null | Nội dung buổi học |
 | `lateAfterMinutes` | Number | Số phút sau khi mở phiên thì tính là muộn |
+| `bssid` | String/null | BSSID Wi-Fi (chữ thường) máy giảng viên kết nối khi mở phiên; `null` nếu không đọc được |
 
 ## 5. `attendances/{attendanceId}`
 
@@ -97,6 +98,10 @@ Lưu từng lượt điểm danh. Document ID là ID ngẫu nhiên do Firestore 
 | `selfieUrl` | String/null | Đường dẫn ảnh xác thực |
 | `faceVerified` | Boolean | Kết quả xác thực khuôn mặt |
 | `deviceId` | String | Mã thiết bị Android |
+| `sessionBssid` | String/null | BSSID của phiên tại thời điểm điểm danh |
+| `deviceBssid` | String/null | BSSID thực tế của thiết bị sinh viên; `null` nếu không kết nối Wi-Fi / không đọc được |
+| `bssidStatus` | String | `valid` (HỢP LỆ) hoặc `warning` (CẢNH BÁO). Chỉ để cảnh báo, không dùng để từ chối điểm danh |
+| `bssidNote` | String/null | Lý do cảnh báo, ví dụ "Thiết bị không kết nối Wi-Fi" |
 
 ## 6. `enrollments/{studentId_classId}`
 

@@ -26,6 +26,9 @@ public class Session {
     // Minutes from startTime within which a check-in counts as on-time;
     // checking in later is marked "late". Default 15.
     private int lateAfterMinutes = DEFAULT_LATE_AFTER_MINUTES;
+    // BSSID Wi-Fi mà máy giảng viên đang kết nối khi mở phiên; dùng để cảnh báo
+    // sinh viên điểm danh từ mạng khác. null nếu giảng viên không dùng Wi-Fi.
+    private String bssid;
 
     public Session() {}
 
@@ -79,4 +82,7 @@ public class Session {
         return lateAfterMinutes > 0 ? lateAfterMinutes : DEFAULT_LATE_AFTER_MINUTES;
     }
     public void setLateAfterMinutes(int lateAfterMinutes) { this.lateAfterMinutes = lateAfterMinutes; }
+
+    public String getBssid() { return bssid; }
+    public void setBssid(String bssid) { this.bssid = bssid; }
 }

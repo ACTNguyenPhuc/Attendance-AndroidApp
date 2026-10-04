@@ -48,6 +48,20 @@
                 android:text="CT234623"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/tv_bssid_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_badge_orange"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="⚠ CẢNH BÁO WI-FI"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout

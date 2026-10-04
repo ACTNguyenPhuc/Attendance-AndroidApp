@@ -21,6 +21,12 @@ public class AttendanceResultActivity extends AppCompatActivity {
     public static final String EXTRA_DISTANCE = "distance";
     public static final String EXTRA_MESSAGE  = "message";
     public static final String EXTRA_LATE     = "late";
+    public static final String EXTRA_BSSID_WARNING = "bssidWarning";
+    public static final String EXTRA_BSSID_NOTE    = "bssidNote";
+
+    private static final long AUTO_CLOSE_MS = 3000;
+    // Giữ màn hình lâu hơn để sinh viên kịp đọc cảnh báo Wi-Fi.
+    private static final long AUTO_CLOSE_WARNING_MS = 6000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +37,15 @@ public class AttendanceResultActivity extends AppCompatActivity {
         float distance   = getIntent().getFloatExtra(EXTRA_DISTANCE, 0f);
         String message   = getIntent().getStringExtra(EXTRA_MESSAGE);
         boolean isLate   = getIntent().getBooleanExtra(EXTRA_LATE, false);
+        boolean bssidWarning = getIntent().getBooleanExtra(EXTRA_BSSID_WARNING, false);
+        String bssidNote = getIntent().getStringExtra(EXTRA_BSSID_NOTE);
 
         LottieAnimationView lottieView = findViewById(R.id.lottie_result);
         TextView tvTitle    = findViewById(R.id.tv_result_title);
         TextView tvTime     = findViewById(R.id.tv_result_time);
         TextView tvDistance = findViewById(R.id.tv_result_distance);
         TextView tvMessage  = findViewById(R.id.tv_result_message);
+        TextView tvBssidWarning = findViewById(R.id.tv_result_bssid_warning);
 
         lottieView.setFailureListener(e -> {
             lottieView.cancelAnimation();
@@ -55,6 +64,12 @@ public class AttendanceResultActivity extends AppCompatActivity {
                 tvTitle.setText("ĐIỂM DANH THÀNH CÔNG");
                 tvTitle.setTextColor(getColor(R.color.accent_green));
             }
+            if (bssidWarning) {
+                tvBssidWarning.setText("⚠️ Cảnh báo Wi-Fi: "
+                        + (bssidNote != null ? bssidNote : "không trùng Wi-Fi của lớp")
+                        + ".\nBản ghi vẫn được lưu nhưng bị đánh dấu để giảng viên kiểm tra.");
+                tvBssidWarning.setVisibility(View.VISIBLE);
+            }
         } else {
             lottieView.setAnimation("error_cross.json");
             tvTitle.setText("ĐIỂM DANH THẤT BẠI");
@@ -64,7 +79,8 @@ public class AttendanceResultActivity extends AppCompatActivity {
 
         lottieView.playAnimation();
 
-        // Auto-close after 3 seconds
-        new Handler().postDelayed(this::finish, 3000);
+        // Auto-close
+        new Handler().postDelayed(this::finish,
+                success && bssidWarning ? AUTO_CLOSE_WARNING_MS : AUTO_CLOSE_MS);
     }
 }

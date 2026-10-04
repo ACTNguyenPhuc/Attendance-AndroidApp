@@ -51,7 +51,8 @@ TOOL_SPECS = [
             "Thống kê điểm danh. Với sinh viên: số buổi có mặt / đi muộn / vắng và tỷ lệ vắng "
             "từng lớp. Với giảng viên: sĩ số, số buổi đã điểm danh và tỷ lệ chuyên cần từng lớp. "
             "Dùng cho câu hỏi kiểu 'tôi vắng mấy buổi', 'lớp nào tôi vắng nhiều nhất', "
-            "'tỷ lệ chuyên cần thế nào'."
+            "'tỷ lệ chuyên cần thế nào'. canhBaoWifi = số lượt điểm danh bị cảnh báo Wi-Fi "
+            "(không trùng BSSID của lớp), vẫn tính là có mặt."
         ),
         parameters={
             "type": "object",
@@ -96,7 +97,9 @@ TOOL_SPECS = [
         description=(
             "CHỈ CHO GIẢNG VIÊN. Chi tiết một buổi học cụ thể: ai có mặt lúc mấy giờ, ai đi muộn, "
             "ai vắng. Dùng cho câu hỏi kiểu 'buổi ngày 16/09 lớp LTACB_L01 ai vắng', "
-            "'hôm đó có bao nhiêu em đi muộn'."
+            "'hôm đó có bao nhiêu em đi muộn', 'em nào điểm danh bằng Wi-Fi lạ'. "
+            "Trường wifi = 'cảnh báo' nghĩa là BSSID Wi-Fi không trùng Wi-Fi của lớp; "
+            "bản ghi vẫn hợp lệ, chỉ là dấu hiệu cần kiểm tra."
         ),
         parameters={
             "type": "object",

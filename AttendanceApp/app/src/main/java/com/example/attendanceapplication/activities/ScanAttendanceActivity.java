@@ -22,6 +22,7 @@ import com.example.attendanceapplication.models.Session;
 import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.WifiUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
@@ -286,6 +287,12 @@ public class ScanAttendanceActivity extends AppCompatActivity {
         attendance.setDeviceId(deviceId);
         attendance.setFaceVerified(false);
 
+        // Ghi lại BSSID thực tế của máy; trạng thái HỢP LỆ/CẢNH BÁO được tính trong
+        // transaction lưu bản ghi. BSSID không bao giờ là điều kiện từ chối điểm danh.
+        WifiUtils.WifiReading wifi = WifiUtils.readCurrentBssid(this);
+        attendance.setDeviceBssid(wifi.bssid);
+        attendance.setBssidNote(wifi.note);
+
         final boolean finalIsLate = isLate;
         // Gắn tên + mã sinh viên vào bản ghi để danh sách điểm danh hiển thị đúng.
         repo.getUserProfile(studentId,
@@ -312,6 +319,10 @@ public class ScanAttendanceActivity extends AppCompatActivity {
                     intent.putExtra(AttendanceResultActivity.EXTRA_SUCCESS, true);
                     intent.putExtra(AttendanceResultActivity.EXTRA_DISTANCE, (float) distance);
                     intent.putExtra(AttendanceResultActivity.EXTRA_LATE, isLate);
+                    intent.putExtra(AttendanceResultActivity.EXTRA_BSSID_WARNING,
+                            attendance.hasBssidWarning());
+                    intent.putExtra(AttendanceResultActivity.EXTRA_BSSID_NOTE,
+                            attendance.getBssidNote());
                     startActivity(intent);
                     finish();
                 },

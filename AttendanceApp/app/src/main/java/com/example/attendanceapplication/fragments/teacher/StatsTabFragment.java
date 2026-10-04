@@ -25,7 +25,7 @@ public class StatsTabFragment extends Fragment {
 
     private PieChart pieChart;
     private BarChart barChart;
-    private TextView tvTotalShifts, tvPastShifts, tvAvgRate, tvTotalStudents;
+    private TextView tvTotalShifts, tvPastShifts, tvAvgRate, tvTotalStudents, tvBssidWarnings;
     private String classId;
     private final FirebaseRepository repo = FirebaseRepository.getInstance();
 
@@ -49,6 +49,7 @@ public class StatsTabFragment extends Fragment {
         tvTotalShifts  = view.findViewById(R.id.tv_total_shifts);
         tvPastShifts   = view.findViewById(R.id.tv_past_shifts);
         tvAvgRate      = view.findViewById(R.id.tv_avg_rate);
+        tvBssidWarnings = view.findViewById(R.id.tv_bssid_warnings);
         tvTotalStudents = view.findViewById(R.id.tv_total_students);
 
         setupPieChart();
@@ -137,6 +138,12 @@ public class StatsTabFragment extends Fragment {
     }
 
     private void recomputeStats() {
+        int bssidWarnings = 0;
+        for (Attendance a : currentAttendances) {
+            if (a != null && a.hasBssidWarning()) bssidWarnings++;
+        }
+        tvBssidWarnings.setText(String.valueOf(bssidWarnings));
+
         if (currentShifts.isEmpty() || currentStudents.isEmpty()) {
             updateBarChart(Collections.emptyList(), Collections.emptyList());
             updatePieChart(0, 0, 0);

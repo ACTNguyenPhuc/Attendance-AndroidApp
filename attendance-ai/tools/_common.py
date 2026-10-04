@@ -139,6 +139,17 @@ def held_shifts(shifts: list[dict], class_id: str, today: str | None = None) -> 
     ]
 
 
+def wifi_label(d: dict) -> str | None:
+    """Kết quả đối chiếu BSSID Wi-Fi; None với bản ghi cũ chưa có kiểm tra này.
+    Chỉ là cảnh báo bất thường, không làm bản ghi mất hiệu lực."""
+    status = d.get("bssidStatus")
+    if status == "warning":
+        return "cảnh báo"
+    if status == "valid":
+        return "hợp lệ"
+    return None
+
+
 def my_attendances(ctx, class_ids: list[str] | None = None) -> list[dict]:
     """Các lượt điểm danh của chính người dùng (chỉ dùng cho sinh viên)."""
     db = get_db()
@@ -154,6 +165,8 @@ def my_attendances(ctx, class_ids: list[str] | None = None) -> list[dict]:
             "trangThai": d.get("status") or "",   # chỉ có 'present' | 'late'
             "thoiDiem": d.get("checkinTime"),     # UTC — quy đổi khi hiển thị
             "khoangCach": d.get("distance"),
+            "wifi": wifi_label(d),
+            "lyDoCanhBaoWifi": d.get("bssidNote"),
         })
     return rows
 

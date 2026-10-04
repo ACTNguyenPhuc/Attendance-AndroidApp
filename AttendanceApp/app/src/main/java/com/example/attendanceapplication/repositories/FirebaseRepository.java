@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.attendanceapplication.models.*;
 import com.example.attendanceapplication.utils.AttendanceUtils;
+import com.example.attendanceapplication.utils.BssidVerifier;
 import com.example.attendanceapplication.utils.RoomConflictChecker;
 import com.example.attendanceapplication.utils.TeacherScheduleConflictChecker;
 import com.google.firebase.Timestamp;
@@ -1203,6 +1204,16 @@ public class FirebaseRepository {
                 .addOnFailureListener(onFailure::onFailure);
     }
 
+    /** Cập nhật BSSID Wi-Fi của phiên (null = phiên không gắn Wi-Fi). */
+    public void updateSessionBssid(String sessionId, String bssid,
+                                   OnSuccessListener<Void> onSuccess,
+                                   OnFailureListener onFailure) {
+        db.collection(COL_SESSIONS).document(sessionId)
+                .update("bssid", bssid)
+                .addOnSuccessListener(onSuccess::onSuccess)
+                .addOnFailureListener(onFailure::onFailure);
+    }
+
     /** Bổ sung mốc kết thúc theo lịch cho các phiên cũ chưa có trường này. */
     public void updateSessionScheduledEndTime(String sessionId, Timestamp scheduledEndTime,
                                               OnSuccessListener<Void> onSuccess,
@@ -1382,6 +1393,16 @@ public class FirebaseRepository {
                         transaction.update(shiftRef, shiftUpdates);
                         return AttendanceWriteResult.SHIFT_ENDED;
                     }
+
+                    // Đối chiếu BSSID với giá trị mới nhất của phiên (giảng viên có thể
+                    // đã cập nhật Wi-Fi sau khi sinh viên quét QR). Chỉ gắn cờ, không chặn.
+                    // bssidNote lúc này đang giữ lý do không đọc được Wi-Fi của thiết bị.
+                    BssidVerifier.Verdict verdict = BssidVerifier.evaluate(
+                            session.getBssid(), attendance.getDeviceBssid(),
+                            attendance.getBssidNote());
+                    attendance.setSessionBssid(BssidVerifier.normalize(session.getBssid()));
+                    attendance.setBssidStatus(verdict.status);
+                    attendance.setBssidNote(verdict.note);
 
                     attendance.setCheckinTime(now);
                     transaction.set(attendanceRef, attendance);

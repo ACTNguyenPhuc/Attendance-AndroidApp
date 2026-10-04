@@ -1,11 +1,16 @@
 package com.example.attendanceapplication.models;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
 
 public class Attendance {
     public static final String STATUS_PRESENT = "present";
     public static final String STATUS_LATE = "late";
     public static final String STATUS_ABSENT = "absent";
+
+    // Kết quả đối chiếu BSSID Wi-Fi: chỉ dùng để cảnh báo, không chặn điểm danh.
+    public static final String BSSID_VALID = "valid";
+    public static final String BSSID_WARNING = "warning";
 
     private String attendanceId;
     private String studentId;
@@ -22,6 +27,13 @@ public class Attendance {
     private String selfieUrl;
     private boolean faceVerified;
     private String deviceId;
+    // BSSID Wi-Fi giảng viên lúc mở phiên và BSSID thực tế của máy sinh viên
+    // lúc điểm danh (null nếu không đọc được).
+    private String sessionBssid;
+    private String deviceBssid;
+    private String bssidStatus;
+    // Lý do cảnh báo, ví dụ "Không kết nối Wi-Fi" (null nếu hợp lệ).
+    private String bssidNote;
 
     public Attendance() {}
 
@@ -70,4 +82,20 @@ public class Attendance {
 
     public String getDeviceId() { return deviceId; }
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
+
+    public String getSessionBssid() { return sessionBssid; }
+    public void setSessionBssid(String sessionBssid) { this.sessionBssid = sessionBssid; }
+
+    public String getDeviceBssid() { return deviceBssid; }
+    public void setDeviceBssid(String deviceBssid) { this.deviceBssid = deviceBssid; }
+
+    public String getBssidStatus() { return bssidStatus; }
+    public void setBssidStatus(String bssidStatus) { this.bssidStatus = bssidStatus; }
+
+    public String getBssidNote() { return bssidNote; }
+    public void setBssidNote(String bssidNote) { this.bssidNote = bssidNote; }
+
+    /** Bản ghi cũ (trước khi có kiểm tra BSSID) không có trạng thái → không cảnh báo. */
+    @Exclude
+    public boolean hasBssidWarning() { return BSSID_WARNING.equals(bssidStatus); }
 }

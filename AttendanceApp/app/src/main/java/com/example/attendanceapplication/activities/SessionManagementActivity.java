@@ -34,6 +34,7 @@ import com.example.attendanceapplication.models.Shift;
 import com.example.attendanceapplication.repositories.FirebaseRepository;
 import com.example.attendanceapplication.utils.AttendanceUtils;
 import com.example.attendanceapplication.utils.LocationService;
+import com.example.attendanceapplication.utils.WifiUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -64,7 +65,8 @@ public class SessionManagementActivity extends AppCompatActivity {
 
     private ImageView ivQrCode;
     private TextView tvShiftDate, tvShiftTime, tvShiftRoom, tvAttendanceCount, tvSessionStatus;
-    private Button btnRefreshQr, btnCloseSession, btnApplyLate, btnApplyRadius;
+    private TextView tvSessionBssid;
+    private Button btnRefreshQr, btnCloseSession, btnApplyLate, btnApplyRadius, btnUpdateBssid;
     private TextInputLayout tilLateMinutes, tilRadius;
     private TextInputEditText etLateMinutes, etRadius;
     private RecyclerView rvAttendance;
@@ -186,9 +188,12 @@ public class SessionManagementActivity extends AppCompatActivity {
         tilRadius         = findViewById(R.id.til_radius);
         etRadius          = findViewById(R.id.et_radius);
         btnApplyRadius    = findViewById(R.id.btn_apply_radius);
+        tvSessionBssid    = findViewById(R.id.tv_session_bssid);
+        btnUpdateBssid    = findViewById(R.id.btn_update_bssid);
         rvAttendance      = findViewById(R.id.rv_attendance);
 
         btnRefreshQr.setOnClickListener(v -> refreshQrCode());
+        btnUpdateBssid.setOnClickListener(v -> updateBssidFromWifi(true));
         btnCloseSession.setOnClickListener(v -> {
             if (makeupMode) confirmCloseMakeup(); else confirmClose();
         });
@@ -234,6 +239,56 @@ public class SessionManagementActivity extends AppCompatActivity {
     private void bindRadius() {
         if (currentSession == null) return;
         etRadius.setText(String.valueOf((int) Math.round(currentSession.getRadius())));
+    }
+
+    /** Hiển thị BSSID Wi-Fi đang gắn với phiên. */
+    private void bindBssid() {
+        if (currentSession == null) return;
+        String bssid = currentSession.getBssid();
+        if (bssid == null || bssid.isEmpty()) {
+            tvSessionBssid.setText("Chưa có (mọi lượt điểm danh sẽ bị cảnh báo)");
+            tvSessionBssid.setTextColor(ContextCompat.getColor(this, R.color.warning_yellow));
+        } else {
+            tvSessionBssid.setText(bssid);
+            tvSessionBssid.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        }
+    }
+
+    /**
+     * Đọc BSSID Wi-Fi hiện tại của máy giảng viên và lưu vào phiên.
+     * Khi {@code userInitiated = false} (tự bổ sung cho phiên cũ) thì im lặng nếu thất bại.
+     */
+    private void updateBssidFromWifi(boolean userInitiated) {
+        if (currentSession == null) return;
+        WifiUtils.WifiReading wifi = WifiUtils.readCurrentBssid(this);
+        if (wifi.bssid == null) {
+            if (userInitiated) {
+                Toast.makeText(this, "Không đọc được Wi-Fi: " + wifi.note,
+                        Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+        if (wifi.bssid.equals(currentSession.getBssid())) {
+            if (userInitiated) {
+                Toast.makeText(this, "Wi-Fi của phiên không thay đổi", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        btnUpdateBssid.setEnabled(false);
+        repo.updateSessionBssid(currentSession.getSessionId(), wifi.bssid,
+                unused -> runOnUiThread(() -> {
+                    currentSession.setBssid(wifi.bssid);
+                    btnUpdateBssid.setEnabled(true);
+                    bindBssid();
+                    Toast.makeText(this, "Đã lưu Wi-Fi của lớp: " + wifi.bssid,
+                            Toast.LENGTH_SHORT).show();
+                }),
+                e -> runOnUiThread(() -> {
+                    btnUpdateBssid.setEnabled(true);
+                    Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                })
+        );
     }
 
     /** Lưu bán kính cho phép điểm danh của phiên hiện tại (đơn vị mét). */
@@ -478,6 +533,9 @@ public class SessionManagementActivity extends AppCompatActivity {
         bindShiftSummary();
         bindLateMinutes();
         bindRadius();
+        bindBssid();
+        // Phiên mở trước khi có tính năng BSSID: thử bổ sung từ Wi-Fi hiện tại.
+        if (session.getBssid() == null) updateBssidFromWifi(false);
     }
 
     private void startNewSession() {
@@ -580,6 +638,12 @@ public class SessionManagementActivity extends AppCompatActivity {
         session.setLatitude(lat);
         session.setLongitude(lng);
         session.setRadius(getConfiguredRadius());
+        WifiUtils.WifiReading wifi = WifiUtils.readCurrentBssid(this);
+        session.setBssid(wifi.bssid);
+        if (wifi.bssid == null) {
+            Toast.makeText(this, "⚠️ Chưa lấy được Wi-Fi của lớp: " + wifi.note
+                    + ". Kết nối Wi-Fi rồi bấm \"Cập nhật\".", Toast.LENGTH_LONG).show();
+        }
         Timestamp scheduledEndTime = AttendanceUtils.getShiftEndTimestamp(currentShift);
         if (scheduledEndTime == null) {
             tvSessionStatus.setText("KHÔNG THỂ XÁC ĐỊNH GIỜ KẾT THÚC CA HỌC");
@@ -598,6 +662,7 @@ public class SessionManagementActivity extends AppCompatActivity {
             bindShiftSummary();
             bindLateMinutes();
             bindRadius();
+            bindBssid();
         };
         FirebaseRepository.OnFailureListener onError = e ->
                 Toast.makeText(this, "Lỗi tạo phiên: " + e.getMessage(), Toast.LENGTH_SHORT).show();

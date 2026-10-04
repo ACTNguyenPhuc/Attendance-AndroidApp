@@ -49,6 +49,8 @@ def get_attendance_history(ctx, class_id: str = "", limit: int = 20) -> dict:
                 "ketQua": ("đi muộn" if a["trangThai"] == "late" else "đúng giờ") if a else "VẮNG",
                 "gioDiemDanh": to_vn_time(a["thoiDiem"]) if a else None,
                 "khoangCachMet": round(a["khoangCach"] or 0) if a else None,
+                "wifi": a["wifi"] if a else None,
+                "lyDoCanhBaoWifi": a["lyDoCanhBaoWifi"] if a and a["wifi"] == "cảnh báo" else None,
             })
 
     rows.sort(key=lambda r: (r["ngay"], r["gioHoc"]), reverse=True)
@@ -58,6 +60,7 @@ def get_attendance_history(ctx, class_id: str = "", limit: int = 20) -> dict:
         "tongSoBuoi": len(rows),
         "soBuoiHienThi": len(shown),
         "soBuoiVang": sum(1 for r in rows if r["ketQua"] == "VẮNG"),
+        "soBuoiCanhBaoWifi": sum(1 for r in rows if r["wifi"] == "cảnh báo"),
         "danhSach": shown,
         "ghiChu": (f"Chỉ hiện {len(shown)} buổi gần nhất trong tổng {len(rows)} buổi."
                    if len(shown) < len(rows) else None),

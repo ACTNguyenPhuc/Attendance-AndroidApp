@@ -45,7 +45,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
 
     private TextView tvShiftTitle;
     private TextView tvShiftTime;
-    private TextView tvShiftContent;
+    private TextView tvShiftContent, tvBssidWarningCount;
     private TextView tvTotalStudents;
     private TextView tvTotalAttended;
     private TextView tvTotalAbsent;
@@ -93,6 +93,7 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         tvShiftTitle = findViewById(R.id.tv_shift_title);
         tvShiftTime = findViewById(R.id.tv_shift_time);
         tvShiftContent = findViewById(R.id.tv_shift_content);
+        tvBssidWarningCount = findViewById(R.id.tv_bssid_warning_count);
         tvTotalStudents = findViewById(R.id.tv_total_students);
         tvTotalAttended = findViewById(R.id.tv_total_attended);
         tvTotalAbsent = findViewById(R.id.tv_total_absent);
@@ -229,6 +230,18 @@ public class ShiftAttendanceListActivity extends AppCompatActivity {
         tvTotalStudents.setText(String.valueOf(totalStudents));
         tvTotalAttended.setText(String.valueOf(attended));
         tvTotalAbsent.setText(String.valueOf(absent));
+
+        int bssidWarnings = 0;
+        for (Attendance a : attendanceList) {
+            if (a.hasBssidWarning()) bssidWarnings++;
+        }
+        if (bssidWarnings > 0) {
+            tvBssidWarningCount.setText("⚠ " + bssidWarnings
+                    + " lượt điểm danh bị cảnh báo Wi-Fi (không trùng BSSID của lớp)");
+            tvBssidWarningCount.setVisibility(View.VISIBLE);
+        } else {
+            tvBssidWarningCount.setVisibility(View.GONE);
+        }
 
         Set<String> attendedIds = new HashSet<>();
         for (Attendance a : attendanceList) {
