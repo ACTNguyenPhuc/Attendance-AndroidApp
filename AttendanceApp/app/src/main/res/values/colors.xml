@@ -18,4 +18,13 @@
     <color name="transparent">#00000000</color>
     <color name="overlay_dark">#80000000</color>
     <color name="status_bar_color">#1565C0</color>
+
+    <!-- Màn đăng nhập -->
+    <color name="brand_blue">#004BFF</color>
+    <color name="brand_blue_disabled">#99B7FF</color>
+    <color name="login_text_dark">#172033</color>
+    <color name="login_text_muted">#6B7280</color>
+    <color name="login_icon_muted">#7C8494</color>
+    <color name="login_field_bg">#F5F7FA</color>
+    <color name="login_field_stroke">#E3E7EE</color>
 </resources>
